@@ -11,6 +11,8 @@ function App() {
       <Route path='/' element={<Navigate to='/login'/>}/>
       <Route path="login" element={<AuthPage isLogin={true}/>}/>
       <Route path="register" element={<AuthPage isLogin={false}/>}/>
+      <Route path="home" element={<HomePage/>}/>
+
 
     </Routes>
   );
