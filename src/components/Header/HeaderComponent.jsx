@@ -20,7 +20,7 @@ function SearchBarComponent(){
 function HeaderComponent() {
   const headerFont = 'Kodchasan';
   return (
-    <div className='flex items-center p-5 h-auto border-b-2'>
+    <div className='flex items-center p-1 border-b-2'>
       <div className='flex justify-between items-center w-full'>
         <div className='flex items-center'>
           <img src={require("../../assets/images/TreePlanting.png")} className='w-24 h-auto max-w-full' alt='logo'/>

@@ -6,7 +6,7 @@ function GardenItem({name, temp, moisture, water}) {
     const [isFanStatus, setIsFanStatus] = useState(false);
     const [isLightStatus, setIsLightStatus] = useState(false);
   return (
-    <div className='w-1/4 h-1/2 rounded-lg flex border-2 mr-10'>
+    <div className='w-[30%] h-2/3 rounded-lg flex border-2'>
         <div className='w-2/5'>
             <img src={require("../../assets/images/ItemImg.png")} alt={"Garden"} className='w-full h-full'/>
         </div>
