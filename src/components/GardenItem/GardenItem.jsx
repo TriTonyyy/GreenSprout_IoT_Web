@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
 import {ToggleLeft, ToggleRight} from 'lucide-react';
+import ToggleComponent from '../ToggleComponent/ToggleComponent';
 
 function GardenItem({name, temp, moisture, water}) {
     const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
@@ -12,33 +13,29 @@ function GardenItem({name, temp, moisture, water}) {
         </div>
         <div className='w-3/5'>
             <div className='flex justify-between items-center'>
-                <h1 className='m-2 text-xl  '>{name}</h1>
+                <h1 className='m-2 text-3xl'>{name}</h1>
                 <img src={require("../../assets/images/TreePlanting.png")} className='w-6 h-6 m-2' alt='edit'/>
             </div>
             <div className='flex justify-between items-center m-1'>
-                <h2>Nhiệt độ:</h2>
-                <h2>{temp}</h2>
+                <h2 className='text-xl'>Nhiệt độ:</h2>
+                <h2 className='text-xl'>{temp}</h2>
             </div>
             <div className='flex justify-between items-center m-1'>
-                <h2>Độ ẩm đất:</h2>
-                <h2>{moisture}</h2>
+                <h2 className='text-xl'>Độ ẩm đất:</h2>
+                <h2 className='text-xl'>{moisture}</h2>
             </div>
             <div className='flex justify-between items-center m-1'>
-                <h2>Trạng thái tưới:</h2>
-                {isIrrigationStatus ? <ToggleRight size={32} color='blue' onClick={()=>setIsIrrigationStatus(!isIrrigationStatus)}/> 
-                    : <ToggleLeft size={32} onClick={()=>setIsIrrigationStatus(!isIrrigationStatus)}/>}
+                <h2 className='text-xl'>Trạng thái tưới:</h2>
+                <ToggleComponent status={isIrrigationStatus} size={40} color='blue'/>
             </div>
             <div className='flex justify-between items-center m-1'>
-                <h2>Quạt:</h2>
-                {isFanStatus ? <ToggleRight size={32} color='blue' onClick={()=>setIsFanStatus(!isFanStatus)}/>
-                    : <ToggleLeft size={32} onClick={()=>setIsFanStatus(!isFanStatus)}/>}
+                <h2 className='text-xl'>Quạt:</h2>
+                <ToggleComponent status={isFanStatus} size={40} color='blue'/>
 
             </div>
             <div className='flex justify-between items-center m-1'>
-                <h2>Đèn:</h2>
-                {isLightStatus ? <ToggleRight size={32} color='blue' onClick={()=>setIsLightStatus(!isLightStatus)}/> 
-                    : <ToggleLeft size={32} onClick={()=>setIsLightStatus(!isLightStatus)}/>}
-
+                <h2 className='text-xl'>Đèn:</h2>
+                <ToggleComponent status={isLightStatus} size={40} color='blue'/>
             </div>
         </div>
     </div>
