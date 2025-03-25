@@ -5,6 +5,7 @@ import { DetailedGardenInfo } from "./components/DetailedGardenInfo/DetailedGard
 
 import HomePage from "./pages/home/HomePage";
 import AuthPage from "./pages/auth/AuthPage";
+import DetailedGardenPage from "./pages/detailed garden/DetailedGardenPage";
 
 function App() {
   return (
@@ -13,7 +14,7 @@ function App() {
       <Route path="login" element={<AuthPage isLogin={true} />} />
       <Route path="register" element={<AuthPage isLogin={false} />} />
       <Route path="home" element={<HomePage />} />
-      <Route path="garden/:gardenId" element={<DetailedGardenInfo />} />
+      <Route path="/garden/:gardenId" element={<DetailedGardenPage />} />
     </Routes>
   );
 }

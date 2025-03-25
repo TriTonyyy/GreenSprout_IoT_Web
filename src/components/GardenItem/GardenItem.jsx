@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { ToggleLeft, ToggleRight } from "lucide-react";
 import { useNavigate } from "react-router";
 
-function GardenItem({ name, temp, moisture, water }) {
+function GardenItem({ id, name, temp, moisture, water }) {
   const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
   const [isFanStatus, setIsFanStatus] = useState(false);
   const [isLightStatus, setIsLightStatus] = useState(false);
   const navigate = useNavigate();
   const handleImageGardenClick = () => {
-    navigate("/garden/2");
+    navigate(`/garden/${id}`);
   };
   return (
     <div className="w-[30%] h-2/3 rounded-lg flex border-2">

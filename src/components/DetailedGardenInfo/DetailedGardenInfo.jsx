@@ -1,13 +1,8 @@
 import React from "react";
-import { GardenTitle } from "./GardenTitle";
 import { useNavigate } from "react-router";
 
-<div className="p-6 max-w-4xl mx-auto bg-white rounded-xl shadow-lg flex flex-col gap-6">
-  <GardenTitle gardenName="Vườn tiêu" areaGardenName="Khu vực 1" />
-</div>;
-
 const GardenImage = ({ src }) => (
-  <img src={src} alt="Garden" className="rounded-xl shadow-md" />
+  <img src={src} alt="Garden" className="mx-auto" />
 );
 
 const SensorReading = ({ label, value }) => (
@@ -18,7 +13,7 @@ const SensorReading = ({ label, value }) => (
 );
 
 const ToggleSwitch = ({ label, isOn, onToggle }) => (
-  <div className="flex items-center justify-between py-1 mt-4">
+  <div className="flex items-center justify-between px-10 py-1 mt-4">
     <span className="font-semibold text-gray-600">{label}</span>
     <label className="relative inline-flex items-center cursor-pointer">
       <input
@@ -38,14 +33,14 @@ const ToggleSwitch = ({ label, isOn, onToggle }) => (
   </div>
 );
 
-export const DetailedGardenInfo = () => {
+export const DetailedGardenInfo = ({ gardenId }) => {
   const [fanOn, setFanOn] = React.useState(false);
   const [lightOn, setLightOn] = React.useState(false);
   const [waterOn, setWaterOn] = React.useState(false);
 
   return (
-    <div className="max-w-6xl bg-white rounded-xl shadow-md p-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div className="col-span-1">
+    <div className="w-4/5 mx-auto bg-white rounded-xl shadow-md p-4 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-4 items-start">
+      <div className="col-span-1 ">
         <GardenImage src={require("../../assets/images/ItemImg.png")} />
       </div>
       <div className="col-span-1 md:border-r border-gray-200">
