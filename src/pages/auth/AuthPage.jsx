@@ -1,33 +1,40 @@
 import React, {useState, useEffect, use} from 'react'
 import {useNavigate } from "react-router";
-import { registerApi } from '../../api/AuthApi';
+import {useSelector, useDispatch} from 'react-redux';
+import { registerApi, loginApi } from '../../api/AuthApi';
+import {deviceDetect} from 'react-device-detect';
+import { UserCredential } from '../../redux/Reducers/AuthReducer';
+import { getUserCredential } from '../../redux/selectors/authSelectors';
 
 function AuthPage({isLogin}) {
+  const userCre = useSelector(getUserCredential);
   const [userName, setUserName] = useState('')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(userCre?.email ? userCre.email : '');
   const [password, setPassword] = useState('')
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const deviceInfo = deviceDetect();
+  
 
   const signIn = ()=>{
-    navigate('/home')
-  }
-
-  const register =()=>{
-    registerApi({
-      name:userName,
-      email, 
-      password
-    })
+    loginApi({email, password, deviceID:deviceInfo.userAgent})
       .then((res)=>{
         console.log(res);
         alert(res.data.message);
-        navigate('/login')
+        navigate('/home')
       })
       .catch((err)=>{
-        console.log(err);
+        console.log(err, "err");
+        
         alert(err.response.data.message);
       })
   }
+
+  const register =()=>{
+    dispatch(UserCredential({email, password, userName}))
+    navigate('/register-email')
+  }
+
   return (  
     <div class='flex flex-col justify-center items-center min-h-screen bg-bgPurple '>
         <div class='bg-white p-10 rounded-2xl shadow-lg'>
@@ -65,7 +72,7 @@ function AuthPage({isLogin}) {
                 </div>
                 <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-red'>Google</button>
                 {isLogin ? (
-                  <h2 className='p-1 m-1'>Bạn chưa có tài khoản? <a href='/register-email' className='text-stone-950 font-bold'>Đăng ký</a></h2>
+                  <h2 className='p-1 m-1'>Bạn chưa có tài khoản? <a href='/register' className='text-stone-950 font-bold'>Đăng ký</a></h2>
                 ): (
                 <h2 className='p-1 m-1'>Bạn đã có tài khoản? <a href='/login' className='text-stone-950 font-bold'>Đăng nhập</a></h2>
 

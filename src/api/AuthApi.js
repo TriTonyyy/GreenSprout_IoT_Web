@@ -11,3 +11,11 @@ export const verifyOtpApi = (payload) => {
 export const registerApi = (payload) => {
     return axiosClient.post(`/api/user/register`, payload);
 }
+
+export const loginApi = (payload) => {
+    return axiosClient.post(`/api/user/login`, payload);
+}
+
+export const getGardenAPI = (id) => {
+    return axiosClient.post(`/api/garden/${id}`);
+}

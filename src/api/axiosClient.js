@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASEURL = 'http://192.168.1.106:8000'
+const BASEURL = 'https://capstone-project-iot-1.onrender.com'  ;
 
 const axiosClient = axios.create({
     baseURL: BASEURL,

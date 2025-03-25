@@ -1,15 +1,31 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, use} from 'react'
 import {useNavigate } from "react-router";
-import { sendCodeApi, verifyOtpApi } from '../../api/AuthApi';
+import { registerApi, sendCodeApi, verifyOtpApi } from '../../api/AuthApi';
+import{ useSelector } from 'react-redux';
+import { getUserCredential } from '../../redux/selectors/authSelectors';
 
 function AuthEmail({isTypeOTP}) {
-  const [email, setEmail] = useState('')
+const userCre = useSelector(getUserCredential);
+  const [email, setEmail] = useState(userCre?.email ? userCre.email : '') 
   const [otp, setOtp] = useState('')
-
+    
   const navigate = useNavigate();
 
   const sendOTP = ()=>{
     sendCodeApi(email)
+        .then((res)=>{
+            console.log(res);
+        })
+        .catch((err)=>{
+            console.log(err);
+            alert(err.response.data.message);
+        })
+
+    registerApi({
+        name:userCre.userName,
+        email:userCre.email,
+        password:userCre.password
+    })
         .then((res)=>{
             console.log(res);
             navigate('/otp')
@@ -28,7 +44,7 @@ function AuthEmail({isTypeOTP}) {
             console.log(res);
             setOtp('');
             alert(res.data.message);
-            navigate('/register')
+            navigate('/login')
         })
         .catch((err)=>{
             console.log(err);
@@ -51,7 +67,7 @@ function AuthEmail({isTypeOTP}) {
                             placeholder='Nhập OTP' 
                             className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
                         /> 
-                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-purple' onClick={verifyOTP}>Gửi OTP</button>
+                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-purple' onClick={isTypeOTP ? verifyOTP :sendOTP}>Gửi OTP</button>
                         {/* <div className='flex justify-center items-center'>
                             <div className='w-5/12 h-px bg-slate-400'></div>
                             <p className='w-full text-center text-slate-400'>Hoặc đăng ký với</p>
