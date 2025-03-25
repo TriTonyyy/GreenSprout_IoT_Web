@@ -1,5 +1,7 @@
 import React from 'react'
 import { Search } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { getUserCredential } from '../../redux/selectors/authSelectors';
 
 function SearchBarComponent(){
   const searchData=()=>{
@@ -19,6 +21,7 @@ function SearchBarComponent(){
 
 function HeaderComponent() {
   const headerFont = 'Kodchasan';
+  const user = useSelector(getUserCredential);
   return (
     <div className='flex items-center p-1 border-b-2'>
       <div className='flex justify-between items-center w-full'>
@@ -31,7 +34,7 @@ function HeaderComponent() {
         <div className='flex items-center'>
           <SearchBarComponent/>
           <div className='flex items-center'>
-            <h2 className='text-2xl p-4' style={{ fontFamily: headerFont }}>User Name</h2>
+            <h2 className='text-2xl p-4' style={{ fontFamily: headerFont }}>{user.userName}</h2>
             <img onClick={()=>{console.log("dasd");
             }} src={require("../../assets/images/AvatarDefault.png")} className='w-18 h-auto max-w-full' alt='avatar'/>
 

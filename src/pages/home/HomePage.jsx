@@ -11,7 +11,6 @@ import ToggleComponent from '../../components/ToggleComponent/ToggleComponent';
 
 function HomePage() {
   const test =[1,2,3,4,5,6,7,8,9,10]
-
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
   const [isFanStatus, setIsFanStatus] = useState(false);
