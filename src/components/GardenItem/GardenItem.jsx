@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ToggleLeft, ToggleRight } from "lucide-react";
 import { useNavigate } from "react-router";
+import ToggleComponent from "../ToggleComponent/ToggleComponent";
 
 function GardenItem({ id, name, temp, moisture, water }) {
   const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);

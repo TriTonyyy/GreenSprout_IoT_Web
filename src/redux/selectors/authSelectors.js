@@ -1,0 +1,1 @@
+export const getUserCredential = (state)=> state.auth.user;

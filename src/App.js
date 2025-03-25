@@ -6,6 +6,7 @@ import { DetailedGardenInfo } from "./components/DetailedGardenInfo/DetailedGard
 import HomePage from "./pages/home/HomePage";
 import AuthPage from "./pages/auth/AuthPage";
 import DetailedGardenPage from "./pages/detailed garden/DetailedGardenPage";
+import AuthEmail from "./pages/auth/AuthEmail";
 
 function App() {
   return (
@@ -14,6 +15,8 @@ function App() {
       <Route path="login" element={<AuthPage isLogin={true} />} />
       <Route path="register" element={<AuthPage isLogin={false} />} />
       <Route path="home" element={<HomePage />} />
+      <Route path="register-email" element={<AuthEmail isTypeOTP={false} />} />
+      <Route path="otp" element={<AuthEmail isTypeOTP={true} />} />
       <Route path="/garden/:gardenId" element={<DetailedGardenPage />} />
     </Routes>
   );
