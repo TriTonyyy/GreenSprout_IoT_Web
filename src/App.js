@@ -1,22 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
-import { Routes, Route, Navigate } from 'react-router';
+import logo from "./logo.svg";
+import "./App.css";
+import { Routes, Route, Navigate } from "react-router";
+import { DetailedGardenInfo } from "./components/DetailedGardenInfo/DetailedGardenInfo";
 
-import HomePage from './pages/home/HomePage';
-import AuthPage from './pages/auth/AuthPage';
-import AuthEmail from './pages/auth/AuthEmail';
+import HomePage from "./pages/home/HomePage";
+import AuthPage from "./pages/auth/AuthPage";
+import DetailedGardenPage from "./pages/detailed garden/DetailedGardenPage";
+import AuthEmail from "./pages/auth/AuthEmail";
 
 function App() {
   return (
-    <Routes >
-      <Route path='/' element={<Navigate to='/login'/>}/>
-      <Route path="login" element={<AuthPage isLogin={true}/>}/>
-      <Route path="register" element={<AuthPage isLogin={false}/>}/>
-      <Route path="home" element={<HomePage/>}/>
-      <Route path="register-email" element={<AuthEmail isTypeOTP={false}/>}/>
-      <Route path="otp" element={<AuthEmail isTypeOTP={true}/>}/>
-
-
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="login" element={<AuthPage isLogin={true} />} />
+      <Route path="register" element={<AuthPage isLogin={false} />} />
+      <Route path="home" element={<HomePage />} />
+      <Route path="register-email" element={<AuthEmail isTypeOTP={false} />} />
+      <Route path="otp" element={<AuthEmail isTypeOTP={true} />} />
+      <Route path="/garden/:gardenId" element={<DetailedGardenPage />} />
     </Routes>
   );
 }
