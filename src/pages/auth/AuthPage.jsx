@@ -8,7 +8,7 @@ import { getUserCredential } from '../../redux/selectors/authSelectors';
 
 function AuthPage({isLogin}) {
   const userCre = useSelector(getUserCredential);
-  const [userName, setUserName] = useState('')
+  const [name, setName] = useState('')
   const [email, setEmail] = useState(userCre?.email ? userCre.email : '');
   const [password, setPassword] = useState('')
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ function AuthPage({isLogin}) {
   
 
   const signIn = ()=>{
+    dispatch(UserCredential({email, password, name}))
     loginApi({email, password, deviceID:deviceInfo.userAgent})
       .then((res)=>{
         console.log(res);
@@ -30,7 +31,7 @@ function AuthPage({isLogin}) {
   }
 
   const register =()=>{
-    dispatch(UserCredential({email, password, userName}))
+    dispatch(UserCredential({email, password, name}))
     navigate('/register-email')
   }
 
@@ -48,8 +49,8 @@ function AuthPage({isLogin}) {
                   className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full'
                 /> 
                 {!isLogin && (
-                  <input value={userName}
-                  onChange={(e)=> setUserName(e.target.value)} 
+                  <input value={name}
+                  onChange={(e)=> setName(e.target.value)} 
                   type='text' 
                   placeholder='Tên đăng nhập' 
                   className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full'
