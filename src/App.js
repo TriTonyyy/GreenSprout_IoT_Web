@@ -1,8 +1,7 @@
 import logo from "./logo.svg";
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router";
-import { DetailedGardenInfo } from "./components/DetailedGardenInfo/DetailedGardenInfo";
-
+import { DetailedGardenInfo } from "./components/DetailedGardenInfo/DetailedGardenInfo"
 import HomePage from "./pages/home/HomePage";
 import AuthPage from "./pages/auth/AuthPage";
 import DetailedGardenPage from "./pages/detailed garden/DetailedGardenPage";
