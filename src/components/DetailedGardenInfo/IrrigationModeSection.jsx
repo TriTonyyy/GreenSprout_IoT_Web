@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
+import { ToggleSwitch } from "../ToggleComponent/ToggleSwitch";
 
 const dayOrder = ["2", "3", "4", "5", "6", "7", "CN"];
 
 export default function IrrigationModeSection() {
   const [activeMode, setActiveMode] = useState("THEO_LICH");
+  const [isIrrigationOn, setIsIrrigationOn] = useState(false);
   const [schedules, setSchedules] = useState([
     {
       id: 1,
@@ -73,8 +75,8 @@ export default function IrrigationModeSection() {
       {/* Mode Switch Bar */}
       <div className="flex gap-2 px-2 mb-6">
         {[
-          { key: "CAM_BIEN", label: "Cảm biến" },
           { key: "THEO_LICH", label: "Theo lịch" },
+          { key: "CAM_BIEN", label: "Cảm biến" },
         ].map((mode) => (
           <button
             key={mode.key}
@@ -122,33 +124,25 @@ export default function IrrigationModeSection() {
                   <h2 className="text-xl font-bold text-gray-800 mb-1">
                     {formatTimeDisplay(s.time)}
                   </h2>
-                  <p className="text-sm text-gray-600">
-                    Thời gian tưới: {s.duration} phút
-                  </p>
-                  <p className="text-sm text-gray-600 mb-2">
-                    Lặp lại: T{s.repeat.join(", T")}
-                  </p>
+                  <div className="text-lg font-semibold">
+                    <p className="text-sm text-gray-600 py-2">
+                      Thời gian tưới: {s.duration} phút
+                    </p>
+                    <p className="text-sm text-gray-600 py-2">
+                      Lặp lại: T{s.repeat.join(", T")}
+                    </p>
+                  </div>
 
                   {/* Toggle */}
-                  <label
-                    className="inline-flex items-center cursor-pointer"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={s.enabled}
-                      onChange={(e) =>
-                        updateSchedule(s.id, "enabled", e.target.checked)
-                      }
-                    />
-                    <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-500 transition duration-300 relative">
-                      <div className="absolute top-[2px] left-[2px] w-5 h-5 bg-white border border-gray-300 rounded-full peer-checked:translate-x-full transition-transform" />
-                    </div>
-                    <span className="ml-3 text-sm text-gray-700">
-                      Bật / Tắt
+                  <div className="flex w-4/5 py-2">
+                    <span className="font-medium text-gray-700 pr-2">
+                      Bật/ Tắt:
                     </span>
-                  </label>
+                    <ToggleSwitch
+                      isOn={isIrrigationOn}
+                      onToggle={() => setIsIrrigationOn(!isIrrigationOn)}
+                    />
+                  </div>
 
                   {/* Panel only for selected */}
                   {isSelected && (
@@ -231,7 +225,7 @@ export default function IrrigationModeSection() {
 
           {/* ➕ Add New Clock */}
           <div
-            className="w-40 h-[142px] p-4 bg-gray-50 rounded-lg shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer"
+            className="w-40 h-[175px] p-4 bg-gray-50 rounded-lg shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer"
             onClick={handleAddSchedule}
           >
             <span className="text-4xl font-bold">+</span>
