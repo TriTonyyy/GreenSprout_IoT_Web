@@ -2,18 +2,17 @@ import React, { useState } from "react";
 import HeaderComponent from "../../components/Header/HeaderComponent";
 import FooterComponent from "../../components/FooterComponent/FooterComponent";
 import GardenItem from "../../components/GardenItem/GardenItem";
-import { ArrowDown, ChevronDown, Plus } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import ToggleComponent from "../../components/ToggleComponent/ToggleComponent";
+import { ToggleSwitch } from "../../components/ToggleComponent/ToggleSwitch";
 
 function HomePage() {
   const test = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
-  const [isFanStatus, setIsFanStatus] = useState(false);
   const [isLightStatus, setIsLightStatus] = useState(false);
 
   const open = Boolean(anchorEl);
@@ -51,39 +50,27 @@ function HomePage() {
             <MenuItem
               children={
                 <div className="flex justify-between items-center w-full">
-                  <h2>Trạng thái tưới: </h2>
-                  <ToggleComponent
-                    status={isIrrigationStatus}
-                    size={40}
-                    color="blue"
+                  <p className="font-medium text-gray-700">
+                    Trạng thái tưới:
+                  </p>
+                  <ToggleSwitch
+                    isOn={isIrrigationStatus}
+                    onToggle={() => setIsIrrigationStatus(!isIrrigationStatus)}
                   />
                 </div>
               }
-            ></MenuItem>
+            />
             <MenuItem
               children={
                 <div className="flex justify-between items-center w-full">
-                  <h2>Quạt:</h2>
-                  <ToggleComponent
-                    status={isFanStatus}
-                    size={40}
-                    color="blue"
+                  <span className="font-medium text-gray-700">Đèn:</span>
+                  <ToggleSwitch
+                    isOn={isLightStatus}
+                    onToggle={() => setIsLightStatus(!isLightStatus)}
                   />
                 </div>
               }
-            ></MenuItem>
-            <MenuItem
-              children={
-                <div className="flex justify-between items-center w-full">
-                  <h2>Đèn: </h2>
-                  <ToggleComponent
-                    status={isLightStatus}
-                    size={40}
-                    color="blue"
-                  />
-                </div>
-              }
-            ></MenuItem>
+            />
           </Menu>
           <button className="bg-green-700 text-white rounded-2xl p-2">
             <Plus size={24} />
