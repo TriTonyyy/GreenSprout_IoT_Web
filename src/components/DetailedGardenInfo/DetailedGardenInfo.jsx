@@ -1,78 +1,81 @@
 import React from "react";
-import { useNavigate } from "react-router";
+import { ToggleSwitch } from "../ToggleComponent/ToggleSwitch";
 
 const GardenImage = ({ src }) => (
-  <img src={src} alt="Garden" className="mx-auto" />
+  <img
+    src={src}
+    alt="Garden"
+    className=" object-contain rounded-xl h-fit w-fit border-n-2 items-center mx-auto py-2"
+  />
 );
 
 const SensorReading = ({ label, value }) => (
-  <div className="py-1 mt-4">
-    <span className="font-semibold text-gray-600">{label}: </span>
-    <span className="text-gray-800">{value}</span>
-  </div>
-);
-
-const ToggleSwitch = ({ label, isOn, onToggle }) => (
-  <div className="flex items-center justify-between px-10 py-1 mt-4">
-    <span className="font-semibold text-gray-600">{label}</span>
-    <label className="relative inline-flex items-center cursor-pointer">
-      <input
-        type="checkbox"
-        className="sr-only peer"
-        checked={isOn}
-        onChange={onToggle}
-      />
-      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-green-700 transition-colors duration-300">
-        <div
-          className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white border border-gray-300 rounded-full transition-transform duration-300 ${
-            isOn ? "translate-x-5 border-white" : ""
-          }`}
-        ></div>
-      </div>
-    </label>
+  <div className="mx-2 my-3 flex justify-between items-center ">
+    <p className="font-semibold text-gray-600">{label}:</p>
+    <p className="text-gray-800">{value}</p>
   </div>
 );
 
 export const DetailedGardenInfo = ({ gardenId }) => {
-  const [fanOn, setFanOn] = React.useState(false);
   const [lightOn, setLightOn] = React.useState(false);
   const [waterOn, setWaterOn] = React.useState(false);
 
   return (
-    <div className="w-4/5 mx-auto bg-white rounded-xl shadow-md p-4 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-4 items-start">
-      <div className="col-span-1 ">
+    <div className="w-4/5 mx-auto bg-white rounded-xl shadow-md py-2 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-10 items-stretch">
+      {/* Image Section */}
+      <div className="col-span-1 flex flex-col  md:border-r">
+        <h2 className="text-lg font-semibold text-center py-2 px-2 border-b mx-4 border-gray-300">
+          Thông tin khu vườn
+        </h2>
         <GardenImage src={require("../../assets/images/ItemImg.png")} />
       </div>
-      <div className="col-span-1 md:border-r border-gray-200">
-        <SensorReading label="Nhiệt độ" value="19°C" />
-        <SensorReading label="Độ ẩm đất" value="25%" isHighlighted />
-        <SensorReading
-          label="Lưu lượng nước"
-          value="0.00L/phút"
-          isHighlighted
-        />
-        <SensorReading label="Cường độ ánh sáng" value="66.00%" isHighlighted />
+
+      {/* Sensor Section */}
+      <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-2">
+        <h2 className="text-lg font-semibold text-center py-2 px-2 border-b mx-4 border-gray-300">
+          Cảm biến
+        </h2>
+        <div className="flex flex-col">
+          <SensorReading label="Nhiệt độ" value="19°C" />
+          <SensorReading label="Độ ẩm đất" value="25%" />
+          <SensorReading label="Lưu lượng nước" value="0.00L/phút" />
+          <SensorReading label="Cường độ ánh sáng" value="66.00%" />
+        </div>
       </div>
-      <div className="col-span-1 md:border-r border-gray-200">
-        <SensorReading
-          label="Tổng lượng nước đã dùng"
-          value="0.12L"
-          isHighlighted
-        />
-        <SensorReading label="Độ che mưa" value="0.00%" isHighlighted />
-        <SensorReading label="Độ ẩm đất" value="25%" isHighlighted />
+
+      {/* Statistics Section */}
+      <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-2">
+        <h2 className="text-lg font-semibold text-center py-2 px-2 border-b mx-4 border-gray-300">
+          Thống kê
+        </h2>
+        <div className="flex flex-col  item-center ">
+          <SensorReading label="Tổng lượng nước đã dùng" value="0.12L" />
+          <SensorReading label="Độ che mưa" value="0.00%" />
+          <SensorReading label="Độ ẩm đất" value="25%" />
+        </div>
       </div>
-      <div className="col-span-1">
-        <ToggleSwitch
-          label="Trạng thái tưới"
-          isOn={waterOn}
-          onToggle={() => setWaterOn(!waterOn)}
-        />
-        <ToggleSwitch
-          label="Đèn"
-          isOn={lightOn}
-          onToggle={() => setLightOn(!lightOn)}
-        />
+
+      {/* Control Section */}
+      <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-2">
+        <h2 className="text-lg font-semibold text-center py-2 px-2 border-b mx-4 border-gray-300">
+          Điều khiển
+        </h2>
+        <div className="flex flex-col items-center mt-2 w-full">
+          <div className="flex justify-between items-center w-4/5 py-2">
+            <span className="font-medium text-gray-700">Nước:</span>
+            <ToggleSwitch
+              isOn={waterOn}
+              onToggle={() => setWaterOn(!waterOn)}
+            />
+          </div>
+          <div className="flex justify-between items-center w-4/5 py-2">
+            <span className="font-medium text-gray-700">Đèn:</span>
+            <ToggleSwitch
+              isOn={lightOn}
+              onToggle={() => setLightOn(!lightOn)}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
