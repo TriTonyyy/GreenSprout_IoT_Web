@@ -3,6 +3,7 @@ import HeaderComponent from "../../components/Header/HeaderComponent";
 import { useParams } from "react-router";
 import { GardenTitle } from "../../components/DetailedGardenInfo/GardenTitle";
 import { DetailedGardenInfo } from "../../components/DetailedGardenInfo/DetailedGardenInfo";
+import IrrigationModeSection from "../../components/DetailedGardenInfo/IrrigationModeSection";
 import FooterComponent from "../../components/FooterComponent/FooterComponent";
 
 function DetailedGarden() {
@@ -16,6 +17,7 @@ function DetailedGarden() {
           areaGardenName="Khu vực 1"
         />
         <DetailedGardenInfo className="ml-8" gardenId={gardenId} />
+        <IrrigationModeSection />
       </div>
       <FooterComponent />
     </div>
