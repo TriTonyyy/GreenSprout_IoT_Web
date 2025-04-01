@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ToggleSwitch } from "../ToggleComponent/ToggleSwitch";
-import axios from "axios";
 
 const GardenImage = ({ src }) => (
   <img
     src={src}
     alt="Garden"
-    className="object-contain rounded-xl h-fit w-fit border-n-2 items-center mx-auto py-2"
+    className=" object-contain rounded-xl h-fit w-fit border-n-2 items-center mx-auto py-2"
   />
 );
 
@@ -18,46 +17,18 @@ const SensorReading = ({ label, value }) => (
 );
 
 export const DetailedGardenInfo = ({ gardenId }) => {
-  const [gardenData, setGardenData] = useState(null);
-  const [lightOn, setLightOn] = useState(false);
-  const [waterOn, setWaterOn] = useState(false);
-
-  const fetchGardenData = async () => {
-    try {
-      const response = await axios.get(
-        `https://capstone-project-iot-1.onrender.com/api/device/detailDeviceBy/${gardenId}`
-      );
-      const data = response.data;
-
-      setGardenData(data);
-      setLightOn(data.controls.lightStatus);
-      setWaterOn(data.controls.waterStatus);
-    } catch (error) {
-      console.error("Error fetching garden data:", error);
-      setGardenData(null);
-    }
-  };
-
-  useEffect(() => {
-    fetchGardenData();
-  }, [gardenId]);
-
-  if (!gardenData) {
-    return <div className="text-center">Loading garden data...</div>;
-  }
+  const [lightOn, setLightOn] = React.useState(false);
+  const [waterOn, setWaterOn] = React.useState(false);
+  const linkApi = "http://192.168.1.214:8000/api/";
 
   return (
     <div className="w-4/5 mx-auto bg-white rounded-xl shadow-md py-2 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-10 items-stretch">
       {/* Image Section */}
-      <div className="col-span-1 flex flex-col md:border-r">
+      <div className="col-span-1 flex flex-col  md:border-r">
         <h2 className="text-lg font-semibold text-center py-2 px-2 border-b mx-4 border-gray-300">
           Thông tin khu vườn
         </h2>
-        <GardenImage
-          src={
-            gardenData.imageUrl || require("../../assets/images/ItemImg.png")
-          }
-        />
+        <GardenImage src={require("../../assets/images/ItemImg.png")} />
       </div>
 
       {/* Sensor Section */}
@@ -65,22 +36,13 @@ export const DetailedGardenInfo = ({ gardenId }) => {
         <h2 className="text-lg font-semibold text-center py-2 px-2 border-b mx-4 border-gray-300">
           Cảm biến
         </h2>
-        <SensorReading
-          label="Nhiệt độ"
-          value={`${gardenData.sensors.temperature}°C`}
-        />
-        <SensorReading
-          label="Độ ẩm đất"
-          value={`${gardenData.sensors.soilMoisture}%`}
-        />
-        <SensorReading
-          label="Lưu lượng nước"
-          value={`${gardenData.sensors.waterFlow}L/phút`}
-        />
-        <SensorReading
-          label="Cường độ ánh sáng"
-          value={`${gardenData.sensors.lightIntensity}%`}
-        />
+        <div className="flex flex-col">
+          <SensorReading label="Nhiệt độ" value="19°C" />
+          <SensorReading label="Độ ẩm đất" value="25%" />
+          <SensorReading label="Độ ẩm không khí" value="37%" />
+          <SensorReading label="Lưu lượng nước" value="20m³/s" />
+          <SensorReading label="Cường độ ánh sáng" value="66.00%" />
+        </div>
       </div>
 
       {/* Statistics Section */}
@@ -88,18 +50,10 @@ export const DetailedGardenInfo = ({ gardenId }) => {
         <h2 className="text-lg font-semibold text-center py-2 px-2 border-b mx-4 border-gray-300">
           Thống kê
         </h2>
-        <SensorReading
-          label="Tổng lượng nước đã dùng"
-          value={`${gardenData.statistics.totalWaterUsed}L`}
-        />
-        <SensorReading
-          label="Độ che mưa"
-          value={`${gardenData.statistics.rainCover}%`}
-        />
-        <SensorReading
-          label="Độ ẩm đất"
-          value={`${gardenData.statistics.soilMoisture}%`}
-        />
+        <div className="flex flex-col  item-center ">
+          <SensorReading label="Tổng lượng nước đã tưới" value="0.12L" />
+          <SensorReading label="Tổng lượng điện đã sử dụng" value="120kW" />
+        </div>
       </div>
 
       {/* Control Section */}
