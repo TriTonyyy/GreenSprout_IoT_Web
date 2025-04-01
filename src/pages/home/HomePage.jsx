@@ -15,8 +15,6 @@ import { setToken } from "../../helper/tokenHelper";
 function HomePage() {
   const token = useSelector(getTokenUser);
   console.log(token, "token in home page");
-  
-  const test =[1,2,3,4,5,6,7,8,9,10]
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
   const [isLightStatus, setIsLightStatus] = useState(false);
@@ -27,8 +25,6 @@ function HomePage() {
     setToken(token);
     const fetchUserDevices = async () => {
       try {
-        console.log("Token:", token);
-
         // ✅ Fetch authenticated user profile
         const userResponse = await axios.get("/user/profile");
         const userId = userResponse.data.data.userId; // ✅ Get user ID dynamically
