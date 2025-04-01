@@ -1,4 +1,4 @@
-import React, {useState, useEffect, use} from 'react'
+import React, {useState} from 'react'
 import {useNavigate } from "react-router";
 import { registerApi, sendCodeApi, verifyOtpApi } from '../../api/AuthApi';
 import{ useSelector } from 'react-redux';

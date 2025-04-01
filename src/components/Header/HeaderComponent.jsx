@@ -28,7 +28,7 @@ function HeaderComponent({titleScheduleColor="black", titleReportColor ='black'}
 
   const headerFont = 'Kodchasan';
   const user = useSelector(getUserCredential);
-  console.log(user, "asdasdasd");
+  // console.log(user, "asdasdasd");
   const navigate = useNavigate();
   return (
     <div className="flex items-center p-1 border-b-2">

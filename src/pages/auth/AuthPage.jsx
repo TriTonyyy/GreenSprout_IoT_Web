@@ -5,6 +5,7 @@ import {loginApi } from '../../api/AuthApi';
 import {deviceDetect} from 'react-device-detect';
 import { UserCredential, tokenUser } from '../../redux/Reducers/AuthReducer';
 import { getUserCredential, getTokenUser } from '../../redux/selectors/authSelectors';
+import { setToken } from '../../helper/tokenHelper';
 
 function AuthPage({isLogin}) {
   const userCre = useSelector(getUserCredential);
@@ -16,11 +17,11 @@ function AuthPage({isLogin}) {
   const dispatch = useDispatch();
   const deviceInfo = deviceDetect();
   
-
   const signIn = ()=>{
     dispatch(UserCredential({email, password, name}))
     loginApi({email, password, deviceID:deviceInfo.userAgent})
       .then((res)=>{
+        setToken(res.data.data);
         console.log(res, "res login");
         dispatch(tokenUser(res.data.data))
         navigate('/home')

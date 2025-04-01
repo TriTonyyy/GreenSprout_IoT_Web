@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import HeaderComponent from "../../components/Header/HeaderComponent";
 import FooterComponent from "../../components/FooterComponent/FooterComponent";
-import GardenItem from "../../components/GardenItem/GardenItem";
+import {
+  GardenItem,
+  GardenItemSkeleton,
+} from "../../components/GardenItem/GardenItem";
 import { ChevronDown, Plus } from "lucide-react";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
@@ -10,119 +13,148 @@ import MenuItem from "@mui/material/MenuItem";
 import { ToggleSwitch } from "../../components/ToggleComponent/ToggleSwitch";
 import { useSelector } from "react-redux";
 import { getTokenUser } from "../../redux/selectors/authSelectors";
+import { getGardenby, getUserInfoAPI } from "../../api/AuthApi";
+import AddDeviceButton from "../../components/homePage/addDevice";
+import "react-loading-skeleton/dist/skeleton.css"; // To style the skeleton
 
 function HomePage() {
   const token = useSelector(getTokenUser);
   console.log(token, "token in home page");
-  
-  const test =[1,2,3,4,5,6,7,8,9,10]
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
   const [isLightStatus, setIsLightStatus] = useState(false);
   const [deviceData, setDeviceData] = useState(null);
-  const linkApi = "https://capstone-project-iot-1.onrender.com/api/";
-  
+  const [user, setUser] = useState(null);
+  const BASEURL = "https://capstone-project-iot-1.onrender.com/api/";
+  const Local = "http://192.168.1.214:8000/api/";
 
   useEffect(() => {
-    const fetchDevices = async () => {
-      try {
-        // Fetch device IDs associated with the user
-        const response = await axios.get(
-          `${linkApi}user/getDeviceIdsByUserId/1`
-        );
-        const deviceIds = response.data.data;
+    if (!token) return;
 
-        if (!deviceIds || deviceIds.length === 0) {
-          console.log("No devices found for this user.");
-          setDeviceData([]); // Set empty array if no devices
+    const fetchUserDevices = async () => {
+      try {
+        // ✅ Fetch authenticated user profile
+        const userResponse = await getUserInfoAPI();
+        const userData = userResponse.data.data;
+        console.log("userData", userData);
+        setUser(userData);
+
+        // ✅ Fetch user's garden devices
+        const deviceResponse = await getGardenby();
+        const deviceIds = deviceResponse.data.data; // ['6CE6C6FC8AD4']
+        console.log("deviceIds", deviceIds);
+
+        if (!Array.isArray(deviceIds) || deviceIds.length === 0) {
+          console.log("No devices found.");
+          setDeviceData([]); // ✅ Show empty state if no devices
           return;
         }
 
-        console.log("Device IDs:", deviceIds);
-
-        //  Fetch details for each device
+        // ✅ Fetch device details
         const devicePromises = deviceIds.map((deviceId) =>
           axios
-            .get(`${linkApi}device/detailDeviceBy/${deviceId}`)
-            .catch((error) => {
-              console.log(`Error fetching device ${deviceId}:`, error);
-              return null;
+            .get(`${BASEURL}device/detailDeviceBy/${deviceId}`)
+            .catch((err) => {
+              console.error(`Error fetching device ${deviceId}:`, err);
+              return null; // Return null if the device fetch fails
             })
         );
 
         const deviceResponses = await Promise.all(devicePromises);
         const validDevices = deviceResponses
-          .filter(Boolean)
-          .map((res) => res.data.data);
+          .filter((res) => res && res.data && res.data.data)
+          .map((res) => res.data.data); // Filter out any invalid responses
 
-        // Fetch sensors and controls for all devices
-        const allSensorPromises = [];
-        const allControlPromises = [];
+        // ✅ Fetch sensors and controls for valid devices
+        console.log("validDevices", validDevices);
 
+        const allSensor = [];
+        const allControl = [];
         validDevices.forEach((device) => {
-          device.sensors.forEach(({ sensorId }) => {
-            allSensorPromises.push(
+          // Fetch sensors
+          device.sensors.forEach(({ sensorId }) =>
+            allSensor.push(
               axios
-                .get(`${linkApi}sensor/detailSensorBy/${sensorId}`)
-                .catch((error) => {
-                  console.log(`Error fetching sensor ${sensorId}:`, error);
+                .get(`${BASEURL}sensor/detailSensorBy/${sensorId}`)
+                .catch((err) => {
+                  console.error(`Error fetching sensor ${sensorId}:`, err);
                   return null;
                 })
-            );
-          });
+            )
+          );
 
-          device.controls.forEach(({ controlId }) => {
-            allControlPromises.push(
+          // Fetch controls
+          device.controls.forEach(({ controlId }) =>
+            allControl.push(
               axios
-                .get(`${linkApi}control/detailControlBy/${controlId}`)
-                .catch((error) => {
-                  console.log(`Error fetching control ${controlId}:`, error);
+                .get(`${BASEURL}control/detailControlBy/${controlId}`)
+                .catch((err) => {
+                  console.error(`Error fetching control ${controlId}:`, err);
                   return null;
                 })
-            );
-          });
+            )
+          );
         });
 
         const [sensorsResponse, controlsResponse] = await Promise.all([
-          Promise.all(allSensorPromises),
-          Promise.all(allControlPromises),
+          Promise.all(allSensor),
+          Promise.all(allControl),
         ]);
 
-        // Step 4: Map sensors and controls by ID
-        const sensorsMap = {};
-        sensorsResponse.filter(Boolean).forEach((res) => {
-          const sensorData = res.data.data || res.data;
-          sensorsMap[sensorData._id] = sensorData;
-        });
+        console.log("sensorsResponse", sensorsResponse);
+        console.log("controlsResponse", controlsResponse);
 
-        const controlsMap = {};
-        controlsResponse.filter(Boolean).forEach((res) => {
-          const controlData = res.data.data || res.data;
-          controlsMap[controlData._id] = controlData;
-        });
+        // Map sensors and controls, filtering only the relevant ones
+        const sensorsMap = Object.fromEntries(
+          sensorsResponse
+            .filter(
+              (res) =>
+                res &&
+                res.data &&
+                (res.data.type === "temperature" ||
+                  res.data.type === "moisture")
+            ) // ✅ Keep only temperature and moisture
+            .map((res) => [res.data._id, res.data])
+        );
 
-        // Step 5: Attach sensor and control data to each device
-        const finalDevices = validDevices.map((device) => ({
-          ...device,
-          sensors: device.sensors.map(({ sensorId }) => ({
-            ...(sensorsMap[sensorId] || {}),
-            value: sensorsMap[sensorId]?.value || "N/A",
-          })),
-          controls: device.controls.map(({ controlId }) => ({
-            ...(controlsMap[controlId] || {}),
-            status: controlsMap[controlId]?.status || false,
-          })),
-        }));
+        const controlsMap = Object.fromEntries(
+          controlsResponse
+            .filter(
+              (res) =>
+                res &&
+                res.data &&
+                (res.data.name === "light" || res.data.name === "water")
+            ) // ✅ Keep only light and water
+            .map((res) => [res.data._id, res.data])
+        );
+
+        // Attach sensor and control data to devices
+        const finalDevices = validDevices.map((device) => {
+          const updatedDevice = {
+            ...device,
+            sensors: device.sensors.map(({ sensorId }) => ({
+              ...sensorsMap[sensorId],
+              value: sensorsMap[sensorId]?.value,
+            })),
+            controls: device.controls.map(({ controlId }) => ({
+              ...controlsMap[controlId],
+              status: controlsMap[controlId]?.status,
+            })),
+          };
+
+          return updatedDevice;
+        });
 
         setDeviceData(finalDevices);
+        console.log("Final Device Data:", finalDevices);
       } catch (error) {
-        console.error("Error fetching user devices:", error);
-        setDeviceData(null); // Set error state
+        console.error("Error fetching data:", error);
+        setDeviceData(null);
       }
     };
 
-    fetchDevices();
-  }, []); // Runs only once on mount
+    fetchUserDevices();
+  }, [token, BASEURL]);
 
   const open = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -175,16 +207,22 @@ function HomePage() {
           </button>
         </div>
       </div>
-      <div className="flex flex-wrap justify-between gap-8 px-10 py-8 min-h-screen">
-        {deviceData ? (
-          <GardenItem
-            id={deviceData.id_esp}
-            name={deviceData.name || deviceData.id_esp}
-            sensors={deviceData.sensors}
-            controls={deviceData.controls}
-          />
+      <div className="flex flex-wrap gap-8 px-10 py-8 min-h-screen">
+        {deviceData === null ? (
+          // Show Skeleton Loader if data is still being fetched
+          <GardenItemSkeleton />
+        ) : deviceData.length > 0 ? (
+          deviceData.map((device) => (
+            <GardenItem
+              key={device.id_esp}
+              id={device.id_esp}
+              name={device.name || device.id_esp}
+              sensors={device.sensors}
+              controls={device.controls}
+            />
+          ))
         ) : (
-          <p>Loading garden data...</p>
+          <AddDeviceButton />
         )}
       </div>
       <FooterComponent />
