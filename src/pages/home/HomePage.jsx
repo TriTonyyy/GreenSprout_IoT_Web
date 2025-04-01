@@ -13,16 +13,51 @@ import { getTokenUser } from "../../redux/selectors/authSelectors";
 
 function HomePage() {
   const token = useSelector(getTokenUser);
-
-  console.log(token, "token in home page");
-  
-  const test =[1,2,3,4,5,6,7,8,9,10]
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
   const [isLightStatus, setIsLightStatus] = useState(false);
   const [deviceData, setDeviceData] = useState(null);
-  const linkApi = "https://capstone-project-iot-1.onrender.com/api/";
-  
+  const linkApi = "http://192.168.1.214:8000/api/";
+
+  useEffect(() => {
+    const fetchUserDevices = async () => {
+      try {
+        console.log("Token:", token);
+
+        // ✅ Fetch authenticated user profile
+        const userResponse = await axios.get("/user/profile");
+        const userId = userResponse.data.data.userId; // ✅ Get user ID dynamically
+
+        console.log("User ID:", userId);
+        // ✅ Fetch user's device IDs dynamically
+        const deviceResponse = await axios.get(
+          `/user/getDeviceIdsByUserId/${userId}`
+        );
+        const deviceIds = deviceResponse.data.data;
+
+        if (!deviceIds || deviceIds.length === 0) {
+          console.log("No devices found.");
+          setDeviceData([]); // ✅ Show empty state if no devices
+          return;
+        }
+
+        console.log("Device IDs:", deviceIds);
+        // Fetch each device's details
+        const devicePromises = deviceIds.map((deviceId) =>
+          axios.get(`/device/detailDeviceBy/${deviceId}`)
+        );
+
+        const deviceResponses = await Promise.all(devicePromises);
+        const validDevices = deviceResponses.map((res) => res.data.data);
+
+        setDeviceData(validDevices);
+      } catch (error) {
+        console.error("Error fetching user devices:", error);
+        setDeviceData(null); // Show error state
+      }
+    };
+    if (token) fetchUserDevices(); // ✅ Fetch only if token exists
+  }, [token]);
 
   useEffect(() => {
     const fetchDevices = async () => {
