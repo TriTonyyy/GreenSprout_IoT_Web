@@ -19,3 +19,10 @@ export const loginApi = (payload) => {
 export const getGardenAPI = (id) => {
     return axiosClient.post(`/api/garden/${id}`);
 }
+export const getUserInfoAPI =() => {
+    return axiosClient.get(`/api/user/profile`);
+}
+
+export const getGardenby =()=>{
+    return axiosClient.get(`/api/user/getGardenby`);
+}
