@@ -5,8 +5,8 @@ import { ToggleSwitch } from "../ToggleComponent/ToggleSwitch";
 function GardenItem({ id, name, sensors = [], controls = [] }) {
   const navigate = useNavigate();
 
-  console.log("Sensors Data:", sensors);
-  console.log("Controls Data:", controls);
+  // console.log("Sensors Data:", sensors);
+  // console.log("Controls Data:", controls);
 
   // Default sensor types
   const sensorTypes = ["temperature", "moisture"];
