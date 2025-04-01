@@ -1,13 +1,20 @@
 import axios from "axios";
 import { getTokenUser } from "../redux/selectors/authSelectors";
 import { useSelector } from "react-redux";
+import { getToken, removeToken } from "../helper/tokenHelper";
 
 const BASEURL = "https://capstone-project-iot-1.onrender.com";
 
+let token;
+getToken().then((res) => (token = res));
+
 const axiosClient = axios.create({
-  baseURL: BASEURL,
-  headers: { "Content-Type": "application/json" },
-});
+    baseURL: BASEURL,
+    headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+    },
+})
 
 // ✅ Properly retrieve the token before each request
 axiosClient.interceptors.request.use(
