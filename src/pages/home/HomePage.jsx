@@ -10,6 +10,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { ToggleSwitch } from "../../components/ToggleComponent/ToggleSwitch";
 import { useSelector } from "react-redux";
 import { getTokenUser } from "../../redux/selectors/authSelectors";
+import { setToken } from "../../helper/tokenHelper";
 
 function HomePage() {
   const token = useSelector(getTokenUser);
@@ -23,6 +24,7 @@ function HomePage() {
   const linkApi = "http://192.168.1.214:8000/api/";
 
   useEffect(() => {
+    setToken(token);
     const fetchUserDevices = async () => {
       try {
         console.log("Token:", token);
