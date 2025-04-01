@@ -1,22 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { ToggleSwitch } from "../ToggleComponent/ToggleSwitch";
+import axios from "axios";
 
 const dayOrder = ["2", "3", "4", "5", "6", "7", "CN"];
+const weekdayMap = {
+  Monday: "2",
+  Tuesday: "3",
+  Wednesday: "4",
+  Thursday: "5",
+  Friday: "6",
+  Saturday: "7",
+  Sunday: "CN",
+};
+
+const weekdayOrder = {
+  Monday: 1,
+  Tuesday: 2,
+  Wednesday: 3,
+  Thursday: 4,
+  Friday: 5,
+  Saturday: 6,
+  Sunday: 7,
+};
 
 export default function IrrigationModeSection() {
   const [activeMode, setActiveMode] = useState("THEO_LICH");
-  const [schedules, setSchedules] = useState([
-    {
-      id: 1,
-      time: "09:00",
-      duration: 30,
-      repeat: ["2", "4", "6"],
-      enabled: false,
-    },
-  ]);
+  const [isIrrigationOn, setIsIrrigationOn] = useState(false);
+  const [schedules, setSchedules] = useState([]);
   const [selectedScheduleId, setSelectedScheduleId] = useState(null);
 
+  const maxDuration = 15 * 60; // 15 minutes in seconds
+
   const formatTimeDisplay = (time24) => {
+    if (!time24 || typeof time24 !== "string" || !time24.includes(":"))
+      return "00:00";
     const [hour, minute] = time24.split(":");
     const h = parseInt(hour, 10);
     const suffix = h >= 12 ? "PM" : "AM";
@@ -24,8 +42,29 @@ export default function IrrigationModeSection() {
     return `${hour12}:${minute} ${suffix}`;
   };
 
+  const fetchScheduleById = async () => {
+    try {
+      const response = await axios.get(
+        "http://192.168.1.158:8000/api/schedule/detailScheduleBy/67e2449cbf718b7f105543dc"
+      );
+
+      const schedule = response.data;
+
+      // Transform to array if needed
+      const scheduleArray = Array.isArray(schedule) ? schedule : [schedule];
+
+      setSchedules(scheduleArray);
+    } catch (error) {
+      console.error("Failed to fetch schedule:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchScheduleById();
+  }, []);
+
   const handleAddSchedule = () => {
-    const newId = schedules.length + 1;
+    const newId = Math.random().toString(36).substring(2, 9); // unique string id
     const newSchedule = {
       id: newId,
       time: "13:00",
@@ -33,7 +72,7 @@ export default function IrrigationModeSection() {
       repeat: [],
       enabled: false,
     };
-    setSchedules([...schedules, newSchedule]);
+    setSchedules((prev) => [...prev, newSchedule]);
     setSelectedScheduleId(newId);
   };
 
@@ -73,8 +112,8 @@ export default function IrrigationModeSection() {
       {/* Mode Switch Bar */}
       <div className="flex gap-2 px-2 mb-6">
         {[
-          { key: "CAM_BIEN", label: "Cảm biến" },
           { key: "THEO_LICH", label: "Theo lịch" },
+          { key: "CAM_BIEN", label: "Cảm biến" },
         ].map((mode) => (
           <button
             key={mode.key}
@@ -93,7 +132,6 @@ export default function IrrigationModeSection() {
         ))}
       </div>
 
-      {/* Mode-Specific Content */}
       {activeMode === "THEO_LICH" && (
         <div className="flex flex-wrap gap-4 px-2 items-start">
           {schedules.map((s) => {
@@ -107,7 +145,7 @@ export default function IrrigationModeSection() {
               >
                 {/* Delete Button */}
                 <button
-                  className="absolute top-2 right-2 text-gray-400 hover:text-red-500 z-10"
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-600 z-10"
                   onClick={(e) => {
                     e.stopPropagation();
                     deleteSchedule(s.id);
@@ -118,45 +156,37 @@ export default function IrrigationModeSection() {
                 </button>
 
                 <div className="bg-gray-50 rounded-lg shadow-md p-4">
-                  {/* Summary */}
                   <h2 className="text-xl font-bold text-gray-800 mb-1">
                     {formatTimeDisplay(s.time)}
                   </h2>
-                  <p className="text-sm text-gray-600">
-                    Thời gian tưới: {s.duration} phút
-                  </p>
-                  <p className="text-sm text-gray-600 mb-2">
-                    Lặp lại: T{s.repeat.join(", T")}
-                  </p>
+                  <div className="text-lg font-semibold">
+                    <p className="text-sm text-gray-600 py-2">
+                      Thời gian tưới: {s.duration / 60} phút
+                    </p>
+                    <p className="text-sm text-gray-600 py-2">
+                      Lặp lại:{" "}
+                      {s.repeat
+                        ?.sort((a, b) => weekdayOrder[a] - weekdayOrder[b])
+                        .map((day) => `T${weekdayMap[day] || day}`)
+                        .join(", ")}
+                    </p>
+                  </div>
 
-                  {/* Toggle */}
-                  <label
-                    className="inline-flex items-center cursor-pointer"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={s.enabled}
-                      onChange={(e) =>
-                        updateSchedule(s.id, "enabled", e.target.checked)
-                      }
-                    />
-                    <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-500 transition duration-300 relative">
-                      <div className="absolute top-[2px] left-[2px] w-5 h-5 bg-white border border-gray-300 rounded-full peer-checked:translate-x-full transition-transform" />
-                    </div>
-                    <span className="ml-3 text-sm text-gray-700">
-                      Bật / Tắt
+                  <div className="flex w-4/5 py-2">
+                    <span className="font-medium text-gray-700 pr-2">
+                      Bật/ Tắt:
                     </span>
-                  </label>
+                    <ToggleSwitch
+                      isOn={isIrrigationOn}
+                      onToggle={() => setIsIrrigationOn(!isIrrigationOn)}
+                    />
+                  </div>
 
-                  {/* Panel only for selected */}
                   {isSelected && (
                     <div
                       className="mt-4 bg-white border rounded-md p-2"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {/* Giờ tưới */}
                       <div className="mb-2">
                         <label className="block text-sm font-medium mb-1">
                           Giờ tưới
@@ -171,7 +201,6 @@ export default function IrrigationModeSection() {
                         />
                       </div>
 
-                      {/* Thời gian tưới */}
                       <div className="mb-2">
                         <label className="block text-sm font-medium mb-1">
                           Thời gian tưới (phút)
@@ -181,21 +210,20 @@ export default function IrrigationModeSection() {
                           min="1"
                           max="120"
                           className="border rounded px-2 py-1 w-full"
-                          value={s.duration}
+                          value={s.duration / 60}
                           onChange={(e) =>
                             updateSchedule(
                               s.id,
                               "duration",
                               Math.min(
-                                Math.max(1, parseInt(e.target.value)),
-                                120
+                                Math.max(1, parseInt(e.target.value) * 60),
+                                maxDuration
                               )
                             )
                           }
                         />
                       </div>
 
-                      {/* Lặp lại */}
                       <div>
                         <label className="block text-sm font-medium mb-1">
                           Lặp lại
@@ -205,7 +233,7 @@ export default function IrrigationModeSection() {
                             <button
                               key={day}
                               className={`w-8 h-8 rounded-full text-sm font-semibold border ${
-                                s.repeat.includes(day)
+                                s.repeat?.includes(day)
                                   ? "bg-orange-400 text-white"
                                   : "text-gray-600"
                               }`}
@@ -231,7 +259,7 @@ export default function IrrigationModeSection() {
 
           {/* ➕ Add New Clock */}
           <div
-            className="w-40 h-[142px] p-4 bg-gray-50 rounded-lg shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer"
+            className="w-40 h-[175px] p-4 bg-gray-50 rounded-lg shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer"
             onClick={handleAddSchedule}
           >
             <span className="text-4xl font-bold">+</span>
