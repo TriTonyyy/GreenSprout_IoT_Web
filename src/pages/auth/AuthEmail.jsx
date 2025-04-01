@@ -15,6 +15,8 @@ const userCre = useSelector(getUserCredential);
     sendCodeApi(email)
         .then((res)=>{
             console.log(res);
+            alert(res.data.message);
+
         })
         .catch((err)=>{
             console.log(err);

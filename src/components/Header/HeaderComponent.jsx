@@ -1,5 +1,7 @@
-import React from "react";
-import { Search } from "lucide-react";
+import React from 'react'
+import { Search } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { getUserCredential } from '../../redux/selectors/authSelectors';
 import { useNavigate } from "react-router";
 
 function SearchBarComponent() {
@@ -22,8 +24,11 @@ function SearchBarComponent() {
   );
 }
 
-function HeaderComponent() {
-  const headerFont = "Kodchasan";
+function HeaderComponent({titleScheduleColor="black", titleReportColor ='black'}) {
+
+  const headerFont = 'Kodchasan';
+  const user = useSelector(getUserCredential);
+  console.log(user, "asdasdasd");
   const navigate = useNavigate();
   return (
     <div className="flex items-center p-1 border-b-2">
@@ -43,34 +48,27 @@ function HeaderComponent() {
             </h1>
           </div>
           <a
-            href="#"
-            className="ml-5 mr-5 text-2xl p-4"
-            style={{ fontFamily: headerFont }}
+            href="/schedule"
+            className={`ml-5 mr-5 text-2xl p-4 text-red-900`}
+            style={{ fontFamily: headerFont, color: titleScheduleColor }}
           >
             Lịch trình tưới
           </a>
           <a
             href="#"
             className="ml-5 mr-5 text-2xl p-4"
-            style={{ fontFamily: headerFont }}
+            style={{ fontFamily: headerFont, color: titleReportColor }}
           >
             Thống kê
           </a>
         </div>
-        <div className="flex items-center">
-          <SearchBarComponent />
-          <div className="flex items-center">
-            <h2 className="text-2xl p-4" style={{ fontFamily: headerFont }}>
-              User Name
-            </h2>
-            <img
-              onClick={() => {
-                console.log("dasd");
-              }}
-              src={require("../../assets/images/AvatarDefault.png")}
-              className="w-18 h-auto max-w-full"
-              alt="avatar"
-            />
+        <div className='flex items-center'>
+          <SearchBarComponent/>
+          <div className='flex items-center'>
+            <h2 className='text-2xl p-4' style={{ fontFamily: headerFont }}>User name</h2>
+            <img onClick={()=>{console.log("dasd");
+            }} src={require("../../assets/images/AvatarDefault.png")} className='w-18 h-auto max-w-full' alt='avatar'/>
+
           </div>
         </div>
       </div>

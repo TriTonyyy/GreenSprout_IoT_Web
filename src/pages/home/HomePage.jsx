@@ -8,9 +8,16 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { ToggleSwitch } from "../../components/ToggleComponent/ToggleSwitch";
+import { useSelector } from "react-redux";
+import { getTokenUser } from "../../redux/selectors/authSelectors";
 
 function HomePage() {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const token = useSelector(getTokenUser);
+
+  console.log(token, "token in home page");
+  
+  const test =[1,2,3,4,5,6,7,8,9,10]
+  const [anchorEl, setAnchorEl] = React.useState(null);
   const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
   const [isLightStatus, setIsLightStatus] = useState(false);
   const [deviceData, setDeviceData] = useState(null);
