@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import HeaderComponent from "../../components/Header/HeaderComponent";
 import FooterComponent from "../../components/FooterComponent/FooterComponent";
 import {
@@ -13,140 +12,131 @@ import MenuItem from "@mui/material/MenuItem";
 import { ToggleSwitch } from "../../components/ToggleComponent/ToggleSwitch";
 import { useSelector } from "react-redux";
 import { getTokenUser } from "../../redux/selectors/authSelectors";
-import { getGardenby, getUserInfoAPI } from "../../api/AuthApi";
+import { getUserInfoAPI } from "../../api/AuthApi";
+import {
+  getGardenby,
+  getGardenByDevice,
+  getControlById,
+  getSensorById,
+} from "../../api/deviceApi.js";
 import AddDeviceButton from "../../components/homePage/addDevice";
 import "react-loading-skeleton/dist/skeleton.css"; // To style the skeleton
+import { addDevicePopup } from "../../components/Alert/alertComponent.js";
 
 function HomePage() {
   const token = useSelector(getTokenUser);
-  console.log(token, "token in home page");
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
   const [isLightStatus, setIsLightStatus] = useState(false);
   const [deviceData, setDeviceData] = useState(null);
   const [user, setUser] = useState(null);
-  const BASEURL = "https://capstone-project-iot-1.onrender.com/api/";
-  const Local = "http://192.168.1.214:8000/api/";
 
   useEffect(() => {
     if (!token) return;
 
     const fetchUserDevices = async () => {
       try {
-        // ✅ Fetch authenticated user profile
+        // ✅ Fetch user info
         const userResponse = await getUserInfoAPI();
         const userData = userResponse.data.data;
-        console.log("userData", userData);
         setUser(userData);
 
-        // ✅ Fetch user's garden devices
+        // ✅ Fetch user's gardens
         const deviceResponse = await getGardenby();
-        const deviceIds = deviceResponse.data.data; // ['6CE6C6FC8AD4']
-        console.log("deviceIds", deviceIds);
+        const deviceIds = deviceResponse.data.data || [];
 
-        if (!Array.isArray(deviceIds) || deviceIds.length === 0) {
+        if (deviceIds.length === 0) {
           console.log("No devices found.");
-          setDeviceData([]); // ✅ Show empty state if no devices
+          setDeviceData([]); // ✅ Show empty state
           return;
         }
 
-        // ✅ Fetch device details
-        const devicePromises = deviceIds.map((deviceId) =>
-          axios
-            .get(`${BASEURL}device/detailDeviceBy/${deviceId}`)
+        // ✅ Fetch garden devices
+        const devicePromises = deviceIds.map(async (deviceId) =>
+          getGardenByDevice(deviceId)
+            .then((res) => res?.data?.data || null)
             .catch((err) => {
               console.error(`Error fetching device ${deviceId}:`, err);
-              return null; // Return null if the device fetch fails
+              return null;
             })
         );
 
         const deviceResponses = await Promise.all(devicePromises);
-        const validDevices = deviceResponses
-          .filter((res) => res && res.data && res.data.data)
-          .map((res) => res.data.data); // Filter out any invalid responses
+        const validDevices = deviceResponses.filter(Boolean);
 
-        // ✅ Fetch sensors and controls for valid devices
-        console.log("validDevices", validDevices);
+        // ✅ Get all sensor & control IDs
+        const sensorIds = validDevices.flatMap((device) =>
+          device.sensors ? device.sensors.map(({ sensorId }) => sensorId) : []
+        );
+        const controlIds = validDevices.flatMap((device) =>
+          device.controls
+            ? device.controls.map(({ controlId }) => controlId)
+            : []
+        );
 
-        const allSensor = [];
-        const allControl = [];
-        validDevices.forEach((device) => {
-          // Fetch sensors
-          device.sensors.forEach(({ sensorId }) =>
-            allSensor.push(
-              axios
-                .get(`${BASEURL}sensor/detailSensorBy/${sensorId}`)
+        // ✅ Fetch all sensors & controls
+        const [sensorsResponse, controlsResponse] = await Promise.all([
+          Promise.all(
+            sensorIds.map((sensorId) =>
+              getSensorById(sensorId)
+                .then((res) => res?.data || null)
                 .catch((err) => {
                   console.error(`Error fetching sensor ${sensorId}:`, err);
                   return null;
                 })
             )
-          );
-
-          // Fetch controls
-          device.controls.forEach(({ controlId }) =>
-            allControl.push(
-              axios
-                .get(`${BASEURL}control/detailControlBy/${controlId}`)
+          ),
+          Promise.all(
+            controlIds.map((controlId) =>
+              getControlById(controlId)
+                .then((res) => res?.data || null)
                 .catch((err) => {
                   console.error(`Error fetching control ${controlId}:`, err);
                   return null;
                 })
             )
-          );
-        });
-
-        const [sensorsResponse, controlsResponse] = await Promise.all([
-          Promise.all(allSensor),
-          Promise.all(allControl),
+          ),
         ]);
 
-        console.log("sensorsResponse", sensorsResponse);
-        console.log("controlsResponse", controlsResponse);
-
-        // Map sensors and controls, filtering only the relevant ones
+        // ✅ Create sensor and control maps
         const sensorsMap = Object.fromEntries(
           sensorsResponse
             .filter(
-              (res) =>
-                res &&
-                res.data &&
-                (res.data.type === "temperature" ||
-                  res.data.type === "moisture")
-            ) // ✅ Keep only temperature and moisture
-            .map((res) => [res.data._id, res.data])
+              (sensor) =>
+                sensor &&
+                (sensor.type === "temperature" || sensor.type === "moisture")
+            )
+            .map((sensor) => [sensor._id, sensor])
         );
 
         const controlsMap = Object.fromEntries(
           controlsResponse
             .filter(
-              (res) =>
-                res &&
-                res.data &&
-                (res.data.name === "light" || res.data.name === "water")
-            ) // ✅ Keep only light and water
-            .map((res) => [res.data._id, res.data])
+              (control) =>
+                control &&
+                (control.name === "light" || control.name === "water")
+            )
+            .map((control) => [control._id, control])
         );
 
-        // Attach sensor and control data to devices
-        const finalDevices = validDevices.map((device) => {
-          const updatedDevice = {
-            ...device,
-            sensors: device.sensors.map(({ sensorId }) => ({
-              ...sensorsMap[sensorId],
-              value: sensorsMap[sensorId]?.value,
-            })),
-            controls: device.controls.map(({ controlId }) => ({
-              ...controlsMap[controlId],
-              status: controlsMap[controlId]?.status,
-            })),
-          };
-
-          return updatedDevice;
-        });
+        // ✅ Attach data to devices after ensuring all sensors and controls are fetched
+        const finalDevices = validDevices.map((device) => ({
+          ...device,
+          sensors: (device.sensors || []).map(({ sensorId }) => ({
+            ...sensorsMap[sensorId],
+            value:
+              sensorsMap[sensorId]?.value !== undefined &&
+              sensorsMap[sensorId]?.value !== null
+                ? sensorsMap[sensorId]?.value
+                : "---", // Only fallback to "---" for undefined or null values
+          })),
+          controls: (device.controls || []).map(({ controlId }) => ({
+            ...controlsMap[controlId],
+            status: controlsMap[controlId]?.status ?? false, // Default status if missing
+          })),
+        }));
 
         setDeviceData(finalDevices);
-        console.log("Final Device Data:", finalDevices);
       } catch (error) {
         console.error("Error fetching data:", error);
         setDeviceData(null);
@@ -154,7 +144,7 @@ function HomePage() {
     };
 
     fetchUserDevices();
-  }, [token, BASEURL]);
+  }, [token]);
 
   const open = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -162,69 +152,75 @@ function HomePage() {
 
   return (
     <div>
-      <HeaderComponent />
-      <div className="flex justify-between items-center px-10 py-10">
-        <h1 className="text-4xl font-bold">
-          Vườn Tiêu <span className="text-green-500">Bình Phước</span>
-        </h1>
-        <div className="flex items-center gap-4">
-          <Button
-            id="basic-button"
-            aria-controls={open ? "basic-menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? "true" : undefined}
-            onClick={handleClick}
-          >
-            Công tắc chung <ChevronDown size={24} />
-          </Button>
-          <Menu
-            id="basic-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-          >
-            <MenuItem>
-              <div className="flex justify-between items-center w-full">
-                <p className="font-medium text-gray-700">Trạng thái tưới:</p>
-                <ToggleSwitch
-                  isOn={isIrrigationStatus}
-                  onToggle={() => setIsIrrigationStatus(!isIrrigationStatus)}
+      {user ? (
+        <>
+          <HeaderComponent />
+          <div className="flex justify-between items-center px-10 py-10">
+            <h1 className="text-4xl font-bold">
+              Vườn của <span className="text-green-500">{user.name}</span>
+            </h1>
+            <div className="flex items-center gap-4">
+              <Button
+                id="basic-button"
+                aria-controls={open ? "basic-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                onClick={handleClick}
+              >
+                Công tắc chung <ChevronDown size={24} />
+              </Button>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+              >
+                <MenuItem>
+                  <div className="flex justify-between items-center w-full">
+                    <p className="font-medium text-gray-700">
+                      Trạng thái tưới:
+                    </p>
+                    <ToggleSwitch
+                      isOn={isIrrigationStatus}
+                      onToggle={() =>
+                        setIsIrrigationStatus(!isIrrigationStatus)
+                      }
+                    />
+                  </div>
+                </MenuItem>
+                <MenuItem>
+                  <div className="flex justify-between items-center w-full">
+                    <span className="font-medium text-gray-700">Đèn:</span>
+                    <ToggleSwitch
+                      isOn={isLightStatus}
+                      onToggle={() => setIsLightStatus(!isLightStatus)}
+                    />
+                  </div>
+                </MenuItem>
+              </Menu>
+              <button className="bg-green-700 text-white rounded-2xl p-2">
+                <Plus
+                  size={24}
+                  onClick={() =>
+                    user && addDevicePopup({ userId: user._id, role: "member" })
+                  }
                 />
-              </div>
-            </MenuItem>
-            <MenuItem>
-              <div className="flex justify-between items-center w-full">
-                <span className="font-medium text-gray-700">Đèn:</span>
-                <ToggleSwitch
-                  isOn={isLightStatus}
-                  onToggle={() => setIsLightStatus(!isLightStatus)}
-                />
-              </div>
-            </MenuItem>
-          </Menu>
-          <button className="bg-green-700 text-white rounded-2xl p-2">
-            <Plus size={24} />
-          </button>
-        </div>
-      </div>
-      <div className="flex flex-wrap gap-8 px-10 py-8 min-h-screen">
-        {deviceData === null ? (
-          // Show Skeleton Loader if data is still being fetched
-          <GardenItemSkeleton />
-        ) : deviceData.length > 0 ? (
-          deviceData.map((device) => (
-            <GardenItem
-              key={device.id_esp}
-              id={device.id_esp}
-              name={device.name || device.id_esp}
-              sensors={device.sensors}
-              controls={device.controls}
-            />
-          ))
-        ) : (
-          <AddDeviceButton />
-        )}
-      </div>
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-8 px-10 py-8 min-h-screen">
+            {deviceData === null ? (
+              <GardenItemSkeleton />
+            ) : deviceData.length > 0 ? (
+              deviceData.map((device) => (
+                <GardenItem key={device.id_esp} {...device} />
+              ))
+            ) : (
+              <AddDeviceButton />
+            )}
+          </div>
+        </>
+      ) : null}
       <FooterComponent />
     </div>
   );
