@@ -68,7 +68,7 @@ export default function IrrigationModeSection() {
     const newSchedule = {
       id: newId,
       time: "13:00",
-      duration: 10,
+      duration: 60,
       repeat: [],
       enabled: false,
     };

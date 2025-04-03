@@ -10,10 +10,12 @@ const GardenImage = ({ src }) => (
   />
 );
 
-const SensorReading = ({ label, value }) => (
+const SensorReading = ({ label, value, unit }) => (
   <div className="mx-2 my-3 flex justify-between items-center">
     <p className="font-semibold text-gray-600">{label}:</p>
-    <p className="text-gray-800">{value}</p>
+    <p className="text-gray-800">
+      {value} {unit}
+    </p>
   </div>
 );
 
@@ -29,7 +31,31 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   const [waterOn, setWaterOn] = useState(false);
   const [lightOn, setLightOn] = useState(false);
 
-  const linkApi = "http://192.168.1.214:8000/api/";
+  const linkApi = "https://capstone-project-iot-1.onrender.com/api/";
+
+  // const translateSensorType = (sensorType) => {
+  //   const translationMap = {
+  //     moisture: "Độ ẩm đất",
+  //     temperature: "Nhiệt độ",
+  //     humidity: "Độ ẩm không khí",
+  //     stream: "Lưu lượng nước",
+  //     luminosity: "Cường độ ánh sáng",
+  //   };
+
+  //   return translationMap[sensorType] || sensorType; // Default to the input type if not found
+  // };
+
+  const translateSensorType = (sensorType) => {
+    const translationMap = {
+      moisture: { label: "Độ ẩm đất", unit: "%" },
+      temperature: { label: "Nhiệt độ", unit: "°C" },
+      humidity: { label: "Độ ẩm không khí", unit: "%" },
+      stream: { label: "Lưu lượng nước", unit: "m³/s" },
+      luminosity: { label: "Cường độ ánh sáng", unit: "%" },
+    };
+
+    return translationMap[sensorType] || { label: sensorType, unit: "" };
+  };
 
   useEffect(() => {
     const fetchGardenData = async () => {
@@ -37,6 +63,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
         // 1) Fetch device details
         const response = await axios.get(
           `${linkApi}device/detailDeviceBy/6CE6C6FC8AD4`
+          // "https://capstone-project-iot-1.onrender.com/api/device/detailDeviceBy/6CE6C6FC8AD4"
         );
         const device = response.data.data;
         if (!device) throw new Error("Device not found or invalid ID");
@@ -130,13 +157,22 @@ export const DetailedGardenInfo = ({ deviceId }) => {
             if (!sensorObj) return null;
 
             // e.g., sensorObj.name = "Moisture", sensorObj.value = 100, sensorObj.unit = "%"
+            // return (
+            //   <SensorReading
+            //     key={sensorObj._id}
+            //     label={translateSensorType(sensorObj.type) || "Unknown Sensor"}
+            //     value={`${sensorObj.value}${
+            //       sensorObj.unit ? ` ${sensorObj.unit}` : ""
+            //     }`}
+            //   />
+            // );
+            const { label, unit } = translateSensorType(sensorObj.type);
             return (
               <SensorReading
                 key={sensorObj._id}
-                label={sensorObj.type || "Unknown Sensor"}
-                value={`${sensorObj.value}${
-                  sensorObj.unit ? ` ${sensorObj.unit}` : ""
-                }`}
+                label={label || "Unknown Sensor"}
+                value={sensorObj.value}
+                unit={unit}
               />
             );
           })}
