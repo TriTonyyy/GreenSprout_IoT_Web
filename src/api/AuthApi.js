@@ -20,3 +20,6 @@ export const getUserInfoAPI =() => {
     return axiosClient.get(`/api/user/profile`);
 }
 
+export const updateUserGarden = (gardenId) => {
+    return axiosClient.put(`/api/user/updateGardenId`, gardenId );
+}   

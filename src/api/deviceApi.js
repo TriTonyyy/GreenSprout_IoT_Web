@@ -18,3 +18,6 @@ export const getControlById = (id) => {
 export const updateMemberByIdDevice = (id, members) => {
     return axiosClient.put(`/api/device/updateDeviceBy/${id}`, { members });
 }
+export const updateControlById = async (id, status) => {
+    return axiosClient.put(`/api/control/updateControlBy/${id}`, status);
+}

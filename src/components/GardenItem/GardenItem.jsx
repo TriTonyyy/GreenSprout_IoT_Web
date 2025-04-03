@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { ToggleSwitch } from "../ToggleComponent/ToggleSwitch";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { updateControlById } from "../../api/deviceApi";
 
 function GardenItem({ id, name, sensors = [], controls = [] }) {
   const navigate = useNavigate();
-  // console.log("Sensors Data:", sensors);
+  console.log("Sensors Data:", sensors);
   // console.log("Controls Data:", controls);
   // Default sensor types
   const sensorTypes = ["temperature", "moisture"];
@@ -36,11 +37,25 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
     setControlStatuses(updatedStatuses);
   }, [controls]);
 
-  const handleToggle = (controlName) => {
-    setControlStatuses((prev) => ({
-      ...prev,
-      [controlName]: !prev[controlName],
-    }));
+  const handleToggle = async (controlName, controlId) => {
+    try {
+      const newStatus = !controlStatuses[controlName]; // Toggle status
+      setControlStatuses((prev) => ({
+        ...prev,
+        [controlName]: newStatus,
+      }));
+      // Log for debugging to ensure correct values are sent to backend
+      console.log(
+        `Updating control ${controlName} with ID: ${controlId}, newStatus: ${newStatus}`
+      );
+      await updateControlById(controlId, { status: newStatus }); // Send status in object form
+    } catch (error) {
+      console.error("Error updating control status:", error);
+      setControlStatuses((prev) => ({
+        ...prev,
+        [controlName]: !controlStatuses[controlName],
+      }));
+    }
   };
 
   const handleImageGardenClick = () => {
@@ -75,7 +90,9 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
               <h2 className="font-medium">
                 {sensor.type === "temperature" ? "Nhiệt độ" : "Độ ẩm đất"}:
               </h2>
-              <h2 className="text-lg font-semibold">{sensor?.value } {sensor.type === "temperature" ? "°C" : "%"}</h2>
+              <h2 className="text-lg font-semibold">
+                {sensor?.value} {sensor.type === "temperature" ? "°C" : "%"}
+              </h2>
             </div>
           ))}
         </div>
@@ -89,7 +106,7 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
               </span>
               <ToggleSwitch
                 isOn={controlStatuses[control.name]}
-                onToggle={() => handleToggle(control.name)}
+                onToggle={() => handleToggle(control.name, control._id)}
               />
             </div>
           ))}
@@ -98,7 +115,6 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
     </div>
   );
 }
-
 
 function GardenItemSkeleton() {
   return (
@@ -143,4 +159,4 @@ function GardenItemSkeleton() {
   );
 }
 
-export { GardenItem,GardenItemSkeleton };
+export { GardenItem, GardenItemSkeleton };

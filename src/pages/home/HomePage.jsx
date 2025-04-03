@@ -31,118 +31,115 @@ function HomePage() {
   const [deviceData, setDeviceData] = useState(null);
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
+  const fetchUserDevices = async () => {
     if (!token) return;
+    try {
+      // ✅ Fetch user info
+      const userResponse = await getUserInfoAPI();
+      const userData = userResponse.data.data;
+      setUser(userData);
 
-    const fetchUserDevices = async () => {
-      try {
-        // ✅ Fetch user info
-        const userResponse = await getUserInfoAPI();
-        const userData = userResponse.data.data;
-        setUser(userData);
+      // ✅ Fetch user's gardens
+      const deviceResponse = await getGardenby();
+      const deviceIds = deviceResponse.data.data || [];
 
-        // ✅ Fetch user's gardens
-        const deviceResponse = await getGardenby();
-        const deviceIds = deviceResponse.data.data || [];
-
-        if (deviceIds.length === 0) {
-          console.log("No devices found.");
-          setDeviceData([]); // ✅ Show empty state
-          return;
-        }
-
-        // ✅ Fetch garden devices
-        const devicePromises = deviceIds.map(async (deviceId) =>
-          getGardenByDevice(deviceId)
-            .then((res) => res?.data?.data || null)
-            .catch((err) => {
-              console.error(`Error fetching device ${deviceId}:`, err);
-              return null;
-            })
-        );
-
-        const deviceResponses = await Promise.all(devicePromises);
-        const validDevices = deviceResponses.filter(Boolean);
-
-        // ✅ Get all sensor & control IDs
-        const sensorIds = validDevices.flatMap((device) =>
-          device.sensors ? device.sensors.map(({ sensorId }) => sensorId) : []
-        );
-        const controlIds = validDevices.flatMap((device) =>
-          device.controls
-            ? device.controls.map(({ controlId }) => controlId)
-            : []
-        );
-
-        // ✅ Fetch all sensors & controls
-        const [sensorsResponse, controlsResponse] = await Promise.all([
-          Promise.all(
-            sensorIds.map((sensorId) =>
-              getSensorById(sensorId)
-                .then((res) => res?.data || null)
-                .catch((err) => {
-                  console.error(`Error fetching sensor ${sensorId}:`, err);
-                  return null;
-                })
-            )
-          ),
-          Promise.all(
-            controlIds.map((controlId) =>
-              getControlById(controlId)
-                .then((res) => res?.data || null)
-                .catch((err) => {
-                  console.error(`Error fetching control ${controlId}:`, err);
-                  return null;
-                })
-            )
-          ),
-        ]);
-
-        // ✅ Create sensor and control maps
-        const sensorsMap = Object.fromEntries(
-          sensorsResponse
-            .filter(
-              (sensor) =>
-                sensor &&
-                (sensor.type === "temperature" || sensor.type === "moisture")
-            )
-            .map((sensor) => [sensor._id, sensor])
-        );
-
-        const controlsMap = Object.fromEntries(
-          controlsResponse
-            .filter(
-              (control) =>
-                control &&
-                (control.name === "light" || control.name === "water")
-            )
-            .map((control) => [control._id, control])
-        );
-
-        // ✅ Attach data to devices after ensuring all sensors and controls are fetched
-        const finalDevices = validDevices.map((device) => ({
-          ...device,
-          sensors: (device.sensors || []).map(({ sensorId }) => ({
-            ...sensorsMap[sensorId],
-            value:
-              sensorsMap[sensorId]?.value !== undefined &&
-              sensorsMap[sensorId]?.value !== null
-                ? sensorsMap[sensorId]?.value
-                : "---", // Only fallback to "---" for undefined or null values
-          })),
-          controls: (device.controls || []).map(({ controlId }) => ({
-            ...controlsMap[controlId],
-            status: controlsMap[controlId]?.status ?? false, // Default status if missing
-          })),
-        }));
-
-        setDeviceData(finalDevices);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setDeviceData(null);
+      if (deviceIds.length === 0) {
+        console.log("No devices found.");
+        setDeviceData([]); // Show empty state if no devices
+        return;
       }
-    };
 
+      // ✅ Fetch garden devices
+      const devicePromises = deviceIds.map(async (deviceId) =>
+        getGardenByDevice(deviceId)
+          .then((res) => res?.data?.data || null)
+          .catch((err) => {
+            console.error(`Error fetching device ${deviceId}:`, err);
+            return null;
+          })
+      );
+
+      const deviceResponses = await Promise.all(devicePromises);
+      const validDevices = deviceResponses.filter(Boolean);
+
+      // ✅ Get all sensor & control IDs from valid devices
+      const sensorIds = validDevices.flatMap((device) =>
+        device.sensors ? device.sensors.map(({ sensorId }) => sensorId) : []
+      );
+      const controlIds = validDevices.flatMap((device) =>
+        device.controls ? device.controls.map(({ controlId }) => controlId) : []
+      );
+
+      // ✅ Fetch all sensors & controls in parallel
+      const [sensorsResponse, controlsResponse] = await Promise.all([
+        Promise.all(
+          sensorIds.map((sensorId) =>
+            getSensorById(sensorId)
+              .then((res) => res?.data || null)
+              .catch((err) => {
+                console.error(`Error fetching sensor ${sensorId}:`, err);
+                return null;
+              })
+          )
+        ),
+        Promise.all(
+          controlIds.map((controlId) =>
+            getControlById(controlId)
+              .then((res) => res?.data || null)
+              .catch((err) => {
+                console.error(`Error fetching control ${controlId}:`, err);
+                return null;
+              })
+          )
+        ),
+      ]);
+
+      // ✅ Create sensor and control maps for easy access
+      const sensorsMap = Object.fromEntries(
+        sensorsResponse
+          .filter(
+            (sensor) =>
+              sensor &&
+              (sensor.type === "temperature" || sensor.type === "moisture")
+          )
+          .map((sensor) => [sensor._id, sensor])
+      );
+
+      const controlsMap = Object.fromEntries(
+        controlsResponse
+          .filter(
+            (control) =>
+              control && (control.name === "light" || control.name === "water")
+          )
+          .map((control) => [control._id, control])
+      );
+
+      // ✅ Attach sensor and control data to devices
+      const finalDevices = validDevices.map((device) => ({
+        ...device,
+        sensors: (device.sensors || []).map(({ sensorId }) => ({
+          ...sensorsMap[sensorId], // Attach sensor data
+          value:
+            sensorsMap[sensorId]?.value !== undefined &&
+            sensorsMap[sensorId]?.value !== null
+              ? sensorsMap[sensorId]?.value
+              : "---", // Use fallback value if sensor value is undefined or null
+        })),
+        controls: (device.controls || []).map(({ controlId }) => ({
+          ...controlsMap[controlId], // Attach control data
+          status: controlsMap[controlId]?.status ?? false, // Default to false if status is missing
+        })),
+      }));
+
+      setDeviceData(finalDevices); // Save final devices with attached data
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setDeviceData(null); // Handle error and set devices to null
+    }
+  };
+
+  // ✅ Call it inside useEffect
+  useEffect(() => {
     fetchUserDevices();
   }, [token]);
 
@@ -201,8 +198,13 @@ function HomePage() {
               <button className="bg-green-700 text-white rounded-2xl p-2">
                 <Plus
                   size={24}
-                  onClick={() =>
-                    user && addDevicePopup({ userId: user._id, role: "member" })
+                  onClick={
+                    () =>
+                      user &&
+                      addDevicePopup(
+                        { userId: user._id, role: "member" },
+                        fetchUserDevices
+                      ) // ✅ Pass function
                   }
                 />
               </button>
