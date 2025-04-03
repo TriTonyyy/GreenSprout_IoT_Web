@@ -215,7 +215,8 @@ function HomePage() {
               <GardenItemSkeleton />
             ) : deviceData.length > 0 ? (
               deviceData.map((device) => (
-                <GardenItem key={device.id_esp} {...device} />
+                // console.log(device.id_esp),
+                <GardenItem key={device.id_esp} id={device.id_esp} {...device} />
               ))
             ) : (
               <AddDeviceButton />
