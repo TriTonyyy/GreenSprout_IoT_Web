@@ -1,12 +1,14 @@
 import React from 'react'
 import { Search } from 'lucide-react';
 import { useSelector } from 'react-redux';
-import { getUserCredential } from '../../redux/selectors/authSelectors';
+import { getTokenUser, getUserCredential } from '../../redux/selectors/authSelectors';
 import { useNavigate } from "react-router";
+import { getUserInfoAPI } from '../../api/AuthApi';
+
 
 function SearchBarComponent() {
   const searchData = () => {
-    console.log("wqeqweq");
+    // console.log("wqeqweq");
   };
   return (
     <div className="p-5 h-auto ">
@@ -24,10 +26,9 @@ function SearchBarComponent() {
   );
 }
 
-function HeaderComponent({titleScheduleColor="black", titleReportColor ='black'}) {
-
+function HeaderComponent({titleScheduleColor="black", titleReportColor ='black',userName}) {
   const headerFont = 'Kodchasan';
-  const user = useSelector(getUserCredential);
+  // const user = useSelector(getTokenUser);
   // console.log(user, "asdasdasd");
   const navigate = useNavigate();
   return (
@@ -65,10 +66,9 @@ function HeaderComponent({titleScheduleColor="black", titleReportColor ='black'}
         <div className='flex items-center'>
           <SearchBarComponent/>
           <div className='flex items-center'>
-            <h2 className='text-2xl p-4' style={{ fontFamily: headerFont }}>User name</h2>
+            <h2 className='text-2xl p-4' style={{ fontFamily: headerFont }}>{userName}</h2>
             <img onClick={()=>{console.log("dasd");
             }} src={require("../../assets/images/AvatarDefault.png")} className='w-18 h-auto max-w-full' alt='avatar'/>
-
           </div>
         </div>
       </div>

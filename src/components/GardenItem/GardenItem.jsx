@@ -7,8 +7,7 @@ import { updateControlById } from "../../api/deviceApi";
 
 function GardenItem({ id, name, sensors = [], controls = [] }) {
   const navigate = useNavigate();
-  
-  console.log("Garden ID:", id);
+  // console.log("Garden ID:", id);
   // console.log("Sensors Data:", sensors);
   // console.log("Controls Data:", controls);
   // Default sensor types
