@@ -1,26 +1,29 @@
-import React, {useState, useEffect, use} from 'react'
+import React, {useState} from 'react'
 import {useNavigate } from "react-router";
 import {useSelector, useDispatch} from 'react-redux';
-import { registerApi, loginApi } from '../../api/AuthApi';
+import {loginApi } from '../../api/AuthApi';
 import {deviceDetect} from 'react-device-detect';
-import { UserCredential } from '../../redux/Reducers/AuthReducer';
-import { getUserCredential } from '../../redux/selectors/authSelectors';
+import { UserCredential, tokenUser } from '../../redux/Reducers/AuthReducer';
+import { getUserCredential, getTokenUser } from '../../redux/selectors/authSelectors';
+import { setToken } from '../../helper/tokenHelper';
 
 function AuthPage({isLogin}) {
   const userCre = useSelector(getUserCredential);
-  const [userName, setUserName] = useState('')
+  const token = useSelector(getTokenUser);
+  const [name, setName] = useState('')
   const [email, setEmail] = useState(userCre?.email ? userCre.email : '');
   const [password, setPassword] = useState('')
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const deviceInfo = deviceDetect();
   
-
   const signIn = ()=>{
+    dispatch(UserCredential({email, password, name}))
     loginApi({email, password, deviceID:deviceInfo.userAgent})
       .then((res)=>{
-        console.log(res);
-        alert(res.data.message);
+        setToken(res.data.data);
+        console.log(res, "res login");
+        dispatch(tokenUser(res.data.data))
         navigate('/home')
       })
       .catch((err)=>{
@@ -31,7 +34,7 @@ function AuthPage({isLogin}) {
   }
 
   const register =()=>{
-    dispatch(UserCredential({email, password, userName}))
+    dispatch(UserCredential({email, password, name}))
     navigate('/register-email')
   }
 
@@ -46,14 +49,14 @@ function AuthPage({isLogin}) {
                   onChange={(e)=> setEmail(e.target.value)} 
                   type='text' 
                   placeholder='Nhập email' 
-                  className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
+                  className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full'
                 /> 
                 {!isLogin && (
-                  <input value={userName}
-                  onChange={(e)=> setUserName(e.target.value)} 
+                  <input value={name}
+                  onChange={(e)=> setName(e.target.value)} 
                   type='text' 
                   placeholder='Tên đăng nhập' 
-                  className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
+                  className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full'
                 /> 
                 )}
                 <input 
@@ -61,7 +64,7 @@ function AuthPage({isLogin}) {
                   onChange={(e)=> setPassword(e.target.value)} 
                   type='password' 
                   placeholder='Mật khẩu' 
-                  className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
+                  className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full'
                 />
                 {isLogin && <a href='/' className='p-1 m-1'>Quên mật khẩu</a>}
                 <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-purple' onClick={isLogin ? signIn : register}>{ isLogin ? "Đăng nhập" : "Đăng ký"}</button>

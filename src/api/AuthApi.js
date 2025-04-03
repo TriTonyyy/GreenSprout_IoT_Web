@@ -16,6 +16,10 @@ export const loginApi = (payload) => {
     return axiosClient.post(`/api/user/login`, payload);
 }
 
-export const getGardenAPI = (id) => {
-    return axiosClient.post(`/api/garden/${id}`);
+export const getUserInfoAPI =() => {
+    return axiosClient.get(`/api/user/profile`);
 }
+
+export const updateUserGarden = (gardenId) => {
+    return axiosClient.put(`/api/user/updateGardenId`, gardenId );
+}   

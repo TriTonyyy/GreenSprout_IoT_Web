@@ -6,6 +6,7 @@ import HomePage from "./pages/home/HomePage";
 import AuthPage from "./pages/auth/AuthPage";
 import DetailedGardenPage from "./pages/detailed garden/DetailedGardenPage";
 import AuthEmail from "./pages/auth/AuthEmail";
+import SchedulePage from "./pages/schedule/SchedulePage";
 
 function App() {
   return (
@@ -16,7 +17,9 @@ function App() {
       <Route path="home" element={<HomePage />} />
       <Route path="register-email" element={<AuthEmail isTypeOTP={false} />} />
       <Route path="otp" element={<AuthEmail isTypeOTP={true} />} />
-      <Route path="/garden/:gardenId" element={<DetailedGardenPage />} />
+      <Route path="/garden/:gardenId" element={<DetailedGardenPage />}/>
+      <Route path="/schedule" element={<SchedulePage />}/>
+
     </Routes>
   );
 }

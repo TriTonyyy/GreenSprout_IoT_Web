@@ -1,4 +1,3 @@
-import { red } from '@mui/material/colors';
 import { combineReducers } from '@reduxjs/toolkit';
 import authReducer from './AuthReducer';
 

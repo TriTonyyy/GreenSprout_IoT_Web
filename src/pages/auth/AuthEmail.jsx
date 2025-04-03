@@ -1,4 +1,4 @@
-import React, {useState, useEffect, use} from 'react'
+import React, {useState} from 'react'
 import {useNavigate } from "react-router";
 import { registerApi, sendCodeApi, verifyOtpApi } from '../../api/AuthApi';
 import{ useSelector } from 'react-redux';
@@ -15,6 +15,8 @@ const userCre = useSelector(getUserCredential);
     sendCodeApi(email)
         .then((res)=>{
             console.log(res);
+            alert(res.data.message);
+
         })
         .catch((err)=>{
             console.log(err);
