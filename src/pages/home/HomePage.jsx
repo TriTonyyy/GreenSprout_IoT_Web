@@ -151,7 +151,7 @@ function HomePage() {
     <div>
       {user ? (
         <>
-          <HeaderComponent />
+          <HeaderComponent userName ={user.name}/>
           <div className="flex justify-between items-center px-10 py-10">
             <h1 className="text-4xl font-bold">
               Vườn của <span className="text-green-500">{user.name}</span>
@@ -215,7 +215,8 @@ function HomePage() {
               <GardenItemSkeleton />
             ) : deviceData.length > 0 ? (
               deviceData.map((device) => (
-                <GardenItem key={device.id_esp} {...device} />
+                // console.log(device.id_esp),
+                <GardenItem key={device.id_esp} id={device.id_esp} {...device} />
               ))
             ) : (
               <AddDeviceButton />

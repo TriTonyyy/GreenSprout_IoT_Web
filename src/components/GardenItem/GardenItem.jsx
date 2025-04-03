@@ -7,7 +7,8 @@ import { updateControlById } from "../../api/deviceApi";
 
 function GardenItem({ id, name, sensors = [], controls = [] }) {
   const navigate = useNavigate();
-  console.log("Sensors Data:", sensors);
+  // console.log("Garden ID:", id);
+  // console.log("Sensors Data:", sensors);
   // console.log("Controls Data:", controls);
   // Default sensor types
   const sensorTypes = ["temperature", "moisture"];
@@ -58,8 +59,8 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
     }
   };
 
-  const handleImageGardenClick = () => {
-    navigate(`/garden/${id}`);
+  const handleImageGardenClick = (deviceId) => {
+    navigate(`/garden/${deviceId}`);
   };
 
   return (
@@ -69,7 +70,7 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
           src={require("../../assets/images/ItemImg.png")}
           alt="Garden"
           className="w-full h-full object-cover cursor-pointer transition-transform hover:scale-105 rounded-xl"
-          onClick={handleImageGardenClick}
+          onClick={() => handleImageGardenClick(id)}
         />
       </div>
       <div className="w-3/5 p-4 flex flex-col justify-between">
