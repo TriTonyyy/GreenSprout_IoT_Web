@@ -1,10 +1,6 @@
 import React from 'react'
 import { Search } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import { getTokenUser, getUserCredential } from '../../redux/selectors/authSelectors';
 import { useNavigate } from "react-router";
-import { getUserInfoAPI } from '../../api/AuthApi';
-
 
 function SearchBarComponent() {
   const searchData = () => {

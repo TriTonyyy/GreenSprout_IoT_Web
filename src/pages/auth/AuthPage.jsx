@@ -4,12 +4,13 @@ import {useSelector, useDispatch} from 'react-redux';
 import {loginApi } from '../../api/AuthApi';
 import {deviceDetect} from 'react-device-detect';
 import { UserCredential, tokenUser } from '../../redux/Reducers/AuthReducer';
-import { getUserCredential, getTokenUser } from '../../redux/selectors/authSelectors';
+import { getUserCredential } from '../../redux/selectors/authSelectors';
 import { setToken } from '../../helper/tokenHelper';
+import { apiResponseHandler } from '../../components/Alert/alertComponent';
 
 function AuthPage({isLogin}) {
   const userCre = useSelector(getUserCredential);
-  const token = useSelector(getTokenUser);
+  // const token = useSelector(getTokenUser);
   const [name, setName] = useState('')
   const [email, setEmail] = useState(userCre?.email ? userCre.email : '');
   const [password, setPassword] = useState('')
@@ -21,15 +22,14 @@ function AuthPage({isLogin}) {
     dispatch(UserCredential({email, password, name}))
     loginApi({email, password, deviceID:deviceInfo.userAgent})
       .then((res)=>{
-        setToken(res.data.data);
-        console.log(res, "res login");
+        setToken(res.data);
+        // console.log(res, "res login");
         dispatch(tokenUser(res.data.data))
         navigate('/home')
       })
       .catch((err)=>{
-        console.log(err, "err");
-        
-        alert(err.response.data.message);
+        // console.log(err, "err");
+        apiResponseHandler(err.response.data.message);
       })
   }
 
