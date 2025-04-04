@@ -1,35 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";  
+import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { updateControlById } from "../../../api/deviceApi";
 
 function GardenItem({ id, name, sensors = [], controls = [] }) {
   const navigate = useNavigate();
-  // console.log("Garden ID:", id);
-  // console.log("Sensors Data:", sensors);
-  // console.log("Controls Data:", controls);
-  // Default sensor types
   const sensorTypes = ["temperature", "moisture"];
-
-  // Default control names
   const controlNames = ["water", "light"];
 
-  // Map over sensor types to ensure all required sensors are displayed
   const displayedSensors = sensorTypes.map((type) => {
     return sensors.find((s) => s.type === type) || { type, value: "---" };
   });
 
-  // Map over control names to ensure all required controls are displayed
   const displayedControls = controlNames.map((name) => {
     return controls.find((c) => c.name === name) || { name, status: false };
   });
 
-  // State for toggles
   const [controlStatuses, setControlStatuses] = useState({});
 
-  // Sync toggle states when control data updates
   useEffect(() => {
     const updatedStatuses = {};
     displayedControls.forEach((control) => {
@@ -40,16 +30,13 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
 
   const handleToggle = async (controlName, controlId) => {
     try {
-      const newStatus = !controlStatuses[controlName]; // Toggle status
+      const newStatus = !controlStatuses[controlName];
       setControlStatuses((prev) => ({
         ...prev,
         [controlName]: newStatus,
       }));
-      // Log for debugging to ensure correct values are sent to backend
-      console.log(
-        `Updating control ${controlName} with ID: ${controlId}, newStatus: ${newStatus}`
-      );
-      await updateControlById(controlId, { status: newStatus }); // Send status in object form
+
+      await updateControlById(controlId, { status: newStatus });
     } catch (error) {
       console.error("Error updating control status:", error);
       setControlStatuses((prev) => ({
@@ -74,17 +61,15 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
         />
       </div>
       <div className="w-3/5 p-4 flex flex-col justify-between">
-        {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-semibold text-gray-800">{name}</h1>
           <img
-            src={require("../../../assets/images/ItemImg.png")}
+            src={require("../../../assets/images/TreePlanting.png")}
             className="w-6 h-6 cursor-pointer hover:opacity-80"
             alt="edit"
           />
         </div>
 
-        {/* Sensor Data (Temperature & Moisture) */}
         <div className="space-y-2 text-gray-700">
           {displayedSensors.map((sensor, index) => (
             <div key={index} className="px-2 flex justify-between items-center">
@@ -98,7 +83,6 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
           ))}
         </div>
 
-        {/* Controls (Water & Light) */}
         <div className="space-y-1 text-gray-700">
           {displayedControls.map((control, index) => (
             <div key={index} className="px-2 flex justify-between items-center">
