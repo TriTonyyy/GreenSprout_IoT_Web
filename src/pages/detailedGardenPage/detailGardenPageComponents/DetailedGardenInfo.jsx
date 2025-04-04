@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
+import { getGardenByDevice } from "../../../api/deviceApi";
 
 const GardenImage = ({ src }) => (
   <img
@@ -30,9 +31,6 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   // Toggles for water & light
   const [waterOn, setWaterOn] = useState(false);
   const [lightOn, setLightOn] = useState(false);
-
-  const linkApi = "https://capstone-project-iot-1.onrender.com/api/";
-
   // const translateSensorType = (sensorType) => {
   //   const translationMap = {
   //     moisture: "Độ ẩm đất",
@@ -60,69 +58,44 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   useEffect(() => {
     const fetchGardenData = async () => {
       try {
-        // 1) Fetch device details
-        const response = await axios.get(
-          `${linkApi}device/detailDeviceBy/6CE6C6FC8AD4`
-          // "https://capstone-project-iot-1.onrender.com/api/device/detailDeviceBy/6CE6C6FC8AD4"
-        );
-        const device = response.data.data;
+        const res = await getGardenByDevice(deviceId);
+        console.log(res.data);
+        const device = res?.data || null;
         if (!device) throw new Error("Device not found or invalid ID");
-
-        // 2) Fetch sensors & controls
-        const sensorPromises = device.sensors.map(({ sensorId }) =>
-          axios.get(`${linkApi}sensor/detailSensorBy/${sensorId}`)
-        );
-        const controlPromises = device.controls.map(({ controlId }) =>
-          axios.get(`${linkApi}control/detailControlBy/${controlId}`)
-        );
-
-        const [sensorResponses, controlResponses] = await Promise.all([
-          Promise.all(sensorPromises),
-          Promise.all(controlPromises),
-        ]);
-
-        // 3) Build maps so we can easily reference sensor/control by ID
-        const tempSensorsMap = {};
-        sensorResponses.forEach((res) => {
-          const sensorData = res.data.data || res.data;
-          tempSensorsMap[sensorData._id] = sensorData;
-        });
-
-        const tempControlsMap = {};
-        controlResponses.forEach((res) => {
-          const controlData = res.data.data || res.data;
-          tempControlsMap[controlData._id] = controlData;
-        });
-
-        setSensorsMap(tempSensorsMap);
-        setControlsMap(tempControlsMap);
-
-        // 4) Determine status for water & light toggles
-        const waterControl = device.controls.find(
-          (c) => tempControlsMap[c.controlId]?.name === "water"
-        );
-        const lightControl = device.controls.find(
-          (c) => tempControlsMap[c.controlId]?.name === "light"
-        );
-
-        setWaterOn(
-          waterControl ? tempControlsMap[waterControl.controlId].status : false
-        );
-        setLightOn(
-          lightControl ? tempControlsMap[lightControl.controlId].status : false
-        );
-
-        // 5) Store entire device in state for UI usage
+  
+        // Set the garden data directly
         setGardenData(device);
+  
+        // Set the sensors and controls from the device data
+        const tempSensorsMap = {};
+        device.sensors.forEach((sensor) => {
+          tempSensorsMap[sensor._id] = sensor;
+        });
+        setSensorsMap(tempSensorsMap);
+  
+        const tempControlsMap = {};
+        device.controls.forEach((control) => {
+          tempControlsMap[control.name] = control;
+        });
+        setControlsMap(tempControlsMap);
+  
+        // Set water and light statuses based on control data
+        const waterControl = device.controls.find((control) => control.name === "Pump");
+        const lightControl = device.controls.find((control) => control.name === "Light");
+  
+        setWaterOn(waterControl ? waterControl.status : false);
+        setLightOn(lightControl ? lightControl.status : false);
+  
       } catch (error) {
         console.error("Error fetching garden data:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchGardenData();
   }, [deviceId]);
+  
 
   if (loading) return <div className="text-center">Loading garden data...</div>;
   if (!gardenData)
