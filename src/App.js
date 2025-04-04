@@ -1,10 +1,9 @@
 import logo from "./logo.svg";
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router";
-import { DetailedGardenInfo } from "./components/DetailedGardenInfo/DetailedGardenInfo"
-import HomePage from "./pages/home/HomePage";
+import HomePage from "./pages/homePage/HomePage";
 import AuthPage from "./pages/auth/AuthPage";
-import DetailedGardenPage from "./pages/detailed garden/DetailedGardenPage";
+import DetailedGardenPage from "./pages/detailedGardenPage/DetailedGardenPage";
 import AuthEmail from "./pages/auth/AuthEmail";
 import SchedulePage from "./pages/schedule/SchedulePage";
 

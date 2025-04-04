@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { ToggleSwitch } from "../ToggleComponent/ToggleSwitch";
+import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";  
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { updateControlById } from "../../api/deviceApi";
+import { updateControlById } from "../../../api/deviceApi";
 
 function GardenItem({ id, name, sensors = [], controls = [] }) {
   const navigate = useNavigate();
@@ -67,7 +67,7 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
     <div className="w-[30%] h-2/3 rounded-xl border-2 shadow-lg bg-white flex overflow-hidden">
       <div className="p-2 w-2/5 bg-green-200 rounded-xl border-r-2">
         <img
-          src={require("../../assets/images/ItemImg.png")}
+          src={require("../../../assets/images/ItemImg.png")}
           alt="Garden"
           className="w-full h-full object-cover cursor-pointer transition-transform hover:scale-105 rounded-xl"
           onClick={() => handleImageGardenClick(id)}
@@ -78,7 +78,7 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-semibold text-gray-800">{name}</h1>
           <img
-            src={require("../../assets/images/TreePlanting.png")}
+            src={require("../../../assets/images/ItemImg.png")}
             className="w-6 h-6 cursor-pointer hover:opacity-80"
             alt="edit"
           />

@@ -1,9 +1,9 @@
 import React from "react";
 import HeaderComponent from "../../components/Header/HeaderComponent";
 import { useParams } from "react-router";
-import { GardenTitle } from "../../components/DetailedGardenInfo/GardenTitle";
-import { DetailedGardenInfo } from "../../components/DetailedGardenInfo/DetailedGardenInfo";
-import IrrigationModeSection from "../../components/DetailedGardenInfo/IrrigationModeSection";
+import { GardenTitle } from "../../pages/detailedGardenPage/detailGardenPageComponents/GardenTitle";
+import { DetailedGardenInfo } from "../../pages/detailedGardenPage/detailGardenPageComponents/DetailedGardenInfo";
+import IrrigationModeSection from "../../pages/detailedGardenPage/detailGardenPageComponents/IrrigationModeSection";
 import FooterComponent from "../../components/FooterComponent/FooterComponent";
 
 function DetailedGarden() {

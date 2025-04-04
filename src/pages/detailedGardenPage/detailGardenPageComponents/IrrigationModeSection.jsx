@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { ToggleSwitch } from "../ToggleComponent/ToggleSwitch";
+import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import axios from "axios";
 
 const dayOrder = ["2", "3", "4", "5", "6", "7", "CN"];

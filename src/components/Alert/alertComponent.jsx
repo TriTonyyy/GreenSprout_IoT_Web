@@ -42,3 +42,10 @@ export const addDevicePopup = (member, fetchUserDevices) => { // 👈 Accept fun
     retryFunction();
 };
 
+export const apiResponseHandler = (message) => {
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: message || 'Something went wrong!',
+    });
+}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { ToggleSwitch } from "../ToggleComponent/ToggleSwitch";
+import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 
 const GardenImage = ({ src }) => (
   <img
@@ -130,7 +130,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
 
   // Fallback image if the device has no imageUrl
   const imageUrl =
-    gardenData.imageUrl || require("../../assets/images/ItemImg.png");
+    gardenData.imageUrl || require("../../../assets/images/ItemImg.png");
 
   // If you store "reports" in gardenData, you can map them out below if you want
   const { reports = [] } = gardenData;
