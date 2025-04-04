@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect,useState} from 'react'
 import { Search } from 'lucide-react';
 import { useNavigate } from "react-router";
+import { getUserInfoAPI } from '../../api/AuthApi';
 
 function SearchBarComponent() {
   const searchData = () => {
@@ -22,12 +23,22 @@ function SearchBarComponent() {
   );
 }
 
-function HeaderComponent({titleScheduleColor="black", titleReportColor ='black',userName}) {
+function HeaderComponent({titleScheduleColor="black", titleReportColor ='black'}) {
   const headerFont = 'Kodchasan';
   // const user = useSelector(getTokenUser);
   // console.log(user, "asdasdasd");
-  useEffect(() => {
+  const [userName, setUserName] = useState("");
+  const [avatar, setAvatar] = useState("");
 
+  useEffect(() => {
+    getUserInfoAPI()
+      .then((res)=>{
+        setUserName(res.data.name);
+        setAvatar(res.data.avatar);
+      })
+      .catch((err)=>{
+        console.log(err);
+      })
   }, [])
   const navigate = useNavigate();
   return (

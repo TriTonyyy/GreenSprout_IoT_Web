@@ -169,7 +169,7 @@ function HomePage() {
     <div>
       {user ? (
         <>
-          <HeaderComponent userName={user.name} />
+          <HeaderComponent />
           <div className="flex justify-between items-center px-10 py-10">
             <h1 className="text-4xl font-bold">
               Vườn của <span className="text-green-500">{user.name}</span>
