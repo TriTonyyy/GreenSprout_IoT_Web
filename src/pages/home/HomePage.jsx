@@ -24,7 +24,6 @@ import "react-loading-skeleton/dist/skeleton.css"; // To style the skeleton
 import { addDevicePopup } from "../../components/Alert/alertComponent.js";
 
 function HomePage() {
-  const token = useSelector(getTokenUser);
   const [anchorEl, setAnchorEl] = useState(null);
   const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
   const [isLightStatus, setIsLightStatus] = useState(false);
@@ -32,7 +31,6 @@ function HomePage() {
   const [user, setUser] = useState(null);
 
   const fetchUserDevices = async () => {
-    if (!token) return;
     try {
       // ✅ Fetch user info
       const userResponse = await getUserInfoAPI();
@@ -141,7 +139,7 @@ function HomePage() {
   // ✅ Call it inside useEffect
   useEffect(() => {
     fetchUserDevices();
-  }, [token]);
+  }, []);
 
   const open = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);

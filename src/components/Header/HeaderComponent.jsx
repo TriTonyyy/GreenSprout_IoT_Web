@@ -1,7 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Search } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import { getTokenUser, getUserCredential } from '../../redux/selectors/authSelectors';
 import { useNavigate } from "react-router";
 import { getUserInfoAPI } from '../../api/AuthApi';
 
@@ -12,7 +10,7 @@ function SearchBarComponent() {
   };
   return (
     <div className="p-5 h-auto ">
-      <div className="flex items-center bg-gray-100 rounded-lg">
+      <div className="flex items-center bg-gray-100 rounded-lg">  
         <input
           type="text"
           className="p-2 rounded-lg bg-gray-100"
@@ -30,6 +28,9 @@ function HeaderComponent({titleScheduleColor="black", titleReportColor ='black',
   const headerFont = 'Kodchasan';
   // const user = useSelector(getTokenUser);
   // console.log(user, "asdasdasd");
+  useEffect(() => {
+
+  }, [])
   const navigate = useNavigate();
   return (
     <div className="flex items-center p-1 border-b-2">
@@ -65,7 +66,7 @@ function HeaderComponent({titleScheduleColor="black", titleReportColor ='black',
         </div>
         <div className='flex items-center'>
           <SearchBarComponent/>
-          <div className='flex items-center'>
+          <div className='flex items-center' onClick={()=>{navigate('/account')}}>
             <h2 className='text-2xl p-4' style={{ fontFamily: headerFont }}>{userName}</h2>
             <img onClick={()=>{console.log("dasd");
             }} src={require("../../assets/images/AvatarDefault.png")} className='w-18 h-auto max-w-full' alt='avatar'/>
