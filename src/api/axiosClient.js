@@ -20,9 +20,12 @@ const axiosClient = axios.create({
 // ✅ Properly retrieve the token before each request
 axiosClient.interceptors.request.use(
   async (req) =>  {
-    token = await getToken(); 
-    // console.log("Token in interceptor:", token);    
-    if (token) req.headers.Authorization = `Bearer ${token}`;
+    if(!token){
+        token = await getToken(); 
+        req.headers.Authorization = `Bearer ${token}`;
+    }
+    token = await getToken();
+    req.headers.Authorization = `Bearer ${token}`;
     return req;
   },
   (error) => Promise.reject(error)
