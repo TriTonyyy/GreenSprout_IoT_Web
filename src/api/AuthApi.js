@@ -1,25 +1,38 @@
 import axiosClient from "./axiosClient";
 
-export const sendCodeApi = (email) => {
-    return axiosClient.get(`/api/user/sendCode/${email}`);
-}
+// Function to send verification code
+export const sendCodeApi = async (email) => {
+    const response = await axiosClient.get(`/api/user/sendCode/${email}`);
+    return response.data;  // Return the data from the API response
+};
 
-export const verifyOtpApi = (payload) => {
-    return axiosClient.post(`/api/user/verifyOTP`, payload);
-}
+// Function to verify OTP
+export const verifyOtpApi = async (payload) => {
+    const response = await axiosClient.post(`/api/user/verifyOTP`, payload);
+    return response.data;  // Return the data from the API response
+};
 
-export const registerApi = (payload) => {
-    return axiosClient.post(`/api/user/register`, payload);
-}
+// Function to register a user
+export const registerApi = async (payload) => {
+    const response = await axiosClient.post(`/api/user/register`, payload);
+    return response.data;  // Return the data from the API response
+};
 
-export const loginApi = (payload) => {
-    return axiosClient.post(`/api/user/login`, payload);
-}
+// Function to login a user
+export const loginApi = async (payload) => {
+    const response = await axiosClient.post(`/api/user/login`, payload);
+    return response.data;  // Return the data from the API response
+};
 
-export const getUserInfoAPI =() => {
-    return axiosClient.get(`/api/user/profile`);
-}
+// Function to get user profile info
+export const getUserInfoAPI = async () => {
+    const response = await axiosClient.get(`/api/user/profile`);
+    return response.data;  // Return the data from the API response
+};
 
-export const updateUserGarden = (gardenId) => {
-    return axiosClient.put(`/api/user/updateGardenId`, gardenId );
-}   
+// Function to update user garden
+export const updateUserGarden = async (gardenId) => {
+    const response = await axiosClient.put(`/api/user/updateGardenId`, gardenId);
+    return response.data;  // Return the data from the API response
+};
+

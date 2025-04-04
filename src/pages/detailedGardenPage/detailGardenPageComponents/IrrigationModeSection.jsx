@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { ToggleSwitch } from "../ToggleComponent/ToggleSwitch";
+import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import axios from "axios";
 
 const dayOrder = ["2", "3", "4", "5", "6", "7", "CN"];
@@ -45,7 +45,7 @@ export default function IrrigationModeSection() {
   const fetchScheduleById = async () => {
     try {
       const response = await axios.get(
-        "http://192.168.1.158:8000/api/schedule/detailScheduleBy/67e2449cbf718b7f105543dc"
+        "https://capstone-project-iot-1.onrender.com/api/schedule/detailScheduleBy/67e2449cbf718b7f105543dc"
       );
 
       const schedule = response.data;
@@ -68,7 +68,7 @@ export default function IrrigationModeSection() {
     const newSchedule = {
       id: newId,
       time: "13:00",
-      duration: 10,
+      duration: 60,
       repeat: [],
       enabled: false,
     };
@@ -207,7 +207,6 @@ export default function IrrigationModeSection() {
                         </label>
                         <input
                           type="number"
-                          min="1"
                           max="120"
                           className="border rounded px-2 py-1 w-full"
                           value={s.duration / 60}

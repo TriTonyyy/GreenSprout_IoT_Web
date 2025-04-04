@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react'
 import { Search } from 'lucide-react';
 import { useNavigate } from "react-router";
-import { getUserInfoAPI } from '../../api/AuthApi';
-
 
 function SearchBarComponent() {
   const searchData = () => {
