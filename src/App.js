@@ -6,6 +6,7 @@ import AuthPage from "./pages/auth/AuthPage";
 import DetailedGardenPage from "./pages/detailedGardenPage/DetailedGardenPage";
 import AuthEmail from "./pages/auth/AuthEmail";
 import SchedulePage from "./pages/schedule/SchedulePage";
+import AccountPage from "./pages/account/AccountPage";
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
       <Route path="otp" element={<AuthEmail isTypeOTP={true} />} />
       <Route path="/garden/:gardenId" element={<DetailedGardenPage />}/>
       <Route path="/schedule" element={<SchedulePage />}/>
+      <Route path="/schedule" element={<SchedulePage />}/>
+      <Route path="/account" element={<AccountPage />} />
 
     </Routes>
   );

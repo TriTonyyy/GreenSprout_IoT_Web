@@ -21,7 +21,9 @@ import {
 } from "../../components/Alert/alertComponent.jsx";
 
 function HomePage() {
-  // const token = useSelector(getTokenUser);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [isIrrigationStatus, setIsIrrigationStatus] = useState(false);
+  const [isLightStatus, setIsLightStatus] = useState(false);
   const [deviceData, setDeviceData] = useState(null);
   const [user, setUser] = useState(null);
 
