@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Pencil } from "lucide-react";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import { getGardenByDevice, updateControlById } from "../../../api/deviceApi";
@@ -57,7 +56,7 @@ const ModeSelector = ({ currentMode, onChange }) => {
   const modeMap = {
     "Thủ công": "manual",
     "Theo lịch": "schedule",
-    Ngưỡng: "threshold",
+    "Ngưỡng": "threshold",
   };
 
   return (
