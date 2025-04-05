@@ -39,6 +39,7 @@ function HomePage() {
           const res = await getGardenByDevice(deviceId);
           return res?.data || null;
         } catch (err) {
+          apiResponseHandler(err); // Handle error response
           console.error(`Error fetching device ${deviceId}:`, err);
           return null;
         }
@@ -69,12 +70,13 @@ function HomePage() {
               <button className="bg-green-700 text-white rounded-2xl p-2">
                 <Plus
                   size={24}
-                  onClick={() =>
-                    user &&
-                    addDevicePopup(
-                      { userId: user._id, role: "member" },
-                      fetchUserDevices
-                    ) // Pass function to add device
+                  onClick={
+                    () =>
+                      user &&
+                      addDevicePopup(
+                        { userId: user._id, role: "member" },
+                        fetchUserDevices
+                      ) // Pass function to add device
                   }
                 />
               </button>
@@ -82,28 +84,29 @@ function HomePage() {
           </div>
           <div className="flex flex-wrap gap-8 px-10 py-8 min-h-screen">
             {deviceData === null ? (
-              // Render skeletons while loading data
-              <div className="w-full flex justify-center items-center">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <GardenItemSkeleton key={index} />
-                ))}
-              </div>
+              <>
+                <GardenItemSkeleton />
+                <GardenItemSkeleton />
+                <GardenItemSkeleton />
+              </>
             ) : deviceData.length > 0 ? (
+              (console.log(deviceData),
               deviceData.map((device) => (
                 <GardenItem
-                  key={device.id_esp}
+                  key={device._id} // _id is unique from your data
                   id={device.id_esp}
                   name={device.name_area}
-                  {...device}
+                  sensors={device.sensors}
+                  controls={device.controls}
                 />
-              ))
+              )))
             ) : (
               <AddDeviceButton onClick={addDevicePopup} />
             )}
           </div>
+          <FooterComponent />
         </>
       ) : null}
-      <FooterComponent />
     </div>
   );
 }

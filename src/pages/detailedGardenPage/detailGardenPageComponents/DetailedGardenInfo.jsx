@@ -7,7 +7,7 @@ const GardenImage = ({ src }) => (
   <img
     src={src}
     alt="Garden"
-    className="object-contain rounded-xl h-fit w-fit border-n-2 items-center mx-auto py-2"
+    className="object-contain rounded-xl  h-fit w-fit border-n-2 items-center mx-auto py-1 px-2"
   />
 );
 
@@ -23,25 +23,10 @@ const SensorReading = ({ label, value, unit }) => (
 export const DetailedGardenInfo = ({ deviceId }) => {
   const [loading, setLoading] = useState(true);
   const [gardenData, setGardenData] = useState(null);
-
-  // Sensor and control ID -> object maps
   const [sensorsMap, setSensorsMap] = useState({});
   const [controlsMap, setControlsMap] = useState({});
-
-  // Toggles for water & light
   const [waterOn, setWaterOn] = useState(false);
   const [lightOn, setLightOn] = useState(false);
-  // const translateSensorType = (sensorType) => {
-  //   const translationMap = {
-  //     moisture: "Độ ẩm đất",
-  //     temperature: "Nhiệt độ",
-  //     humidity: "Độ ẩm không khí",
-  //     stream: "Lưu lượng nước",
-  //     luminosity: "Cường độ ánh sáng",
-  //   };
-
-  //   return translationMap[sensorType] || sensorType; // Default to the input type if not found
-  // };
 
   const translateSensorType = (sensorType) => {
     const translationMap = {
@@ -51,7 +36,6 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       stream: { label: "Lưu lượng nước", unit: "m³/s" },
       luminosity: { label: "Cường độ ánh sáng", unit: "%" },
     };
-
     return translationMap[sensorType] || { label: sensorType, unit: "" };
   };
 
@@ -59,53 +43,50 @@ export const DetailedGardenInfo = ({ deviceId }) => {
     const fetchGardenData = async () => {
       try {
         const res = await getGardenByDevice(deviceId);
-        console.log(res.data);
         const device = res?.data || null;
         if (!device) throw new Error("Device not found or invalid ID");
-  
-        // Set the garden data directly
+
         setGardenData(device);
-  
+
         // Set the sensors and controls from the device data
         const tempSensorsMap = {};
         device.sensors.forEach((sensor) => {
           tempSensorsMap[sensor._id] = sensor;
         });
         setSensorsMap(tempSensorsMap);
-  
+
         const tempControlsMap = {};
         device.controls.forEach((control) => {
           tempControlsMap[control.name] = control;
         });
         setControlsMap(tempControlsMap);
-  
+
         // Set water and light statuses based on control data
-        const waterControl = device.controls.find((control) => control.name === "Pump");
-        const lightControl = device.controls.find((control) => control.name === "Light");
-  
+        const waterControl = device.controls.find(
+          (control) => control.name === "Pump"
+        );
+        const lightControl = device.controls.find(
+          (control) => control.name === "Light"
+        );
+
         setWaterOn(waterControl ? waterControl.status : false);
         setLightOn(lightControl ? lightControl.status : false);
-  
       } catch (error) {
         console.error("Error fetching garden data:", error);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchGardenData();
   }, [deviceId]);
-  
 
   if (loading) return <div className="text-center">Loading garden data...</div>;
   if (!gardenData)
     return <div className="text-center">Failed to load garden data.</div>;
 
-  // Fallback image if the device has no imageUrl
   const imageUrl =
-    gardenData.imageUrl || require("../../../assets/images/ItemImg.png");
-
-  // If you store "reports" in gardenData, you can map them out below if you want
+    gardenData.img_area || require("../../../assets/images/ItemImg.png");
   const { reports = [] } = gardenData;
 
   return (
@@ -124,27 +105,13 @@ export const DetailedGardenInfo = ({ deviceId }) => {
           Cảm biến
         </h2>
         <div className="flex flex-col">
-          {/* MAPPING each sensor for label & value */}
-          {gardenData.sensors.map(({ sensorId }) => {
-            const sensorObj = sensorsMap[sensorId];
-            if (!sensorObj) return null;
-
-            // e.g., sensorObj.name = "Moisture", sensorObj.value = 100, sensorObj.unit = "%"
-            // return (
-            //   <SensorReading
-            //     key={sensorObj._id}
-            //     label={translateSensorType(sensorObj.type) || "Unknown Sensor"}
-            //     value={`${sensorObj.value}${
-            //       sensorObj.unit ? ` ${sensorObj.unit}` : ""
-            //     }`}
-            //   />
-            // );
-            const { label, unit } = translateSensorType(sensorObj.type);
+          {gardenData.sensors.map(({ type, value, _id }) => {
+            const { label, unit } = translateSensorType(type);
             return (
               <SensorReading
-                key={sensorObj._id}
+                key={_id}
                 label={label || "Unknown Sensor"}
-                value={sensorObj.value}
+                value={value}
                 unit={unit}
               />
             );
@@ -152,7 +119,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
         </div>
       </div>
 
-      {/* Statistics Section (example usage of 'reports') */}
+      {/* Statistics Section */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-2">
         <h2 className="text-lg font-semibold text-center py-2 px-2 border-b mx-4 border-gray-300">
           Thống kê
