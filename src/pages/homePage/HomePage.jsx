@@ -5,7 +5,7 @@ import {
   GardenItem,
   GardenItemSkeleton,
 } from "./homePageComponents/GardenItem.jsx";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCcw } from "lucide-react";
 import { getUserInfoAPI } from "../../api/AuthApi.js";
 import { getGardenby, getGardenByDevice } from "../../api/deviceApi.js";
 import AddDeviceButton from "./homePageComponents/addDevice.jsx";
@@ -40,7 +40,6 @@ function HomePage() {
           return res?.data || null;
         } catch (err) {
           apiResponseHandler(err); // Handle error response
-          console.error(`Error fetching device ${deviceId}:`, err);
           return null;
         }
       });
@@ -48,13 +47,14 @@ function HomePage() {
       const deviceResponses = await Promise.all(devicePromises);
       setDeviceData(deviceResponses.filter((device) => device !== null)); // Remove failed devices
     } catch (error) {
-      // console.error("Error fetching data:", error);
       setDeviceData(null); // Reset device data state on error
     }
   };
 
   useEffect(() => {
-    fetchUserDevices();
+    fetchUserDevices(); // Initial fetch
+    const intervalId = setInterval(fetchUserDevices, 10000); // Fetch every 10 seconds
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -67,7 +67,13 @@ function HomePage() {
               Vườn của <span className="text-green-500">{user.name}</span>
             </h1>
             <div className="flex items-center gap-4">
-              <button className="bg-green-700 text-white rounded-2xl p-2">
+              <button
+                className="bg-gray-700 text-white rounded-2xl p-2 "
+                onClick={fetchUserDevices} // Now correctly calling fetchUserDevices
+              >
+                <RefreshCcw size={24} />
+              </button>
+              <button className="bg-green-700 text-white rounded-2xl p-2 ">
                 <Plus
                   size={24}
                   onClick={

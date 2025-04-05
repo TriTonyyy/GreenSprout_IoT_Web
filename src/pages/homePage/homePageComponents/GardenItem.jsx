@@ -73,7 +73,6 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
       <div className="w-3/5 p-2 flex flex-col justify-between">
         <div className="m-1 flex justify-between items-center">
           <h1 className="text-3xl font-semibold text-green-800">{name}</h1>
-          {/* Updated text color */}
           <img
             src={require("../../../assets/images/TreePlanting.png")}
             className="w-6 h-6 cursor-pointer hover:opacity-80"
@@ -83,7 +82,6 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
         <hr className="my-1 border-t-1 border-gray-300" />
         <div className="m-1 text-gray-700">
           {displayedSensors.map((sensor, index) => {
-            // Define text-based icons for each sensor type
             const sensorIcons = {
               moisture: "💧", // Water
               temperature: "🌡️", // Temperature
@@ -91,17 +89,15 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
             };
             return (
               <div key={index} className="flex justify-between items-center">
-                <h2 className="w-5/6 font-medium text-green-600 flex items-center">
-                  {/* Add sensor icon next to label */}
+                <h2 className="w-4/5 font-medium text-gray-600 flex items-center">
                   <span className="mr-2">{sensorIcons[sensor.type]}</span>
                   {sensor.type === "temperature" ? "Nhiệt độ" : "Độ ẩm đất"}:
                 </h2>
-                {/* Updated sensor label color */}
-                <div className="w-1/6 flex justify-between items-center">
-                  <h2 className="text-xl font-semibold text-green-600">
+                <div className="w-1/5 flex justify-between items-center">
+                  <h2 className="w-2/3 text-xl font-semibold text-green-600 ">
                     {sensor?.value}
                   </h2>
-                  <h2 className="text-xl font-semibold text-green-600">
+                  <h2 className="2-1/3 text-xl font-semibold text-green-600 ">
                     {sensor.type === "temperature" ? "°C" : "%"}
                   </h2>
                 </div>

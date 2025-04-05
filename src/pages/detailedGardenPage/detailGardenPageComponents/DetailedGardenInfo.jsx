@@ -56,7 +56,7 @@ const ModeSelector = ({ currentMode, onChange }) => {
   const modeMap = {
     "Thủ công": "manual",
     "Theo lịch": "schedule",
-    "Ngưỡng": "threshold",
+    Ngưỡng: "threshold",
   };
 
   return (
@@ -115,58 +115,59 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       translationMap[sensorType] || { label: sensorType, unit: "", icon: "🔍" }
     );
   };
+  const fetchGardenData = async () => {
+    try {
+      const res = await getGardenByDevice(deviceId);
+      const device = res?.data || null;
+      if (!device) throw new Error("Device not found or invalid ID");
+
+      setGardenData(device);
+
+      // Map sensors by type for easy access
+      const tempSensorsMap = {};
+      device.sensors.forEach((sensor) => {
+        tempSensorsMap[sensor.type] = sensor;
+      });
+      setSensorsMap(tempSensorsMap);
+
+      // Map controls by name for easy access and initialize modes and statuses
+      const tempControlsMap = {};
+      const initialModes = {};
+      const initialStatuses = {};
+      device.controls.forEach((control) => {
+        tempControlsMap[control.name] = control;
+        initialModes[control.name] = control.mode || "manual";
+        initialStatuses[control.name] = control.status || false;
+      });
+      setControlsMap(tempControlsMap);
+      setControlModes(initialModes);
+      setControlStatuses(initialStatuses);
+
+      // Set control statuses based on control data
+      const waterControl = device.controls.find(
+        (control) => control.name === "water"
+      );
+      const lightControl = device.controls.find(
+        (control) => control.name === "light"
+      );
+      const windControl = device.controls.find(
+        (control) => control.name === "wind"
+      );
+
+      setWaterOn(waterControl ? waterControl.status : false);
+      setLightOn(lightControl ? lightControl.status : false);
+      setWindOn(windControl ? windControl.status : false);
+    } catch (error) {
+      console.error("Error fetching garden data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchGardenData = async () => {
-      try {
-        const res = await getGardenByDevice(deviceId);
-        const device = res?.data || null;
-        if (!device) throw new Error("Device not found or invalid ID");
-
-        setGardenData(device);
-
-        // Map sensors by type for easy access
-        const tempSensorsMap = {};
-        device.sensors.forEach((sensor) => {
-          tempSensorsMap[sensor.type] = sensor;
-        });
-        setSensorsMap(tempSensorsMap);
-
-        // Map controls by name for easy access and initialize modes and statuses
-        const tempControlsMap = {};
-        const initialModes = {};
-        const initialStatuses = {};
-        device.controls.forEach((control) => {
-          tempControlsMap[control.name] = control;
-          initialModes[control.name] = control.mode || "manual";
-          initialStatuses[control.name] = control.status || false;
-        });
-        setControlsMap(tempControlsMap);
-        setControlModes(initialModes);
-        setControlStatuses(initialStatuses);
-
-        // Set control statuses based on control data
-        const waterControl = device.controls.find(
-          (control) => control.name === "water"
-        );
-        const lightControl = device.controls.find(
-          (control) => control.name === "light"
-        );
-        const windControl = device.controls.find(
-          (control) => control.name === "wind"
-        );
-
-        setWaterOn(waterControl ? waterControl.status : false);
-        setLightOn(lightControl ? lightControl.status : false);
-        setWindOn(windControl ? windControl.status : false);
-      } catch (error) {
-        console.error("Error fetching garden data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchGardenData();
+    const intervalId = setInterval(fetchGardenData, 2000); // Fetch every ... seconds
+    return () => clearInterval(intervalId);
   }, [deviceId]);
 
   // Handler for toggling control status
