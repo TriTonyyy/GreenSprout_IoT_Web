@@ -48,7 +48,7 @@ function HomePage() {
       const deviceResponses = await Promise.all(devicePromises);
       setDeviceData(deviceResponses.filter((device) => device !== null)); // Remove failed devices
     } catch (error) {
-      console.error("Error fetching data:", error);
+      // console.error("Error fetching data:", error);
       setDeviceData(null); // Reset device data state on error
     }
   };
