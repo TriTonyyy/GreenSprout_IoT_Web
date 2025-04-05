@@ -60,7 +60,7 @@ export default function IrrigationModeSection() {
   };
 
   useEffect(() => {
-    fetchScheduleById();
+    // fetchScheduleById();
   }, []);
 
   const handleAddSchedule = () => {

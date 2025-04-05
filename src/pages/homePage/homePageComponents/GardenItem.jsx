@@ -120,11 +120,11 @@ function GardenItemSkeleton() {
         <div className="space-y-2 text-gray-700">
           <div className="px-2 flex justify-between items-center">
             <Skeleton width="40%" height={20} />
-            <Skeleton width="20%" height={20} />
+            <Skeleton width="30%" height={20} />
           </div>
           <div className="px-2 flex justify-between items-center">
             <Skeleton width="40%" height={20} />
-            <Skeleton width="20%" height={20} />
+            <Skeleton width="30%" height={20} />
           </div>
         </div>
 

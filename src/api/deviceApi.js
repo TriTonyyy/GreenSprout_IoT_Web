@@ -18,26 +18,20 @@ export const getGardenByDevice = async (id) => {
     return response.data;  // Return the data from the API response
 };
 
-// Function to get sensor details by ID
-export const getSensorById = async (id) => {
-    const response = await axiosClient.get(`/api/sensor/detailSensorBy/${id}`);
-    return response.data;  // Return the data from the API response
-};
-
-// Function to get control details by ID
-export const getControlById = async (id) => {
-    const response = await axiosClient.get(`/api/control/detailControlBy/${id}`);
-    return response.data;  // Return the data from the API response
-};
-
 // Function to update members by device ID
-export const updateMemberByIdDevice = async (id, members) => {
-    const response = await axiosClient.put(`/api/device/updateDeviceBy/${id}`, { members });
+export const addMemberByIdDevice = async (id, members) => {
+    const response = await axiosClient.post(`/api/device/addMember/${id}`, members );
+    // console.log(response.data);
     return response.data;  // Return the data from the API response
 };
 
 // Function to update control status by ID
-export const updateControlById = async (id, status) => {
-    const response = await axiosClient.put(`/api/control/updateControlBy/${id}`, status);
-    return response.data;  // Return the data from the API response
+export const updateControlById = async params => {
+    return await axiosClient.put(`/api/device/updateControl/${params.id_esp}/${params.controlId}`, {
+        name: params.name,
+        status: params.status,
+        threshhold_min: params.threshhold_min,
+        threshhold_max: params.threshhold_max,
+        mode: params.mode,
+    });
 };
