@@ -4,6 +4,7 @@ import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { updateControlById } from "../../../api/deviceApi";
+import { apiResponseHandler } from "../../../components/Alert/alertComponent";
 
 function GardenItem({ id, name, sensors = [], controls = [] }) {
   const navigate = useNavigate();
@@ -29,20 +30,27 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
   }, [controls]);
 
   const handleToggle = async (controlName, controlId) => {
-    try {
-      const newStatus = !controlStatuses[controlName];
-      setControlStatuses((prev) => ({
-        ...prev,
-        [controlName]: newStatus,
-      }));
+    const currentStatus = controlStatuses[controlName]; // Get current status
+    const newStatus = !currentStatus; // Calculate new status
 
-      await updateControlById(controlId, { status: newStatus });
+    // Optimistically update the UI
+    setControlStatuses((prev) => ({
+      ...prev,
+      [controlName]: newStatus,
+    }));
+    try {
+      // Call the API to update the control status with exact body layout
+      await updateControlById({
+        id_esp: id, // Device ID from props
+        controlId: controlId, // Control ID from the function parameter
+        data: { status: newStatus }, // Ensure the body is { "status": true/false }
+      });
     } catch (error) {
-      console.error("Error updating control status:", error);
       setControlStatuses((prev) => ({
         ...prev,
-        [controlName]: !controlStatuses[controlName],
+        [controlName]: currentStatus, // Revert to the previous status
       }));
+      apiResponseHandler("Failed to update control status. Please try again.");
     }
   };
 

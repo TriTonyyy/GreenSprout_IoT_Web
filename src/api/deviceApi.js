@@ -20,18 +20,14 @@ export const getGardenByDevice = async (id) => {
 
 // Function to update members by device ID
 export const addMemberByIdDevice = async (id, members) => {
-    const response = await axiosClient.post(`/api/device/addMember/${id}`, members );
+    const response = await axiosClient.post(`/api/device/addMember/${id}`, members);
     // console.log(response.data);
     return response.data;  // Return the data from the API response
 };
 
 // Function to update control status by ID
-export const updateControlById = async params => {
-    return await axiosClient.put(`/api/device/updateControl/${params.id_esp}/${params.controlId}`, {
-        name: params.name,
-        status: params.status,
-        threshhold_min: params.threshhold_min,
-        threshhold_max: params.threshhold_max,
-        mode: params.mode,
-    });
+export const updateControlById = async (params) => {
+    const { id_esp, controlId, data } = params;
+    const response = await axiosClient.put(`/api/control/updateControl/${id_esp}/${controlId}`, data);
+    return response.data;
 };

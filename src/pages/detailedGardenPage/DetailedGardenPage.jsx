@@ -9,14 +9,14 @@ import FooterComponent from "../../components/FooterComponent/FooterComponent";
 function DetailedGarden() {
   const { gardenId } = useParams();
   // console.log("Garden ID:", gardenId); // Debugging line
-  
+
   return (
     <div className="min-h-screen flex flex-col justify-between">
       <HeaderComponent />
       <div className="flex-grow">
         <GardenTitle
-          gardenName={`Garden ${gardenId}`}
-          areaGardenName="Khu vực 1"
+          gardenName={`Khu vườn ${gardenId}`}
+          areaGardenName="Thông tin khu vườn"
         />
         <DetailedGardenInfo className="ml-8" deviceId={gardenId} />
         <IrrigationModeSection />
