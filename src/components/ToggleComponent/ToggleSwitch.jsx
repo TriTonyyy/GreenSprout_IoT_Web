@@ -1,5 +1,4 @@
-import React, {useState, useEffect} from 'react'
-
+import React from "react";
 const ToggleSwitch = ({ control, isOn, onToggle }) => (
   <div className="flex items-center justify-between py-1">
     <label className="relative inline-flex items-center cursor-pointer">

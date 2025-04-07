@@ -1,61 +1,58 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";  
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
+import { useNavigate } from "react-router";
+import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import { updateControlById } from "../../../api/deviceApi";
+import { apiResponseHandler } from "../../../components/Alert/alertComponent";
+import "react-loading-skeleton/dist/skeleton.css";
 
 function GardenItem({ id, name, sensors = [], controls = [] }) {
   const navigate = useNavigate();
-  // console.log("Garden ID:", id);
-  // console.log("Sensors Data:", sensors);
-  // console.log("Controls Data:", controls);
-  // Default sensor types
   const sensorTypes = ["temperature", "moisture"];
+  const controlNames = ["water", "light", "wind"]; // Added "fan" control
 
-  // Default control names
-  const controlNames = ["water", "light"];
-
-  // Map over sensor types to ensure all required sensors are displayed
   const displayedSensors = sensorTypes.map((type) => {
     return sensors.find((s) => s.type === type) || { type, value: "---" };
   });
 
-  // Map over control names to ensure all required controls are displayed
-  const displayedControls = controlNames.map((name) => {
-    return controls.find((c) => c.name === name) || { name, status: false };
-  });
-
-  // State for toggles
   const [controlStatuses, setControlStatuses] = useState({});
 
-  // Sync toggle states when control data updates
   useEffect(() => {
     const updatedStatuses = {};
-    displayedControls.forEach((control) => {
-      updatedStatuses[control.name] = control.status ?? false;
+
+    controlNames.forEach((name) => {
+      const control = controls.find((c) => c.name === name);
+      updatedStatuses[name] = control?.status ?? false;
     });
+
     setControlStatuses(updatedStatuses);
   }, [controls]);
 
   const handleToggle = async (controlName, controlId) => {
+    const currentStatus = controlStatuses[controlName];
+    const newStatus = !currentStatus;
+
+    // Optimistically update the status in the UI
+    setControlStatuses((prev) => ({
+      ...prev,
+      [controlName]: newStatus,
+    }));
+
     try {
-      const newStatus = !controlStatuses[controlName]; // Toggle status
-      setControlStatuses((prev) => ({
-        ...prev,
-        [controlName]: newStatus,
-      }));
-      // Log for debugging to ensure correct values are sent to backend
-      console.log(
-        `Updating control ${controlName} with ID: ${controlId}, newStatus: ${newStatus}`
-      );
-      await updateControlById(controlId, { status: newStatus }); // Send status in object form
+      // Send the request to the backend to update control status
+      await updateControlById({
+        id_esp: id,
+        controlId: controlId,
+        data: { status: newStatus },
+      });
     } catch (error) {
-      console.error("Error updating control status:", error);
+      // If an error occurs, revert the control status to its previous state
       setControlStatuses((prev) => ({
         ...prev,
-        [controlName]: !controlStatuses[controlName],
+        [controlName]: currentStatus,
       }));
+
+      apiResponseHandler("Failed to update control status. Please try again.");
     }
   };
 
@@ -64,53 +61,100 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
   };
 
   return (
-    <div className="w-[30%] h-2/3 rounded-xl border-2 shadow-lg bg-white flex overflow-hidden">
-      <div className="p-2 w-2/5 bg-green-200 rounded-xl border-r-2">
+    <div className="w-[32%] h-1/4 rounded-2xl border-2 shadow-xl bg-white flex">
+      <div className="p-3 w-2/5 bg-green-300 rounded-xl border-r-2">
         <img
           src={require("../../../assets/images/ItemImg.png")}
           alt="Garden"
-          className="w-full h-full object-cover cursor-pointer transition-transform hover:scale-105 rounded-xl"
+          className="w-full h-full object-cover cursor-pointer rounded-xl transition-transform hover:scale-105"
           onClick={() => handleImageGardenClick(id)}
         />
       </div>
-      <div className="w-3/5 p-4 flex flex-col justify-between">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-gray-800">{name}</h1>
+      <div className="w-3/5 p-2 flex flex-col justify-between">
+        <div className="m-1 flex justify-between items-center">
+          <h1 className="text-3xl font-semibold text-green-800">{name}</h1>
           <img
-            src={require("../../../assets/images/ItemImg.png")}
+            src={require("../../../assets/images/TreePlanting.png")}
             className="w-6 h-6 cursor-pointer hover:opacity-80"
             alt="edit"
           />
         </div>
-
-        {/* Sensor Data (Temperature & Moisture) */}
-        <div className="space-y-2 text-gray-700">
-          {displayedSensors.map((sensor, index) => (
-            <div key={index} className="px-2 flex justify-between items-center">
-              <h2 className="font-medium">
-                {sensor.type === "temperature" ? "Nhiệt độ" : "Độ ẩm đất"}:
-              </h2>
-              <h2 className="text-lg font-semibold">
-                {sensor?.value} {sensor.type === "temperature" ? "°C" : "%"}
-              </h2>
-            </div>
-          ))}
+        <hr className="my-1 border-t-1 border-gray-300" />
+        <div className="m-1 text-gray-700">
+          {displayedSensors.map((sensor, index) => {
+            const sensorIcons = {
+              moisture: "💧", // Water
+              temperature: "🌡️", // Temperature
+              humidity: "💦", // Humidity
+            };
+            return (
+              <div key={index} className="flex justify-between items-center">
+                <h2 className="w-4/5 font-medium text-gray-600 flex items-center">
+                  <span className="mr-2">{sensorIcons[sensor.type]}</span>
+                  {sensor.type === "temperature" ? "Nhiệt độ" : "Độ ẩm đất"}:
+                </h2>
+                <div className="w-1/5 flex justify-between items-center">
+                  <h2 className="w-2/3 text-xl font-semibold text-green-600 ">
+                    {sensor?.value}
+                  </h2>
+                  <h2 className="2-1/3 text-xl font-semibold text-green-600 ">
+                    {sensor.type === "temperature" ? "°C" : "%"}
+                  </h2>
+                </div>
+              </div>
+            );
+          })}
         </div>
-
-        {/* Controls (Water & Light) */}
-        <div className="space-y-1 text-gray-700">
-          {displayedControls.map((control, index) => (
-            <div key={index} className="px-2 flex justify-between items-center">
-              <span className="font-medium text-gray-700">
-                {control.name === "water" ? "Tưới" : "Đèn"}:
-              </span>
-              <ToggleSwitch
-                isOn={controlStatuses[control.name]}
-                onToggle={() => handleToggle(control.name, control._id)}
-              />
-            </div>
-          ))}
+        <hr className="my-1 border-t-1 border-gray-300" />
+        <div className="text-gray-700">
+          {controlNames.map((controlName, index) => {
+            const control = controls.find((c) => c.name === controlName);
+            const isControlAvailable = control?.status !== undefined;
+            const status = controlStatuses[controlName];
+            return (
+              <div
+                key={index}
+                className={`px-1 flex justify-between items-center`}
+              >
+                <span
+                  className={`font-medium text-green-600 flex items-center ${
+                    !isControlAvailable ? "opacity-40" : ""
+                  }`}
+                >
+                  {/* Control icon based on control type */}
+                  <span className="mr-2">
+                    {controlName === "water"
+                      ? "🚿"
+                      : controlName === "light"
+                      ? "🌞"
+                      : "🌬️"}
+                  </span>
+                  {controlName === "water"
+                    ? "Tưới"
+                    : controlName === "light"
+                    ? "Ánh sáng"
+                    : "Quạt"}
+                  :
+                </span>
+                {/* Updated control label color */}
+                <div className="flex justify-between items-center">
+                  {isControlAvailable ? (
+                    <ToggleSwitch
+                      isOn={status}
+                      onToggle={() => handleToggle(controlName, control?._id)}
+                      style={{
+                        cursor: "pointer", // Interactivity when available
+                      }}
+                    />
+                  ) : (
+                    <div className="opacity-40 pointer-events-none">
+                      <ToggleSwitch />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -119,33 +163,28 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
 
 function GardenItemSkeleton() {
   return (
-    <div className="w-[30%] h-2/3 rounded-xl border-2 shadow-lg bg-white flex overflow-hidden">
-      {/* Left Side Image Skeleton */}
+    <div className="w-[32%] h-2/3 rounded-xl border-2 shadow-lg bg-white flex overflow-hidden">
       <div className="p-2 w-2/5 bg-gray-200 rounded-xl border-r-2">
         <Skeleton height="100%" width="100%" />
       </div>
-      {/* Right Side Content Skeleton */}
-      <div className="w-3/5 p-4 flex flex-col justify-between">
-        {/* Header Skeleton */}
-        <div className="flex justify-between items-center">
+      <div className="w-3/5 p-2 flex flex-col justify-between">
+        <div className="m-1 flex justify-between items-center">
           <Skeleton width="60%" height={20} />
           <Skeleton circle width={30} height={30} />
         </div>
 
-        {/* Sensor Data Skeleton */}
-        <div className="space-y-2 text-gray-700">
+        <div className="m-1 p-2 space-y-2 text-gray-700">
           <div className="px-2 flex justify-between items-center">
             <Skeleton width="40%" height={20} />
-            <Skeleton width="20%" height={20} />
+            <Skeleton width="30%" height={20} />
           </div>
           <div className="px-2 flex justify-between items-center">
             <Skeleton width="40%" height={20} />
-            <Skeleton width="20%" height={20} />
+            <Skeleton width="30%" height={20} />
           </div>
         </div>
 
-        {/* Controls Skeleton */}
-        <div className="space-y-1 text-gray-700">
+        <div className=" m-1 p-2 space-y-1 text-gray-700">
           <div className="px-2 flex justify-between items-center">
             <Skeleton width="40%" height={20} />
             <Skeleton circle width={30} height={30} />
