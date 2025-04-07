@@ -14,6 +14,7 @@ import {
   addDevicePopup,
   apiResponseHandler,
 } from "../../components/Alert/alertComponent.jsx";
+import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar.jsx";
 
 function HomePage() {
   const [deviceData, setDeviceData] = useState(null);
@@ -62,53 +63,58 @@ function HomePage() {
       {user ? (
         <>
           <HeaderComponent />
-          <div className="flex justify-between items-center px-10 py-10">
-            <h1 className="text-4xl font-bold">
-              Vườn của <span className="text-green-500">{user.name}</span>
-            </h1>
-            <div className="flex items-center gap-4">
-              <button
-                className="bg-gray-700 text-white rounded-2xl p-2 "
-                onClick={fetchUserDevices} // Now correctly calling fetchUserDevices
-              >
-                <RefreshCcw size={24} />
-              </button>
-              <button className="bg-green-700 text-white rounded-2xl p-2 ">
-                <Plus
-                  size={24}
-                  onClick={
-                    () =>
-                      user &&
-                      addDevicePopup(
-                        { userId: user._id, role: "member" },
-                        fetchUserDevices
-                      ) // Pass function to add device
-                  }
-                />
-              </button>
+          <div className="flex">
+            {/* Sidebar */}
+            <SideNavigationBar />
+            {/* Main Content Area */}
+            <div className="flex-grow">
+              <div className="flex justify-between items-center px-10 py-10">
+                <h1 className="text-4xl font-bold">
+                  Vườn của <span className="text-green-500">{user.name}</span>
+                </h1>
+                <div className="flex items-center gap-4">
+                  <button
+                    className="bg-gray-700 text-white rounded-2xl p-2"
+                    onClick={fetchUserDevices}
+                  >
+                    <RefreshCcw size={24} />
+                  </button>
+                  <button className="bg-green-700 text-white rounded-2xl p-2">
+                    <Plus
+                      size={24}
+                      onClick={() =>
+                        user &&
+                        addDevicePopup(
+                          { userId: user._id, role: "member" },
+                          fetchUserDevices
+                        )
+                      }
+                    />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-8 px-10 py-8 min-h-screen">
+                {deviceData === null ? (
+                  <>
+                    <GardenItemSkeleton />
+                    <GardenItemSkeleton />
+                    <GardenItemSkeleton />
+                  </>
+                ) : deviceData.length > 0 ? (
+                  deviceData.map((device) => (
+                    <GardenItem
+                      key={device._id}
+                      id={device.id_esp}
+                      name={device.name_area}
+                      sensors={device.sensors}
+                      controls={device.controls}
+                    />
+                  ))
+                ) : (
+                  <AddDeviceButton onClick={addDevicePopup} />
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex flex-wrap gap-8 px-10 py-8 min-h-screen">
-            {deviceData === null ? (
-              <>
-                <GardenItemSkeleton />
-                <GardenItemSkeleton />
-                <GardenItemSkeleton />
-              </>
-            ) : deviceData.length > 0 ? (
-              (console.log(deviceData),
-              deviceData.map((device) => (
-                <GardenItem
-                  key={device._id} // _id is unique from your data
-                  id={device.id_esp}
-                  name={device.name_area}
-                  sensors={device.sensors}
-                  controls={device.controls}
-                />
-              )))
-            ) : (
-              <AddDeviceButton onClick={addDevicePopup} />
-            )}
           </div>
           <FooterComponent />
         </>
