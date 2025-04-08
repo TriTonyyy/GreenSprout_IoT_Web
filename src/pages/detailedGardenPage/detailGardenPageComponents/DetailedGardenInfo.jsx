@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import {
+  getGardenByDevice,
   getMemberByIdDevice,
   updateControlById,
 } from "../../../api/deviceApi";
@@ -102,7 +103,7 @@ const ModeSelector = ({ currentMode, onChange }) => {
   );
 };
 
-export const DetailedGardenInfo = ({ deviceData }) => {
+export const DetailedGardenInfo = ({ deviceId }) => {
   const [loading, setLoading] = useState(true);
   const [gardenData, setGardenData] = useState(null);
   const [sensorsMap, setSensorsMap] = useState({});
@@ -159,14 +160,17 @@ export const DetailedGardenInfo = ({ deviceData }) => {
   };
   const fetchGardenData = async () => {
     try {
-      const result = await getMemberByIdDevice(deviceData.id_esp);
-      deviceData.members = result.members || []; // attach members to the gardenData
-      // console.log(device);
+      const res = await getGardenByDevice(deviceId);
+      const device = res.data || {};
 
-      setGardenData(deviceData);
+      // Get members and attach to device
+      const result = await getMemberByIdDevice(deviceId);
+      device.members = result.members || [];
+
+      setGardenData(device);
       // Map sensors by type for easy access
       const tempSensorsMap = {};
-      deviceData.sensors.forEach((sensor) => {
+      device.sensors.forEach((sensor) => {
         tempSensorsMap[sensor.type] = sensor;
       });
       setSensorsMap(tempSensorsMap);
@@ -175,7 +179,7 @@ export const DetailedGardenInfo = ({ deviceData }) => {
       const tempControlsMap = {};
       const initialModes = {};
       const initialStatuses = {};
-      deviceData.controls.forEach((control) => {
+      device.controls.forEach((control) => {
         tempControlsMap[control.name] = control;
         initialModes[control.name] = control.mode || "manual";
         initialStatuses[control.name] = control.status || false;
@@ -185,13 +189,13 @@ export const DetailedGardenInfo = ({ deviceData }) => {
       setControlStatuses(initialStatuses);
 
       // Set control statuses based on control data
-      const waterControl = deviceData.controls.find(
+      const waterControl = device.controls.find(
         (control) => control.name === "water"
       );
-      const lightControl = deviceData.controls.find(
+      const lightControl = device.controls.find(
         (control) => control.name === "light"
       );
-      const windControl = deviceData.controls.find(
+      const windControl = device.controls.find(
         (control) => control.name === "wind"
       );
 
@@ -209,7 +213,7 @@ export const DetailedGardenInfo = ({ deviceData }) => {
     fetchGardenData();
     const intervalId = setInterval(fetchGardenData, 2000); // Fetch every ... seconds
     return () => clearInterval(intervalId);
-  }, [deviceData]);
+  }, [deviceId]);
 
   // Handler for toggling control status
   const handleStatusToggle = async (controlName, controlId) => {
@@ -224,7 +228,7 @@ export const DetailedGardenInfo = ({ deviceData }) => {
     try {
       // Call the API to update the control status with exact body layout
       await updateControlById({
-        id_esp: deviceData.id_esp, // Device ID from props
+        id_esp: deviceId, // Device ID from props
         controlId: controlId, // Control ID from the function parameter
         data: { status: newStatus }, // Ensure the body is { "status": true/false }
       });
@@ -252,7 +256,7 @@ export const DetailedGardenInfo = ({ deviceData }) => {
 
     try {
       await updateControlById({
-        id_esp: deviceData.id_esp,
+        id_esp: deviceId,
         controlId: controlId,
         data: { mode: newMode },
       });
