@@ -26,10 +26,9 @@ function DetailedGarden() {
 
   const fetchGardenData = async () => {
     const gardenData = await getGardenByDevice(gardenId);
-    // console.log(gardenData.data);
     setData(gardenData.data);
   };
-
+  
   const handleEdit = () => {
     renameDevicePopup(gardenId,data.name_area) // ✅ pass fetchGardenData here
       .then(() => {
@@ -71,7 +70,7 @@ function DetailedGarden() {
           ) : (
             <GardenTitleSkeleton />
           )}
-          <DetailedGardenInfo deviceData={data} />
+          <DetailedGardenInfo deviceId={gardenId} />
           <IrrigationModeSection />
         </div>
       </div>
