@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import {
-  getGardenByDevice,
   getMemberByIdDevice,
   updateControlById,
 } from "../../../api/deviceApi";
@@ -103,7 +102,7 @@ const ModeSelector = ({ currentMode, onChange }) => {
   );
 };
 
-export const DetailedGardenInfo = ({ deviceId }) => {
+export const DetailedGardenInfo = ({ deviceData }) => {
   const [loading, setLoading] = useState(true);
   const [gardenData, setGardenData] = useState(null);
   const [sensorsMap, setSensorsMap] = useState({});
@@ -160,16 +159,14 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   };
   const fetchGardenData = async () => {
     try {
-      const res = await getGardenByDevice(deviceId);
-      const device = res?.data || null;
-      if (!device) throw new Error("Device not found or invalid ID");
+      const result = await getMemberByIdDevice(deviceData.id_esp);
+      deviceData.members = result.members || []; // attach members to the gardenData
+      // console.log(device);
 
-      const result = await getMemberByIdDevice(deviceId);
-      device.members = result.members || []; // attach members to the gardenData
-      setGardenData(device);
+      setGardenData(deviceData);
       // Map sensors by type for easy access
       const tempSensorsMap = {};
-      device.sensors.forEach((sensor) => {
+      deviceData.sensors.forEach((sensor) => {
         tempSensorsMap[sensor.type] = sensor;
       });
       setSensorsMap(tempSensorsMap);
@@ -178,7 +175,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       const tempControlsMap = {};
       const initialModes = {};
       const initialStatuses = {};
-      device.controls.forEach((control) => {
+      deviceData.controls.forEach((control) => {
         tempControlsMap[control.name] = control;
         initialModes[control.name] = control.mode || "manual";
         initialStatuses[control.name] = control.status || false;
@@ -188,13 +185,13 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       setControlStatuses(initialStatuses);
 
       // Set control statuses based on control data
-      const waterControl = device.controls.find(
+      const waterControl = deviceData.controls.find(
         (control) => control.name === "water"
       );
-      const lightControl = device.controls.find(
+      const lightControl = deviceData.controls.find(
         (control) => control.name === "light"
       );
-      const windControl = device.controls.find(
+      const windControl = deviceData.controls.find(
         (control) => control.name === "wind"
       );
 
@@ -202,7 +199,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       setLightOn(lightControl ? lightControl.status : false);
       setWindOn(windControl ? windControl.status : false);
     } catch (error) {
-      console.error("Error fetching garden data:", error);
+      // console.error("Error fetching garden data:", error);
     } finally {
       setLoading(false);
     }
@@ -212,7 +209,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
     fetchGardenData();
     const intervalId = setInterval(fetchGardenData, 2000); // Fetch every ... seconds
     return () => clearInterval(intervalId);
-  }, [deviceId]);
+  }, [deviceData]);
 
   // Handler for toggling control status
   const handleStatusToggle = async (controlName, controlId) => {
@@ -227,7 +224,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
     try {
       // Call the API to update the control status with exact body layout
       await updateControlById({
-        id_esp: deviceId, // Device ID from props
+        id_esp: deviceData.id_esp, // Device ID from props
         controlId: controlId, // Control ID from the function parameter
         data: { status: newStatus }, // Ensure the body is { "status": true/false }
       });
@@ -255,7 +252,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
 
     try {
       await updateControlById({
-        id_esp: deviceId,
+        id_esp: deviceData.id_esp,
         controlId: controlId,
         data: { mode: newMode },
       });
@@ -272,13 +269,12 @@ export const DetailedGardenInfo = ({ deviceId }) => {
     }
   };
 
-  if (loading) return <div className="text-center">Loading garden data...</div>;
-  if (!gardenData)
-    return <div className="text-center">Failed to load garden data.</div>;
+  if (loading || !gardenData) {
+    return DetailedGardenInfoSkeleton();
+  }
 
   const imageUrl =
     gardenData.img_area || require("../../../assets/images/ItemImg.png");
-  const { reports = [], members = [] } = gardenData;
 
   // Display all sensors, even if missing
   const displayedSensors = allSensorTypes.map((type) => {
@@ -408,6 +404,63 @@ export const DetailedGardenInfo = ({ deviceId }) => {
         </h2>
         <div className="flex flex-col">
           <MemberList members={gardenData.members} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const DetailedGardenInfoSkeleton = () => {
+  return (
+    <div className="mx-5 bg-white rounded-xl shadow-md py-2 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-10 items-stretch animate-pulse">
+      {/* Image Section Skeleton */}
+      <div className="col-span-1 flex flex-col md:border-r">
+        <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
+          Hình ảnh
+        </div>
+        <div className="h-48 bg-gray-200 rounded-lg m-4"></div>
+      </div>
+
+      {/* Sensor Section Skeleton */}
+      <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-4">
+        <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
+          Cảm biến
+        </div>
+        <div className="flex flex-col px-4 space-y-2">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-6 bg-gray-200 rounded w-full"></div>
+          ))}
+        </div>
+      </div>
+
+      {/* Control Section Skeleton */}
+      <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-4">
+        <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
+          Điều khiển
+        </div>
+        <div className="flex flex-col items-center mt-2 w-full px-4 space-y-4">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="w-full">
+              <div className="h-5 bg-gray-200 rounded mb-2 w-3/4"></div>
+              <div className="h-8 bg-gray-200 rounded mb-2 w-full"></div>
+              <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+              {i < 1 && (
+                <div className="w-full border-b border-gray-300 my-4"></div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Member Section Skeleton */}
+      <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-4">
+        <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
+          Thành viên
+        </div>
+        <div className="flex flex-col px-4 space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-6 bg-gray-200 rounded w-full"></div>
+          ))}
         </div>
       </div>
     </div>

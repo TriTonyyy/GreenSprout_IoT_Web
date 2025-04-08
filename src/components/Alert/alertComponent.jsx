@@ -1,8 +1,8 @@
 import Swal from "sweetalert2";
 import {
-  getGardenByDevice,
   addMemberByIdDevice,
   removeMemberByIdDevice,
+  renameDeviceByIdDevice,
 } from "../../api/deviceApi"; // Import the API function to update device members
 
 // SweetAlert2 popup function to add a device
@@ -56,23 +56,65 @@ export const apiResponseHandler = (message) => {
   });
 };
 
-export const removeDevicePopup = (deviceId, userId, onSuccess) => {
-  Swal.fire({
-    title: "Bạn có chắc chắn muốn xóa thiết bị này không?",
-    text: "Thiết bị sẽ bị xóa vĩnh viễn!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Xóa",
-    cancelButtonText: "Hủy",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        await removeMemberByIdDevice(deviceId, userId);
-        Swal.fire("Đã xóa!", "Thiết bị đã được xóa.", "success");
-        if (onSuccess) onSuccess(); // Trigger a callback if provided
-      } catch (error) {
-        apiResponseHandler("Failed to remove device. Please try again.");
+export const removeDevicePopup = (deviceId, userId) => {
+  return new Promise((resolve, reject) => {
+    Swal.fire({
+      title: "Bạn có chắc chắn muốn rời khỏi khu vườn này không?",
+      text: "Khu vườn này sẽ không xuất hiện trong tài khoản bạn.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await removeMemberByIdDevice(deviceId, userId);
+          await Swal.fire(
+            "Rời thành công!",
+            "Bạn đã rời khỏi khu vườn.",
+            "success"
+          );
+          resolve(); // <-- notify success
+        } catch (error) {
+          apiResponseHandler("Failed to remove device. Please try again.");
+          reject(error); // <-- notify failure
+        }
+      } else {
+        reject("Cancelled");
       }
-    }
+    });
+  });
+};
+
+export const renameDevicePopup = (deviceId,name_area) => {
+  return new Promise((resolve, reject) => {
+    Swal.fire({
+      title: "Vui lòng nhập tên mới cho khu vườn",
+      input: "text",
+      inputPlaceholder: "Vườn rau xanh",
+      inputValue: name_area, // Set the initial value to the current name
+      showCancelButton: true,
+      confirmButtonText: "Đổi tên",
+      cancelButtonText: "Hủy",
+      inputValidator: (value) => {
+        if (!value) return "Hãy tên mới!";
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const newName = result.value;
+        // console.log(newName);
+        // console.log(deviceId);
+        try {
+          await renameDeviceByIdDevice(deviceId, { name_area: newName });
+          Swal.fire("Thành công!", "Thiết bị đã được đổi tên.", "success");
+          resolve(); // ✅ Let caller know it's done
+        } catch (error) {
+          apiResponseHandler("Đổi tên thiết bị thất bại. Vui lòng thử lại.");
+          reject(error);
+        }
+      } else {
+        reject("cancelled");
+      }
+    });
   });
 };

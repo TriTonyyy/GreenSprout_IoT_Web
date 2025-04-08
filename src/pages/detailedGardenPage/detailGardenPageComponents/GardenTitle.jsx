@@ -41,3 +41,17 @@ export const GardenTitle = ({
     </div>
   </div>
 );
+
+export const GardenTitleSkeleton = () => (
+  <div className="relative mx-5 my-2 text-center p-8 bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-xl shadow-2xl animate-pulse">
+    {/* Skeleton Titles */}
+    <div className="h-10 w-1/2 mx-auto bg-white/40 rounded mb-4" />
+    <div className="h-6 w-1/3 mx-auto bg-white/30 rounded" />
+
+    {/* Placeholder Buttons */}
+    <div className="absolute top-4 right-4 flex space-x-2">
+      <div className="h-9 w-9 rounded-full bg-white/60" />
+      <div className="h-9 w-9 rounded-full bg-white/60" />
+    </div>
+  </div>
+);

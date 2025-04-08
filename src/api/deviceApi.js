@@ -38,7 +38,12 @@ export const getMemberByIdDevice = async (id) => {
 }
 
 export const removeMemberByIdDevice = async (id_esp, id_member) => {
-    console.log(id_esp, id_member);
+    // console.log(id_esp, id_member);
     const response = await axiosClient.delete(`/api/device/delMember/${id_esp}/${id_member}`);
     return response.data;  // Return the data from the API response
 }
+
+export const renameDeviceByIdDevice = async (id_esp, params) => {
+    const response = await axiosClient.patch(`/api/device/updateName/${id_esp}`, params);
+    return response.data;
+};
