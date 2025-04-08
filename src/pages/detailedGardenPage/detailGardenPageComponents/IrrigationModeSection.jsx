@@ -72,6 +72,19 @@ export default function IrrigationModeSection({ deviceId }) {
     fetchScheduleById(deviceId);
     // console.log(schedules);
   }, []);
+  //OLD VERSION
+  // const handleAddSchedule = () => {
+  //   const newId = Math.random().toString(36).substring(2, 9); // unique string id
+  //   const newSchedule = {
+  //     id: newId,
+  //     time: "13:00",
+  //     duration: 60,
+  //     repeat: [],
+  //     enabled: false,
+  //   };
+  //   setSchedules((prev) => [...prev, newSchedule]);
+  //   setSelectedScheduleId(newId);
+  // };
 
   const handleAddSchedule = async (deviceType) => {
     const newSchedule = {
@@ -218,8 +231,10 @@ export default function IrrigationModeSection({ deviceId }) {
                       Bật/ Tắt:
                     </span>
                     <ToggleSwitch
-                      isOn={isIrrigationOn}
-                      onToggle={() => setIsIrrigationOn(!isIrrigationOn)}
+                      isOn={s.enabled}
+                      onToggle={() =>
+                        updateSchedule(s.id, "enabled", !s.enabled)
+                      }
                     />
                   </div>
 
