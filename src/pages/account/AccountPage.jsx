@@ -1,17 +1,30 @@
 import React, {useState, useEffect} from 'react'
 import HeaderComponent from '../../components/Header/HeaderComponent'
-import { Nav } from 'react-bootstrap'
-import NavBarComponent from '../../components/NavBarComponent/NavBarComponent'
+import { useNavigate } from "react-router";
 import { getUserInfoAPI } from '../../api/AuthApi';
+import { updateProfileApi } from '../../api/userApi';
+import {apiResponseHandler} from '../../components/Alert/alertComponent';
 
 export default function AccountPage() {
-    const [userInfo, setUserInfo] = useState({});
     const [name, setName] = useState('');
+    const [avatar, setAvatar] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState("");
-
-    console.log(userInfo);
+    const [userInfo, setUserInfo] = useState({});
+    const navigate = useNavigate();
     
+    const saveUpdateUserInfo = ()=>{
+        updateProfileApi({name, email, avatar})
+            .then((res)=>{
+                console.log(res, "res");
+                setUserInfo(res.data);
+                alert(res.message)
+                window.location.reload();
+            })
+            .catch((err)=>{
+                apiResponseHandler(err.response.data.message);
+            })  
+    }
 
     useEffect(()=>{
         getUserInfoAPI()
@@ -20,7 +33,6 @@ export default function AccountPage() {
         })
         .catch((err)=>{
             console.log(err);
-            
         })
     }, [])
     useEffect(()=>{
@@ -36,7 +48,7 @@ export default function AccountPage() {
                 <h1 className='text-3xl'><strong>Tài Khoản</strong></h1>
                 <div className='flex pt-5  justify-between items-center '>
                     <div className='flex'>
-                        <img onClick={()=>{console.log("dasd")}} src={require("../../assets/images/AvatarDefault.png")} className='py-5' alt='avatar'/>
+                        <img src={avatar !== "" ? avatar : require("../../assets/images/AvatarDefault.png")} className='py-5' alt='avatar'/>
                         <h2 className='text-2xl p-4'>
                             Ảnh cá nhân <br/>
                             PNG, JPEG dưới 5MB <br/>
@@ -61,6 +73,10 @@ export default function AccountPage() {
                     <h2 className='text-2xl '><strong>Mật khẩu</strong></h2>
                     <input type='password' className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full' placeholder='Mật Khẩu' value={password} onChange={(e)=>setPassword(e.target.value)}/>
                 </div>
+
+                <button className='w-full p-4 rounded bg-blue-400' onClick={saveUpdateUserInfo}>
+                    <p className='text-white text-2xl'>Lưu</p>
+                </button>
             </div>
         </div>
         
