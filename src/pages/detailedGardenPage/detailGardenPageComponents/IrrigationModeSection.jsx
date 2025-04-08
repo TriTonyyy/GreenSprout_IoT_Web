@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
-import axios from "axios";
+import {
+  createSchedule,
+  deleteSchedule,
+  getScheduleAPI,
+} from "../../../api/scheduleApi";
 
 const dayOrder = ["2", "3", "4", "5", "6", "7", "CN"];
 const weekdayMap = {
@@ -24,66 +28,99 @@ const weekdayOrder = {
   Sunday: 7,
 };
 
-export default function IrrigationModeSection() {
+export default function IrrigationModeSection({ deviceId }) {
   const [activeMode, setActiveMode] = useState("THEO_LICH");
   const [isIrrigationOn, setIsIrrigationOn] = useState(false);
   const [schedules, setSchedules] = useState([]);
-  const [selectedScheduleId, setSelectedScheduleId] = useState(null);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
 
   const maxDuration = 15 * 60; // 15 minutes in seconds
 
-  const formatTimeDisplay = (time24) => {
-    if (!time24 || typeof time24 !== "string" || !time24.includes(":"))
-      return "00:00";
-    const [hour, minute] = time24.split(":");
-    const h = parseInt(hour, 10);
-    const suffix = h >= 12 ? "PM" : "AM";
-    const hour12 = h % 12 === 0 ? 12 : h % 12;
-    return `${hour12}:${minute} ${suffix}`;
+  const convertTo24Hour = (time12) => {
+    const [time, modifier] = time12.split(" ");
+    let [hours, minutes] = time.split(":");
+    if (modifier === "PM" && hours !== "12") {
+      hours = String(parseInt(hours, 10) + 12);
+    }
+    if (modifier === "AM" && hours === "12") {
+      hours = "00";
+    }
+    return `${hours.padStart(2, "0")}:${minutes}`;
   };
 
-  const fetchScheduleById = async () => {
+  const convertTo12Hour = (time24) => {
+    const [hourStr, minute] = time24.split(":");
+    let hour = parseInt(hourStr, 10);
+    const suffix = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour}:${minute} ${suffix}`;
+  };
+
+  const fetchScheduleById = async (deviceId) => {
     try {
-      const response = await axios.get(
-        "https://capstone-project-iot-1.onrender.com/api/schedule/detailScheduleBy/67e2449cbf718b7f105543dc"
-      );
-
-      const schedule = response.data;
-
-      // Transform to array if needed
-      const scheduleArray = Array.isArray(schedule) ? schedule : [schedule];
-
-      setSchedules(scheduleArray);
+      const result = await getScheduleAPI(deviceId);
+      const schedule = result.data;
+      setSchedules(schedule); // ✅ updates the UI
+      return schedule; // ✅ returns it to use immediately after
     } catch (error) {
       console.error("Failed to fetch schedule:", error);
+      return []; // fallback to avoid breaking .length or map()
     }
   };
 
   useEffect(() => {
-    // fetchScheduleById();
+    fetchScheduleById(deviceId);
+    // console.log(schedules);
   }, []);
 
-  const handleAddSchedule = () => {
-    const newId = Math.random().toString(36).substring(2, 9); // unique string id
+  const handleAddSchedule = async (deviceType) => {
     const newSchedule = {
-      id: newId,
-      time: "13:00",
+      startTime: "10:30 AM",
       duration: 60,
-      repeat: [],
-      enabled: false,
+      status: false,
+      repeat: ["Monday"],
     };
-    setSchedules((prev) => [...prev, newSchedule]);
-    setSelectedScheduleId(newId);
+    try {
+      await createSchedule({
+        id_esp: deviceId,
+        name: deviceType,
+        data: newSchedule,
+      });
+      const updatedSchedules = await fetchScheduleById(deviceId);
+
+      // Optionally select the newest one
+      const latestSchedule = updatedSchedules?.[updatedSchedules.length - 1];
+      if (latestSchedule?._id) {
+        setSelectedSchedule(latestSchedule._id);
+      }
+      // console.log("Latest schedule created:", latestSchedule);
+    } catch (error) {
+      console.error("Failed to create schedule:", error);
+    }
   };
 
   const handleScheduleClick = (id) => {
-    setSelectedScheduleId((prev) => (prev === id ? null : id));
+    setSelectedSchedule((prev) => (prev === id ? null : id));
+    console.log(selectedSchedule);
   };
 
-  const updateSchedule = (id, field, value) => {
+  const saveSchedule = async (schedule) => {
+    try {
+      await createSchedule({
+        id_esp: deviceId,
+        name: "water",
+        data: schedule,
+      });
+      console.log("Schedule saved:", schedule);
+    } catch (error) {
+      console.error("Failed to save schedule:", error);
+    }
+  };
+
+  const changeSchedule = (id, field, value) => {
     setSchedules((prev) =>
       prev.map((s) =>
-        s.id === id
+        s._id === id
           ? {
               ...s,
               [field]:
@@ -98,10 +135,16 @@ export default function IrrigationModeSection() {
     );
   };
 
-  const deleteSchedule = (id) => {
-    setSchedules((prev) => prev.filter((s) => s.id !== id));
-    if (selectedScheduleId === id) {
-      setSelectedScheduleId(null);
+  const removeSchedule = async (id) => {
+    try {
+      await deleteSchedule(deviceId, id);
+      await fetchScheduleById(deviceId);
+      // Reset selection if the deleted one was selected
+      if (selectedSchedule === id) {
+        setSelectedSchedule(null);
+      }
+    } catch (error) {
+      console.error("Failed to delete schedule:", error);
     }
   };
 
@@ -119,7 +162,7 @@ export default function IrrigationModeSection() {
             key={mode.key}
             onClick={() => {
               setActiveMode(mode.key);
-              setSelectedScheduleId(null);
+              setSelectedSchedule(null);
             }}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
               activeMode === mode.key
@@ -131,16 +174,14 @@ export default function IrrigationModeSection() {
           </button>
         ))}
       </div>
-
       {activeMode === "THEO_LICH" && (
         <div className="flex flex-wrap gap-4 px-2 items-start">
           {schedules.map((s) => {
-            const isSelected = selectedScheduleId === s.id;
-
+            const isSelected = selectedSchedule === s._id;
             return (
               <div
                 key={s.id}
-                onClick={() => handleScheduleClick(s.id)}
+                onClick={() => handleScheduleClick(s._id)}
                 className="w-64 relative cursor-pointer"
               >
                 {/* Delete Button */}
@@ -148,7 +189,7 @@ export default function IrrigationModeSection() {
                   className="absolute top-2 right-2 text-red-500 hover:text-red-600 z-10"
                   onClick={(e) => {
                     e.stopPropagation();
-                    deleteSchedule(s.id);
+                    removeSchedule(s._id);
                   }}
                   title="Xoá lịch tưới"
                 >
@@ -157,7 +198,7 @@ export default function IrrigationModeSection() {
 
                 <div className="bg-gray-50 rounded-lg shadow-md p-4">
                   <h2 className="text-xl font-bold text-gray-800 mb-1">
-                    {formatTimeDisplay(s.time)}
+                    {s.startTime}
                   </h2>
                   <div className="text-lg font-semibold">
                     <p className="text-sm text-gray-600 py-2">
@@ -194,9 +235,13 @@ export default function IrrigationModeSection() {
                         <input
                           type="time"
                           className="border rounded px-2 py-1 w-full"
-                          value={s.time}
+                          value={convertTo24Hour(s.startTime)}
                           onChange={(e) =>
-                            updateSchedule(s.id, "time", e.target.value)
+                            changeSchedule(
+                              s._id,
+                              "startTime",
+                              convertTo12Hour(e.target.value)
+                            )
                           }
                         />
                       </div>
@@ -211,8 +256,8 @@ export default function IrrigationModeSection() {
                           className="border rounded px-2 py-1 w-full"
                           value={s.duration / 60}
                           onChange={(e) =>
-                            updateSchedule(
-                              s.id,
+                            changeSchedule(
+                              s._id,
                               "duration",
                               Math.min(
                                 Math.max(1, parseInt(e.target.value) * 60),
@@ -241,13 +286,46 @@ export default function IrrigationModeSection() {
                                 const updated = s.repeat.includes(day)
                                   ? s.repeat.filter((d) => d !== day)
                                   : [...s.repeat, day];
-                                updateSchedule(s.id, "repeat", updated);
+                                changeSchedule(s._id, "repeat", updated);
                               }}
                             >
                               {day}
                             </button>
                           ))}
                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {isSelected && (
+                    <div
+                      className=" bg-white  rounded-md py-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {/* Save & Cancel Buttons */}
+                      <div className=" flex justify-end gap-2">
+                        <button
+                          className="px-4 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedSchedule(null); // Cancel edits
+                          }}
+                        >
+                          Huỷ
+                        </button>
+                        <button
+                          className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                          onClick={(e) => {
+                            const updatedSchedule = schedules.find(
+                              (s) => s._id === selectedSchedule
+                            );
+                            saveSchedule(updatedSchedule);
+                            e.stopPropagation();
+                            setSelectedSchedule(null); // exit edit mode
+                          }}
+                        >
+                          Lưu
+                        </button>
                       </div>
                     </div>
                   )}
@@ -259,7 +337,7 @@ export default function IrrigationModeSection() {
           {/* ➕ Add New Clock */}
           <div
             className="w-40 h-[175px] p-4 bg-gray-50 rounded-lg shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer"
-            onClick={handleAddSchedule}
+            onClick={() => handleAddSchedule("water")}
           >
             <span className="text-4xl font-bold">+</span>
           </div>
