@@ -1,0 +1,12 @@
+{
+    "login":"Login",
+    "register":"Register",
+    "email-placeholder":"Enter email address",
+    "username-placeholder":"Enter username",
+    "pass-placeholder":"Nhập mật khẩu",
+    "forgot-pass":"Forget password",
+    "or-auth-with":"Or login with",
+    "did-not-have-account":"Don't have an account?"
+
+
+}
