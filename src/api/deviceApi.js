@@ -31,3 +31,19 @@ export const updateControlById = async (params) => {
     const response = await axiosClient.put(`/api/control/updateControl/${id_esp}/${controlId}`, data);
     return response.data;
 };
+
+export const getMemberByIdDevice = async (id) => {
+    const response = await axiosClient.get(`/api/device/membersDetail/${id}`);
+    return response.data;  // Return the data from the API response
+}
+
+export const removeMemberByIdDevice = async (id_esp, id_member) => {
+    // console.log(id_esp, id_member);
+    const response = await axiosClient.delete(`/api/device/delMember/${id_esp}/${id_member}`);
+    return response.data;  // Return the data from the API response
+}
+
+export const renameDeviceByIdDevice = async (id_esp, params) => {
+    const response = await axiosClient.patch(`/api/device/updateName/${id_esp}`, params);
+    return response.data;
+};

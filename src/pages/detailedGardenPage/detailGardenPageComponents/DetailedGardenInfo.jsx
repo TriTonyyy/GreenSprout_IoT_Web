@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Pencil } from "lucide-react";
+import {
+  Pencil,
+  Droplets,
+  Thermometer,
+  CloudRain,
+  ShowerHead,
+  Sun,
+  User,
+  Fan,
+  Lightbulb,
+  Droplet,
+} from "lucide-react";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
-import { getGardenByDevice, updateControlById } from "../../../api/deviceApi";
+import {
+  getGardenByDevice,
+  getMemberByIdDevice,
+  updateControlById,
+} from "../../../api/deviceApi";
 import { apiResponseHandler } from "../../../components/Alert/alertComponent";
 
 const GardenImage = ({ src }) => (
@@ -28,24 +43,32 @@ const SensorReading = ({ label, value, unit, icon }) => (
 
 const MemberList = ({ members, onEdit }) => (
   <div className="flex flex-col px-2">
-    {members.map((member) => (
+    {members.map((member, index) => (
       <div
-        key={member._id}
+        key={member._id || member.name || index}
         className="bg-white border border-gray-200 shadow-sm rounded-md px-3 py-2 my-2 flex justify-between items-center hover:shadow-md transition"
       >
         <div className="flex items-center space-x-2">
-          <span className="text-gray-600 text-lg">👤</span>
-          <div>
-            <span className="text-gray-800 font-medium">{member.userId}</span>{" "}
-            <span className="text-sm text-gray-500">({member.role})</span>
+          <span className="text-sky-500 text-lg">
+            <User size={20} />
+          </span>
+          <div className="flex flex-col leading-tight">
+            <span className="text-gray-800 font-medium">
+              {member.name ?? "Unknown"}
+            </span>
+            <span className="text-sm text-gray-500">
+              {member.role ?? "no-role"}
+            </span>
           </div>
         </div>
-        <button
-          onClick={() => onEdit?.(member)}
-          className="text-green-600 hover:text-green-800 transition p-1 rounded-md hover:bg-green-100"
-        >
-          <Pencil size={16} />
-        </button>
+        {onEdit && (
+          <button
+            onClick={() => onEdit(member)}
+            className="text-green-600 hover:text-green-800 transition p-1 rounded-md hover:bg-green-100"
+          >
+            <Pencil size={16} className="text-green-600" />
+          </button>
+        )}
       </div>
     ))}
   </div>
@@ -105,11 +128,31 @@ export const DetailedGardenInfo = ({ deviceId }) => {
 
   const translateSensorType = (sensorType) => {
     const translationMap = {
-      moisture: { label: "Độ ẩm đất", unit: "%", icon: "💧" },
-      temperature: { label: "Nhiệt độ", unit: "°C", icon: "🌡️" },
-      humidity: { label: "Độ ẩm không khí", unit: "%", icon: "💦" },
-      stream: { label: "Lưu lượng nước", unit: "m³/s", icon: "🚿" },
-      luminosity: { label: "Cường độ ánh sáng", unit: "%", icon: "🌞" },
+      moisture: {
+        label: "Độ ẩm đất",
+        unit: "%",
+        icon: <Droplets size={18} color="#38bdf8" />, // sky-400
+      },
+      temperature: {
+        label: "Nhiệt độ",
+        unit: "°C",
+        icon: <Thermometer size={18} color="#f87171" />, // red-400
+      },
+      humidity: {
+        label: "Độ ẩm không khí",
+        unit: "%",
+        icon: <CloudRain size={18} color="#60a5fa" />, // blue-400
+      },
+      stream: {
+        label: "Lưu lượng nước",
+        unit: "m³/s",
+        icon: <ShowerHead size={18} color="#34d399" />, // green-400
+      },
+      luminosity: {
+        label: "Cường độ ánh sáng",
+        unit: "%",
+        icon: <Sun size={18} color="#facc15" />, // yellow-400
+      },
     };
     return (
       translationMap[sensorType] || { label: sensorType, unit: "", icon: "🔍" }
@@ -118,11 +161,13 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   const fetchGardenData = async () => {
     try {
       const res = await getGardenByDevice(deviceId);
-      const device = res?.data || null;
-      if (!device) throw new Error("Device not found or invalid ID");
+      const device = res.data || {};
+
+      // Get members and attach to device
+      const result = await getMemberByIdDevice(deviceId);
+      device.members = result.members || [];
 
       setGardenData(device);
-
       // Map sensors by type for easy access
       const tempSensorsMap = {};
       device.sensors.forEach((sensor) => {
@@ -158,7 +203,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       setLightOn(lightControl ? lightControl.status : false);
       setWindOn(windControl ? windControl.status : false);
     } catch (error) {
-      console.error("Error fetching garden data:", error);
+      // console.error("Error fetching garden data:", error);
     } finally {
       setLoading(false);
     }
@@ -228,13 +273,12 @@ export const DetailedGardenInfo = ({ deviceId }) => {
     }
   };
 
-  if (loading) return <div className="text-center">Loading garden data...</div>;
-  if (!gardenData)
-    return <div className="text-center">Failed to load garden data.</div>;
+  if (loading || !gardenData) {
+    return DetailedGardenInfoSkeleton();
+  }
 
   const imageUrl =
     gardenData.img_area || require("../../../assets/images/ItemImg.png");
-  const { reports = [], members = [] } = gardenData;
 
   // Display all sensors, even if missing
   const displayedSensors = allSensorTypes.map((type) => {
@@ -258,7 +302,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   });
 
   return (
-    <div className="w-4/5 mx-auto bg-white rounded-xl shadow-md py-2 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-10 items-stretch">
+    <div className="mx-5 bg-white rounded-xl shadow-md py-2 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-10 items-stretch">
       {/* Image Section */}
       <div className="col-span-1 flex flex-col md:border-r">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
@@ -296,12 +340,19 @@ export const DetailedGardenInfo = ({ deviceId }) => {
               <div key={index} className="flex flex-col w-full py-2 px-4">
                 {/* Label stays clear and vibrant */}
                 <div className="flex justify-between items-center w-full mb-2">
-                  <span className="font-semibold text-green-700">
+                  <span className="font-semibold text-green-700 flex items-center gap-1">
+                    {name === "water" ? (
+                      <Droplet size={18} className="text-sky-400" />
+                    ) : name === "light" ? (
+                      <Lightbulb size={18} className="text-yellow-400" />
+                    ) : (
+                      <Fan size={18} className="text-green-400" />
+                    )}
                     {name === "water"
-                      ? "💧 Nước"
+                      ? "Nước"
                       : name === "light"
-                      ? "💡 Đèn"
-                      : "🌬️ Gió"}
+                      ? "Đèn"
+                      : "Gió"}
                     :
                   </span>
 
@@ -356,7 +407,64 @@ export const DetailedGardenInfo = ({ deviceId }) => {
           Thành viên
         </h2>
         <div className="flex flex-col">
-          <MemberList members={members} />
+          <MemberList members={gardenData.members} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const DetailedGardenInfoSkeleton = () => {
+  return (
+    <div className="mx-5 bg-white rounded-xl shadow-md py-2 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-10 items-stretch animate-pulse">
+      {/* Image Section Skeleton */}
+      <div className="col-span-1 flex flex-col md:border-r">
+        <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
+          Hình ảnh
+        </div>
+        <div className="h-48 bg-gray-200 rounded-lg m-4"></div>
+      </div>
+
+      {/* Sensor Section Skeleton */}
+      <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-4">
+        <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
+          Cảm biến
+        </div>
+        <div className="flex flex-col px-4 space-y-2">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-6 bg-gray-200 rounded w-full"></div>
+          ))}
+        </div>
+      </div>
+
+      {/* Control Section Skeleton */}
+      <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-4">
+        <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
+          Điều khiển
+        </div>
+        <div className="flex flex-col items-center mt-2 w-full px-4 space-y-4">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="w-full">
+              <div className="h-5 bg-gray-200 rounded mb-2 w-3/4"></div>
+              <div className="h-8 bg-gray-200 rounded mb-2 w-full"></div>
+              <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+              {i < 1 && (
+                <div className="w-full border-b border-gray-300 my-4"></div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Member Section Skeleton */}
+      <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-4">
+        <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
+          Thành viên
+        </div>
+        <div className="flex flex-col px-4 space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-6 bg-gray-200 rounded w-full"></div>
+          ))}
         </div>
       </div>
     </div>
