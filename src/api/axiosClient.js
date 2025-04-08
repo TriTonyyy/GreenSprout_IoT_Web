@@ -3,7 +3,7 @@ import axios from "axios";
 // import { useSelector } from "react-redux";
 import { getToken } from "../helper/tokenHelper";
 
-const BASEURL = "https://capstone-project-iot-1.onrender.com";
+// const BASEURL = "https://capstone-project-iot-1.onrender.com";
 const Local="http://192.168.1.224:8000";
 
 let token;

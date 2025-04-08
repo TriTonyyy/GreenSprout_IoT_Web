@@ -71,7 +71,7 @@ function DetailedGarden() {
             <GardenTitleSkeleton />
           )}
           <DetailedGardenInfo deviceId={gardenId} />
-          <IrrigationModeSection />
+          <IrrigationModeSection deviceId={gardenId} />
         </div>
       </div>
       <FooterComponent />
