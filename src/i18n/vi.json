@@ -1,0 +1,10 @@
+{
+    "login":"Đăng nhập",
+    "register":"Đăng ký",
+    "email-placeholder":"Nhập địa chỉ email",
+    "username-placeholder":"Nhập tên đăng nhập",
+    "pass-placeholder":"Nhập mật khẩu",
+    "forgot-pass":"Quên mật khẩu",
+    "or-auth-with":"Hoặc đăng nhập bằng",
+    "did-not-have-account":"Bạn chưa có tài khoản?"
+}
