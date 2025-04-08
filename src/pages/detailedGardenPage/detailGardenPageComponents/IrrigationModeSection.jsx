@@ -106,7 +106,7 @@ export default function IrrigationModeSection() {
   };
 
   return (
-    <div className="w-4/5 mx-auto bg-white rounded-xl shadow-md p-4 mt-8">
+    <div className="mx-5 bg-white rounded-xl shadow-md p-4 my-2">
       <h2 className="text-xl font-semibold mb-4 px-2">Lịch tưới</h2>
 
       {/* Mode Switch Bar */}

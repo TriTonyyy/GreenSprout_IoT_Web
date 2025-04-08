@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Pencil } from "lucide-react";
+import {
+  Pencil,
+  Droplets,
+  Thermometer,
+  CloudRain,
+  ShowerHead,
+  Sun,
+  User,
+  Fan,
+  Lightbulb,
+  Droplet,
+} from "lucide-react";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
-import { getGardenByDevice, updateControlById } from "../../../api/deviceApi";
+import {
+  getGardenByDevice,
+  getMemberByIdDevice,
+  updateControlById,
+} from "../../../api/deviceApi";
 import { apiResponseHandler } from "../../../components/Alert/alertComponent";
 
 const GardenImage = ({ src }) => (
@@ -28,24 +43,32 @@ const SensorReading = ({ label, value, unit, icon }) => (
 
 const MemberList = ({ members, onEdit }) => (
   <div className="flex flex-col px-2">
-    {members.map((member) => (
+    {members.map((member, index) => (
       <div
-        key={member._id}
+        key={member._id || member.name || index}
         className="bg-white border border-gray-200 shadow-sm rounded-md px-3 py-2 my-2 flex justify-between items-center hover:shadow-md transition"
       >
         <div className="flex items-center space-x-2">
-          <span className="text-gray-600 text-lg">👤</span>
-          <div>
-            <span className="text-gray-800 font-medium">{member.userId}</span>{" "}
-            <span className="text-sm text-gray-500">({member.role})</span>
+          <span className="text-sky-500 text-lg">
+            <User size={20} />
+          </span>
+          <div className="flex flex-col leading-tight">
+            <span className="text-gray-800 font-medium">
+              {member.name ?? "Unknown"}
+            </span>
+            <span className="text-sm text-gray-500">
+              {member.role ?? "no-role"}
+            </span>
           </div>
         </div>
-        <button
-          onClick={() => onEdit?.(member)}
-          className="text-green-600 hover:text-green-800 transition p-1 rounded-md hover:bg-green-100"
-        >
-          <Pencil size={16} />
-        </button>
+        {onEdit && (
+          <button
+            onClick={() => onEdit(member)}
+            className="text-green-600 hover:text-green-800 transition p-1 rounded-md hover:bg-green-100"
+          >
+            <Pencil size={16} className="text-green-600" />
+          </button>
+        )}
       </div>
     ))}
   </div>
@@ -105,11 +128,31 @@ export const DetailedGardenInfo = ({ deviceId }) => {
 
   const translateSensorType = (sensorType) => {
     const translationMap = {
-      moisture: { label: "Độ ẩm đất", unit: "%", icon: "💧" },
-      temperature: { label: "Nhiệt độ", unit: "°C", icon: "🌡️" },
-      humidity: { label: "Độ ẩm không khí", unit: "%", icon: "💦" },
-      stream: { label: "Lưu lượng nước", unit: "m³/s", icon: "🚿" },
-      luminosity: { label: "Cường độ ánh sáng", unit: "%", icon: "🌞" },
+      moisture: {
+        label: "Độ ẩm đất",
+        unit: "%",
+        icon: <Droplets size={18} color="#38bdf8" />, // sky-400
+      },
+      temperature: {
+        label: "Nhiệt độ",
+        unit: "°C",
+        icon: <Thermometer size={18} color="#f87171" />, // red-400
+      },
+      humidity: {
+        label: "Độ ẩm không khí",
+        unit: "%",
+        icon: <CloudRain size={18} color="#60a5fa" />, // blue-400
+      },
+      stream: {
+        label: "Lưu lượng nước",
+        unit: "m³/s",
+        icon: <ShowerHead size={18} color="#34d399" />, // green-400
+      },
+      luminosity: {
+        label: "Cường độ ánh sáng",
+        unit: "%",
+        icon: <Sun size={18} color="#facc15" />, // yellow-400
+      },
     };
     return (
       translationMap[sensorType] || { label: sensorType, unit: "", icon: "🔍" }
@@ -121,8 +164,9 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       const device = res?.data || null;
       if (!device) throw new Error("Device not found or invalid ID");
 
+      const result = await getMemberByIdDevice(deviceId);
+      device.members = result.members || []; // attach members to the gardenData
       setGardenData(device);
-
       // Map sensors by type for easy access
       const tempSensorsMap = {};
       device.sensors.forEach((sensor) => {
@@ -258,7 +302,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   });
 
   return (
-    <div className="w-4/5 mx-auto bg-white rounded-xl shadow-md py-2 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-10 items-stretch">
+    <div className="mx-5 bg-white rounded-xl shadow-md py-2 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-10 items-stretch">
       {/* Image Section */}
       <div className="col-span-1 flex flex-col md:border-r">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
@@ -296,12 +340,19 @@ export const DetailedGardenInfo = ({ deviceId }) => {
               <div key={index} className="flex flex-col w-full py-2 px-4">
                 {/* Label stays clear and vibrant */}
                 <div className="flex justify-between items-center w-full mb-2">
-                  <span className="font-semibold text-green-700">
+                  <span className="font-semibold text-green-700 flex items-center gap-1">
+                    {name === "water" ? (
+                      <Droplet size={18} className="text-sky-400" />
+                    ) : name === "light" ? (
+                      <Lightbulb size={18} className="text-yellow-400" />
+                    ) : (
+                      <Fan size={18} className="text-green-400" />
+                    )}
                     {name === "water"
-                      ? "💧 Nước"
+                      ? "Nước"
                       : name === "light"
-                      ? "💡 Đèn"
-                      : "🌬️ Gió"}
+                      ? "Đèn"
+                      : "Gió"}
                     :
                   </span>
 
@@ -356,7 +407,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
           Thành viên
         </h2>
         <div className="flex flex-col">
-          <MemberList members={members} />
+          <MemberList members={gardenData.members} />
         </div>
       </div>
     </div>
