@@ -1,7 +1,7 @@
-import React, { useEffect,useState} from 'react'
-import { Search } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { Search } from "lucide-react";
 import { useNavigate } from "react-router";
-import { getUserInfoAPI } from '../../api/AuthApi';
+import { getUserInfoAPI } from "../../api/AuthApi";
 
 function SearchBarComponent() {
   const searchData = () => {
@@ -9,7 +9,7 @@ function SearchBarComponent() {
   };
   return (
     <div className="p-5 h-auto ">
-      <div className="flex items-center bg-gray-100 rounded-lg">  
+      <div className="flex items-center bg-gray-100 rounded-lg">
         <input
           type="text"
           className="p-2 rounded-lg bg-gray-100"
@@ -23,8 +23,11 @@ function SearchBarComponent() {
   );
 }
 
-function HeaderComponent({titleScheduleColor="black", titleReportColor ='black'}) {
-  const headerFont = 'Kodchasan';
+function HeaderComponent({
+  titleScheduleColor = "black",
+  titleReportColor = "black",
+}) {
+  const headerFont = "Kodchasan";
   // const user = useSelector(getTokenUser);
   // console.log(user, "asdasdasd");
   const [userName, setUserName] = useState("");
@@ -32,14 +35,14 @@ function HeaderComponent({titleScheduleColor="black", titleReportColor ='black'}
 
   useEffect(() => {
     getUserInfoAPI()
-      .then((res)=>{
+      .then((res) => {
         setUserName(res.data.name);
         setAvatar(res.data.avatar);
       })
-      .catch((err)=>{
+      .catch((err) => {
         console.log(err);
-      })
-  }, [])
+      });
+  }, []);
   const navigate = useNavigate();
   return (
     <div className="flex items-center p-1 border-b-2">
@@ -54,31 +57,30 @@ function HeaderComponent({titleScheduleColor="black", titleReportColor ='black'}
               className="w-24 h-auto max-w-full"
               alt="logo"
             />
-            <h1 className="text-4xl p-4" style={{ fontFamily: "Kannada MN" }}>
+            <h1 className="text-4xl p-4" style={{ fontFamily: "fantasy" }}>
               GreenSprout
             </h1>
           </div>
-          <a
-            href="/schedule"
-            className={`ml-5 mr-5 text-2xl p-4 text-red-900`}
-            style={{ fontFamily: headerFont, color: titleScheduleColor }}
-          >
-            Lịch trình tưới
-          </a>
-          <a
-            href="#"
-            className="ml-5 mr-5 text-2xl p-4"
-            style={{ fontFamily: headerFont, color: titleReportColor }}
-          >
-            Thống kê
-          </a>
         </div>
-        <div className='flex items-center'>
-          <SearchBarComponent/>
-          <div className='flex items-center' onClick={()=>{navigate('/account')}}>
-            <h2 className='text-2xl p-4' style={{ fontFamily: headerFont }}>{userName}</h2>
-            <img onClick={()=>{console.log("dasd");
-            }} src={require("../../assets/images/AvatarDefault.png")} className='w-18 h-auto max-w-full' alt='avatar'/>
+        <div className="flex items-center">
+          <SearchBarComponent />
+          <div
+            className="flex items-center"
+            onClick={() => {
+              navigate("/account");
+            }}
+          >
+            <h2 className="text-2xl p-4" style={{ fontFamily: headerFont }}>
+              {userName}
+            </h2>
+            <img
+              onClick={() => {
+                console.log("dasd");
+              }}
+              src={require("../../assets/images/AvatarDefault.png")}
+              className="w-18 h-auto max-w-full"
+              alt="avatar"
+            />
           </div>
         </div>
       </div>
