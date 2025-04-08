@@ -72,7 +72,7 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
       </div>
       <div className="w-3/5 p-2 flex flex-col justify-between">
         <div className="m-1 flex justify-between items-center">
-          <h1 className="text-3xl font-semibold text-green-800">{name}</h1>
+          <h1 className="text-2xl font-semibold text-green-800 truncate">{name}</h1>
           <img
             src={require("../../../assets/images/TreePlanting.png")}
             className="w-6 h-6 cursor-pointer hover:opacity-80"
