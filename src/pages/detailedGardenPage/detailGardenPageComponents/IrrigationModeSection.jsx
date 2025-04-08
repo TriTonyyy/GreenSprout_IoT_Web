@@ -42,45 +42,141 @@ export default function IrrigationModeSection() {
     return `${hour12}:${minute} ${suffix}`;
   };
 
+  // OLD VERSION
+  // const fetchScheduleById = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       "https://capstone-project-iot-1.onrender.com/api/schedule/detailScheduleBy/67e2449cbf718b7f105543dc"
+  //     );
+
+  //     const schedule = response.data;
+
+  //     // Transform to array if needed
+  //     const scheduleArray = Array.isArray(schedule) ? schedule : [schedule];
+
+  //     setSchedules(scheduleArray);
+  //   } catch (error) {
+  //     console.error("Failed to fetch schedule:", error);
+  //   }
+  // };
+
+  // New version
+  // This version fetches the schedule by device ID and extracts the relevant data
+  // from the response. It also handles the case where the schedule might not be found.
   const fetchScheduleById = async () => {
     try {
       const response = await axios.get(
-        "https://capstone-project-iot-1.onrender.com/api/schedule/detailScheduleBy/67e2449cbf718b7f105543dc"
+        "http://192.168.1.224:8000/api/schedule/scheduleBy/ESP123"
       );
 
-      const schedule = response.data;
+      const device = response.data.data;
 
-      // Transform to array if needed
-      const scheduleArray = Array.isArray(schedule) ? schedule : [schedule];
+      // Find water control and set schedules
+      const waterControl = device.controls.find(
+        (control) => control.name === "water"
+      );
 
-      setSchedules(scheduleArray);
+      if (waterControl) {
+        const schedules = waterControl.schedules.map((sch) => ({
+          id: sch._id,
+          startTime: new Date(sch.startTime).toISOString().substring(11, 16), // Extract time (HH:mm)
+          duration: sch.duration,
+          repeat: sch.repeat,
+          enabled: sch.status,
+        }));
+        setSchedules(schedules);
+      } else {
+        setSchedules([]);
+      }
     } catch (error) {
-      console.error("Failed to fetch schedule:", error);
+      console.error("Failed to fetch schedules:", error);
     }
   };
 
   useEffect(() => {
     // fetchScheduleById();
   }, []);
+  //OLD VERSION
+  // const handleAddSchedule = () => {
+  //   const newId = Math.random().toString(36).substring(2, 9); // unique string id
+  //   const newSchedule = {
+  //     id: newId,
+  //     time: "13:00",
+  //     duration: 60,
+  //     repeat: [],
+  //     enabled: false,
+  //   };
+  //   setSchedules((prev) => [...prev, newSchedule]);
+  //   setSelectedScheduleId(newId);
+  // };
 
+  // New version with isNew flag
+  // This version allows you to identify new schedules that haven't been saved yet
+  // and handle them differently if needed.
   const handleAddSchedule = () => {
-    const newId = Math.random().toString(36).substring(2, 9); // unique string id
+    const newId = Math.random().toString(36).substring(2, 9);
     const newSchedule = {
       id: newId,
-      time: "13:00",
+      startTime: "13:00", // always provide a clear initial value
       duration: 60,
       repeat: [],
       enabled: false,
+      isNew: true,
     };
     setSchedules((prev) => [...prev, newSchedule]);
     setSelectedScheduleId(newId);
   };
 
-  const handleScheduleClick = (id) => {
-    setSelectedScheduleId((prev) => (prev === id ? null : id));
+  // OLD VERSION
+  // const handleScheduleClick = (id) => {
+  //   setSelectedScheduleId((prev) => (prev === id ? null : id));
+  // };
+
+  // New version with isNew flag
+  const handleScheduleClick = async (id) => {
+    if (selectedScheduleId === id) {
+      const schedule = schedules.find((s) => s.id === id);
+      console.log(schedule);
+      if (schedule && schedule.isNew) {
+        try {
+          const payload = {
+            status: schedule.enabled,
+            startTime: schedule.startTime,
+            duration: schedule.duration,
+            repeat: schedule.repeat,
+          };
+          console.log(payload);
+
+          // Call POST API using the correct control ID
+          await axios.post(
+            `http://192.168.1.224:8000/api/schedule/addSchedule/ESP123`,
+            payload
+          );
+
+          // Refresh schedule after successful POST
+          fetchScheduleById();
+        } catch (error) {
+          if (error.response) {
+            // 👇 Clearly log entire backend response object
+            console.error(
+              "🚨 Server responded with error:",
+              JSON.stringify(error.response.data, null, 2)
+            );
+          } else {
+            console.error("🚨 Axios error without server response:", error);
+          }
+        }
+      }
+
+      setSelectedScheduleId(null); // collapse after processing
+    } else {
+      setSelectedScheduleId(id); // expand
+    }
   };
 
+  //  OLD VERSION
   const updateSchedule = (id, field, value) => {
+    // console.log(value);
     setSchedules((prev) =>
       prev.map((s) =>
         s.id === id
@@ -97,6 +193,13 @@ export default function IrrigationModeSection() {
       )
     );
   };
+
+  // New version with isNew flag
+  // const updateSchedule = (id, field, value) => {
+  //   setSchedules((prev) =>
+  //     prev.map((s) => (s.id === id ? { ...s, [field]: value } : s))
+  //   );
+  // };
 
   const deleteSchedule = (id) => {
     setSchedules((prev) => prev.filter((s) => s.id !== id));
@@ -177,8 +280,10 @@ export default function IrrigationModeSection() {
                       Bật/ Tắt:
                     </span>
                     <ToggleSwitch
-                      isOn={isIrrigationOn}
-                      onToggle={() => setIsIrrigationOn(!isIrrigationOn)}
+                      isOn={s.enabled}
+                      onToggle={() =>
+                        updateSchedule(s.id, "enabled", !s.enabled)
+                      }
                     />
                   </div>
 
