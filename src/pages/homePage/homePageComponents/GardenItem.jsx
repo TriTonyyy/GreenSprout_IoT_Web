@@ -61,8 +61,8 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
   };
 
   return (
-    <div className="w-[32%] h-1/4 rounded-2xl border-2 shadow-xl bg-white flex">
-      <div className="p-3 w-2/5 bg-green-300 rounded-xl border-r-2">
+    <div className="w-[34%] h-1/4 rounded-2xl border-2 shadow-xl bg-white flex">
+      <div className="p-3 w-1/2 bg-green-300 rounded-xl border-r-2">
         <img
           src={require("../../../assets/images/ItemImg.png")}
           alt="Garden"
@@ -163,7 +163,7 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
 
 function GardenItemSkeleton() {
   return (
-    <div className="w-[32%] h-2/3 rounded-xl border-2 shadow-lg bg-white flex overflow-hidden">
+    <div className="w-[32%] h-1/2 rounded-xl border-2 shadow-lg bg-white flex overflow-hidden">
       <div className="p-2 w-2/5 bg-gray-200 rounded-xl border-r-2">
         <Skeleton height="100%" width="100%" />
       </div>

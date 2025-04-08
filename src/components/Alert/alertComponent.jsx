@@ -1,5 +1,9 @@
 import Swal from "sweetalert2";
-import { getGardenByDevice, addMemberByIdDevice } from "../../api/deviceApi"; // Import the API function to update device members
+import {
+  getGardenByDevice,
+  addMemberByIdDevice,
+  removeMemberByIdDevice,
+} from "../../api/deviceApi"; // Import the API function to update device members
 
 // SweetAlert2 popup function to add a device
 export const addDevicePopup = (member, fetchUserDevices) => {
@@ -21,11 +25,14 @@ export const addDevicePopup = (member, fetchUserDevices) => {
         // console.log(deviceId);
         // console.log(member.userId);
         try {
-          await addMemberByIdDevice(deviceId, {userId: member.userId, role: "member",});
+          await addMemberByIdDevice(deviceId, {
+            userId: member.userId,
+            role: "member",
+          });
           fetchUserDevices(); // ✅ Fix: Use the function from props
           Swal.fire("Thành công!", "Kết nối thành công!", "success");
         } catch (error) {
-          console.error("Error checking device:", error);
+          // console.error("Error checking device:", error);
           Swal.fire({
             title: "Thất bại",
             text: "Thiết bị không tồn tại",
@@ -46,5 +53,26 @@ export const apiResponseHandler = (message) => {
     icon: "error",
     title: "Oops...",
     text: message || "Something went wrong!",
+  });
+};
+
+export const removeDevicePopup = (deviceId, userId, onSuccess) => {
+  Swal.fire({
+    title: "Bạn có chắc chắn muốn xóa thiết bị này không?",
+    text: "Thiết bị sẽ bị xóa vĩnh viễn!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Xóa",
+    cancelButtonText: "Hủy",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await removeMemberByIdDevice(deviceId, userId);
+        Swal.fire("Đã xóa!", "Thiết bị đã được xóa.", "success");
+        if (onSuccess) onSuccess(); // Trigger a callback if provided
+      } catch (error) {
+        apiResponseHandler("Failed to remove device. Please try again.");
+      }
+    }
   });
 };
