@@ -233,7 +233,7 @@ export default function IrrigationModeSection({ deviceId }) {
                     <ToggleSwitch
                       isOn={s.enabled}
                       onToggle={() =>
-                        updateSchedule(s.id, "enabled", !s.enabled)
+                        changeSchedule(s.id, "enabled", !s.enabled)
                       }
                     />
                   </div>
