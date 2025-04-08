@@ -4,6 +4,10 @@ import { useNavigate } from "react-router";
 import { getUserInfoAPI } from '../../api/AuthApi';
 import { updateProfileApi } from '../../api/userApi';
 import {apiResponseHandler} from '../../components/Alert/alertComponent';
+import SideNavigationBar from '../../components/SideNavigationBar/SideNavigationBar';
+import FooterComponent from '../../components/FooterComponent/FooterComponent';
+import i18n from '../../i18n';
+import { Plus } from 'lucide-react';
 
 export default function AccountPage() {
     const [name, setName] = useState('');
@@ -26,6 +30,12 @@ export default function AccountPage() {
             })  
     }
 
+    const changeLanguage = async (lang)=>{
+        console.log(lang);
+        await i18n.changeLanguage(lang);
+        // window.location.reload();
+    }
+
     useEffect(()=>{
         getUserInfoAPI()
         .then((res)=>{
@@ -42,10 +52,10 @@ export default function AccountPage() {
   return (
     <div>
         <HeaderComponent/>
-        <div className='flex-col flex'>
-            {/* <NavBarComponent/> */}
-            <div className='mx-10 my-5 justify-between'>
-                <h1 className='text-3xl'><strong>Tài Khoản</strong></h1>
+        <div className='flex'>
+            <SideNavigationBar/>
+            <div className='mx-10 my-5 justify-between flex-col w-full'>
+                <h1 className='text-3xl'><strong>{i18n.t("account")}</strong></h1>
                 <div className='flex pt-5  justify-between items-center '>
                     <div className='flex'>
                         <img src={avatar !== "" ? avatar : require("../../assets/images/AvatarDefault.png")} className='py-5' alt='avatar'/>
@@ -74,12 +84,25 @@ export default function AccountPage() {
                     <input type='password' className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full' placeholder='Mật Khẩu' value={password} onChange={(e)=>setPassword(e.target.value)}/>
                 </div>
 
+                <div className='pt-5  justify-between items-center border-b-2 pb-4 '>
+                    <h2 className='text-2xl '><strong>{i18n.t("lang")}</strong></h2>
+                    <select 
+                        className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full' 
+                        onChange={(e) => changeLanguage(e.target.value)}
+                    >
+                        <option value="vi">Tiếng Việt</option>
+                        <option value="en" >
+                           English
+                        </option>
+                    </select>
+                </div>
+
                 <button className='w-full p-4 rounded bg-blue-400' onClick={saveUpdateUserInfo}>
                     <p className='text-white text-2xl'>Lưu</p>
                 </button>
             </div>
         </div>
-        
+        <FooterComponent/>
     </div>
   )
 }

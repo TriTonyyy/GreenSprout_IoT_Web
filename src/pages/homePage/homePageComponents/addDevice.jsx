@@ -1,12 +1,13 @@
 import { Plus } from "lucide-react";
 import React from "react";
+import i18n from "../../../i18n";
 
 const AddDeviceButton = ({ onClick }) => {
   return (
     <div className="text-center w-full flex flex-col items-center gap-6">
       {/* Message */}
       <p className="text-2xl text-gray-900 font-semibold leading-relaxed mb-4">
-        Bạn hiện chưa có khu vực nào trong vườn của mình.
+        {i18n.t("did-not-have-garden")}
       </p>
 
       {/* Button */}
@@ -20,7 +21,7 @@ const AddDeviceButton = ({ onClick }) => {
             <Plus size={36} color="#34D399" />
           </div>
           {/* Button Text */}
-          <p className="mt-3 text-white font-semibold text-xl">Thêm khu vực</p>
+          <p className="mt-3 text-white font-semibold text-xl">{i18n.t("add-garden")}</p>
         </div>
       </div>
     </div>

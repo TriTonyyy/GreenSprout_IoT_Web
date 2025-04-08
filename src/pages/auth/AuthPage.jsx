@@ -100,7 +100,7 @@ function AuthPage({ isLogin }) {
           </button>
           {isLogin ? (
             <h2 className="p-1 m-1">
-              Bạn chưa có tài khoản?{" "}
+              {i18n.t("did-not-have-account")}{" "}
               <a href="/register" className="text-stone-950 font-bold">
                 {i18n.t("register")}
               </a>

@@ -6,5 +6,11 @@
     "pass-placeholder":"Nhập mật khẩu",
     "forgot-pass":"Quên mật khẩu",
     "or-auth-with":"Hoặc đăng nhập bằng",
-    "did-not-have-account":"Bạn chưa có tài khoản?"
+    "did-not-have-account":"Bạn chưa có tài khoản?",
+    "garden_of_account": "Vườn của {{accountName}}",
+    "did-not-have-garden":"Bạn hiện chưa có khu vực nào trong vườn của mình.",
+    "add-garden":"Thêm khu vườn",
+    "lang":"Ngôn ngữ",
+    "account":"Tài khoản"
+
 }
