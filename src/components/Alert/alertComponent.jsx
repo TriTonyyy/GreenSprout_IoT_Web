@@ -48,10 +48,9 @@ export const addDevicePopup = (member, fetchUserDevices) => {
   retryFunction();
 };
 
-export const apiResponseHandler = (message) => {
+export const apiResponseHandler = (message,type) => {
   Swal.fire({
-    icon: "error",
-    title: "Oops...",
+    icon: type || "success",
     text: message || "Something went wrong!",
   });
 };
@@ -118,3 +117,21 @@ export const renameDevicePopup = (deviceId,name_area) => {
     });
   });
 };
+
+export const areUSurePopup = (message) => {
+  return new Promise((resolve, reject) => {
+    Swal.fire({
+      title: message || "Bạn có chắc chắn không?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Có",
+      cancelButtonText: "Không",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        resolve();
+      } else {
+        reject("cancelled");
+      }
+    });
+  });
+}
