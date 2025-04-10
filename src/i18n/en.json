@@ -6,7 +6,14 @@
     "pass-placeholder":"Nhập mật khẩu",
     "forgot-pass":"Forget password",
     "or-auth-with":"Or login with",
-    "did-not-have-account":"Don't have an account?"
+    "did-not-have-account":"Don't have an account?",
+    "garden_of_account": "{{accountName}}'s Garden",
+    "did-not-have-garden":"You currently do not have any areas in your garden.",
+    "add-garden":"Add garden",
+    "lang":"Language",
+    "account":"Account",
+    "password":"Password"
+
 
 
 }

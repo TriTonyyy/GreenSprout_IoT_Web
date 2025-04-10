@@ -15,6 +15,7 @@ import {
   apiResponseHandler,
 } from "../../components/Alert/alertComponent.jsx";
 import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar.jsx";
+import i18n from "../../i18n";
 
 function HomePage() {
   const [deviceData, setDeviceData] = useState(null);
@@ -70,7 +71,7 @@ function HomePage() {
             <div className="flex-grow">
               <div className="flex justify-between items-center px-10 py-10">
                 <h1 className="text-4xl font-bold">
-                  Vườn của <span className="text-green-500">{user.name}</span>
+                  <span className="text-green-500">{i18n.t("garden_of_account",{accountName:user.name})}</span>
                 </h1>
                 <div className="flex items-center gap-4">
                   <button
