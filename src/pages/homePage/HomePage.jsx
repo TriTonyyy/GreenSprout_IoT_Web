@@ -94,7 +94,7 @@ function HomePage() {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-8 px-10 py-8 min-h-screen">
+              <div className="flex flex-wrap gap-4 mx-2 min-h-screen">
                 {deviceData === null ? (
                   <>
                     <GardenItemSkeleton />
@@ -112,7 +112,15 @@ function HomePage() {
                     />
                   ))
                 ) : (
-                  <AddDeviceButton onClick={addDevicePopup} />
+                  <AddDeviceButton
+                    onClick={() =>
+                      user &&
+                      addDevicePopup(
+                        { userId: user._id, role: "member" },
+                        fetchUserDevices // Callback to refresh device list after adding
+                      )
+                    }
+                  />
                 )}
               </div>
             </div>
