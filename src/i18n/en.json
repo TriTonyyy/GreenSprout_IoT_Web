@@ -11,7 +11,9 @@
     "did-not-have-garden":"You currently do not have any areas in your garden.",
     "add-garden":"Add garden",
     "lang":"Language",
-    "account":"Account"
+    "account":"Account",
+    "password":"Password"
+
 
 
 }

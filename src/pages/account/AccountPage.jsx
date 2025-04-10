@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import HeaderComponent from '../../components/Header/HeaderComponent'
 import { useNavigate } from "react-router";
 import { getUserInfoAPI } from '../../api/AuthApi';
@@ -7,9 +8,12 @@ import {apiResponseHandler} from '../../components/Alert/alertComponent';
 import SideNavigationBar from '../../components/SideNavigationBar/SideNavigationBar';
 import FooterComponent from '../../components/FooterComponent/FooterComponent';
 import i18n from '../../i18n';
-import { Plus } from 'lucide-react';
+import { setLanguage } from '../../redux/Reducers/langReducer';
+import { getLang } from '../../redux/selectors/langSelectors';
 
 export default function AccountPage() {
+    const dispatch = useDispatch();
+    const lang = useSelector(getLang);
     const [name, setName] = useState('');
     const [avatar, setAvatar] = useState('');
     const [email, setEmail] = useState('');
@@ -30,10 +34,13 @@ export default function AccountPage() {
             })  
     }
 
-    const changeLanguage = async (lang)=>{
-        console.log(lang);
-        await i18n.changeLanguage(lang);
-        // window.location.reload();
+    const changeLanguage = async (language)=>{
+        console.log(language);
+        dispatch(setLanguage(language));
+        await i18n.changeLanguage(language)
+            .then((t)=>{
+                t('key')
+            })
     }
 
     useEffect(()=>{
@@ -80,7 +87,7 @@ export default function AccountPage() {
                 </div>
 
                 <div className='pt-5  justify-between items-center border-b-2 pb-4 '>
-                    <h2 className='text-2xl '><strong>Mật khẩu</strong></h2>
+                    <h2 className='text-2xl '><strong>{i18n.t('password')}</strong></h2>
                     <input type='password' className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full' placeholder='Mật Khẩu' value={password} onChange={(e)=>setPassword(e.target.value)}/>
                 </div>
 
@@ -90,10 +97,18 @@ export default function AccountPage() {
                         className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full' 
                         onChange={(e) => changeLanguage(e.target.value)}
                     >
-                        <option value="vi">Tiếng Việt</option>
-                        <option value="en" >
-                           English
-                        </option>
+                        {lang === "vi" ? (
+                            <div>
+                                <option selected  value="vi">Tiếng Việt</option>
+                                <option  value="en" >English</option>
+                            </div>
+                        ) :(
+                            <div>
+                                <option  value="vi">Tiếng Việt</option>
+                                <option selected  value="en" >English</option>
+                            </div>
+                        )}
+                        
                     </select>
                 </div>
 
