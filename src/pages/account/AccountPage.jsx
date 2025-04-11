@@ -4,7 +4,7 @@ import HeaderComponent from '../../components/Header/HeaderComponent'
 import { useNavigate } from "react-router";
 import { getUserInfoAPI } from '../../api/AuthApi';
 import { updateProfileApi } from '../../api/userApi';
-import {apiResponseHandler} from '../../components/Alert/alertComponent';
+import {apiResponseHandler, areUSurePopup, changePasswordPopUp} from '../../components/Alert/alertComponent';
 import SideNavigationBar from '../../components/SideNavigationBar/SideNavigationBar';
 import FooterComponent from '../../components/FooterComponent/FooterComponent';
 import i18n from '../../i18n';
@@ -36,10 +36,22 @@ export default function AccountPage() {
 
     const changeLanguage = async (language)=>{
         console.log(language);
-        dispatch(setLanguage(language));
-        await i18n.changeLanguage(language)
-            .then((t)=>{
-                t('key')
+        areUSurePopup(i18n.t("change-lang-mess"))
+            .then((res)=>{
+                i18n.changeLanguage(language)
+                    .then((t)=>{
+                        t('key')
+                        dispatch(setLanguage(language));
+                    })
+            })
+            .catch(()=>{})   
+    }
+
+    const changePassword = async ()=>{
+        await changePasswordPopUp()
+            .then((res)=>{
+                console.log(res);
+                
             })
     }
 
@@ -55,6 +67,7 @@ export default function AccountPage() {
     useEffect(()=>{
         setEmail(userInfo?.email ? userInfo.email : '');
         setName(userInfo?.name ? userInfo.name : '');
+
     }, [userInfo])
   return (
     <div>
@@ -77,18 +90,21 @@ export default function AccountPage() {
                 </div>
 
                 <div className='pt-5  justify-between items-center border-b-2 pb-4 '>
-                    <h2 className='text-2xl '><strong>Họ và tên</strong></h2>
+                    <h2 className='text-2xl '><strong>{i18n.t("fullname")}</strong></h2>
                     <input type='text' className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full' placeholder='Nhập họ và tên' value={name} onChange={(e)=>setName(e.target.value)}/>
                 </div>
                 
                 <div className='pt-5  justify-between items-center border-b-2 pb-4 '>
-                    <h2 className='text-2xl '><strong>Email</strong></h2>
-                    <input type='email' className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full' placeholder='Email' value={email} onChange={(e)=>setEmail(e.target.value)}/>
+                    <h2 className='text-2xl'><strong>Email</strong></h2>
+                    <input readOnly type='email' className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full' placeholder='Email' value={email} onChange={(e)=>setEmail(e.target.value)}/>
                 </div>
 
                 <div className='pt-5  justify-between items-center border-b-2 pb-4 '>
                     <h2 className='text-2xl '><strong>{i18n.t('password')}</strong></h2>
-                    <input type='password' className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full' placeholder='Mật Khẩu' value={password} onChange={(e)=>setPassword(e.target.value)}/>
+                    <input readOnly type='password' className='border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full' placeholder='Mật Khẩu' value={"abcdefgh"} onChange={(e)=>setPassword(e.target.value)}/>
+                    <button className='p-4 rounded bg-green-600 mt-4' onClick={changePassword}>
+                        <p className='text-white text-2xl'>{i18n.t("change-password")}</p>
+                    </button>
                 </div>
 
                 <div className='pt-5  justify-between items-center border-b-2 pb-4 '>
@@ -113,7 +129,7 @@ export default function AccountPage() {
                 </div>
 
                 <button className='w-full p-4 rounded bg-blue-400' onClick={saveUpdateUserInfo}>
-                    <p className='text-white text-2xl'>Lưu</p>
+                    <p className='text-white text-2xl'>{i18n.t("save")}</p>
                 </button>
             </div>
         </div>

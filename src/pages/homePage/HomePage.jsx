@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HeaderComponent from "../../components/Header/HeaderComponent.jsx";
 import FooterComponent from "../../components/FooterComponent/FooterComponent.jsx";
+import { useNavigate } from "react-router";
 import {
   GardenItem,
   GardenItemSkeleton,
@@ -20,12 +21,19 @@ import i18n from "../../i18n";
 function HomePage() {
   const [deviceData, setDeviceData] = useState(null);
   const [user, setUser] = useState(null);
-
+  const navigate = useNavigate();
+  console.log(user, "user");
+  
   const fetchUserDevices = async () => {
     try {
-      const userResponse = await getUserInfoAPI();
-      const userData = userResponse.data;
-      setUser(userData); // Set user data
+      await getUserInfoAPI()
+        .then((res)=>{
+          setUser(res.data);
+        })
+        .catch((err)=>{
+          navigate('/login')
+          
+        })
 
       const deviceResponse = await getGardenby();
       const deviceIds = deviceResponse.data || [];
@@ -68,7 +76,7 @@ function HomePage() {
             {/* Sidebar */}
             <SideNavigationBar />
             {/* Main Content Area */}
-            <div className="flex-grow">
+            <div className="flex-grow mb-10 min-h-screen">
               <div className="flex justify-between items-center px-10 py-10">
                 <h1 className="text-4xl font-bold">
                   <span className="text-green-500">{i18n.t("garden_of_account",{accountName:user.name})}</span>
@@ -94,7 +102,7 @@ function HomePage() {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-4 mx-2 min-h-screen">
+              <div className="flex flex-wrap gap-x-4 gap-y-10 mx-2">
                 {deviceData === null ? (
                   <>
                     <GardenItemSkeleton />
