@@ -11,6 +11,8 @@ import {
   apiResponseHandler,
   areUSurePopup,
 } from "../../../components/Alert/alertComponent";
+import { updateThreshold } from "../../../api/thresholdApi";
+import { getGardenByDevice } from "../../../api/deviceApi";
 
 // Day mapping constants
 const dayOrder = ["2", "3", "4", "5", "6", "7", "CN"];
@@ -51,6 +53,58 @@ export default function IrrigationModeSection({ deviceId }) {
   const [originalSchedule, setOriginalSchedule] = useState(null);
   const [loading, setLoading] = useState(true);
   const maxDuration = 15 * 60; // 15 minutes in seconds
+
+  // Local state storing threshold values for each control type (water, light, wind)
+  const [sensorThresholds, setSensorThresholds] = useState({
+    water: { min: "", max: "" },
+    light: { min: "", max: "" },
+    wind: { min: "", max: "" },
+  });
+
+  const [controlIds, setControlIds] = useState({}); // New: { water: 'id123', ... }
+
+  // Updates the min/max threshold value locally for the selected control type
+  const updateSensorThreshold = (type, field, value) => {
+    setSensorThresholds((prev) => ({
+      ...prev,
+      [type]: {
+        ...prev[type],
+        [field]: value,
+      },
+    }));
+  };
+
+  // Submits the min/max thresholds for the selected control (water/light/wind)
+  const handleSensorConfigSubmit = async (e) => {
+    e.preventDefault();
+
+    const thresholds = sensorThresholds[selectedControl];
+    const controlId = controlIds[selectedControl];
+
+    if (!controlId) {
+      console.error(`❌ Control ID not loaded for: ${selectedControl}`);
+      apiResponseHandler("Không tìm thấy thiết bị để cập nhật", "error");
+      return;
+    }
+
+    const payload = {
+      threshold_min: Number(thresholds.min),
+      threshold_max: Number(thresholds.max),
+    };
+
+    try {
+      await updateThreshold({
+        id_esp: deviceId,
+        controlId,
+        data: payload,
+      });
+
+      apiResponseHandler("✅ Ngưỡng cảm biến đã được cập nhật", "success");
+    } catch (err) {
+      console.error("❌ Lỗi khi cập nhật ngưỡng:", err);
+      apiResponseHandler("Lỗi khi cập nhật ngưỡng cảm biến", "error");
+    }
+  };
 
   // Utility functions for conversion
   const convertTo24Hour = (time12) => {
@@ -129,6 +183,72 @@ export default function IrrigationModeSection({ deviceId }) {
       fetchScheduleById(deviceId);
     }
   }, [selectedControl]);
+
+  // Fetch controlId and threshold data for a specific control type from garden/device data
+  const fetchControlThresholdInfo = async (deviceId, controlType) => {
+    try {
+      const res = await getGardenByDevice(deviceId);
+      const device = res.data;
+
+      if (!device || !device.controls || !Array.isArray(device.controls)) {
+        throw new Error("Invalid device or controls data");
+      }
+
+      const control = device.controls.find((c) => c.name === controlType);
+
+      if (!control) {
+        throw new Error(`Control type "${controlType}" not found`);
+      }
+
+      const { _id: controlId, threshold_min, threshold_max } = control;
+
+      // Update the local state (for input binding)
+      setSensorThresholds((prev) => ({
+        ...prev,
+        [controlType]: {
+          min: threshold_min ?? "",
+          max: threshold_max ?? "",
+        },
+      }));
+
+      return {
+        controlId,
+        threshold_min,
+        threshold_max,
+      };
+    } catch (error) {
+      console.error("❌ Failed to fetch control threshold info:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const fetchAndMapControlInfo = async () => {
+      if (!selectedControl || !deviceId) return;
+
+      const result = await fetchControlThresholdInfo(deviceId, selectedControl);
+      if (!result) return;
+
+      const { controlId, threshold_min, threshold_max } = result;
+
+      // Update threshold state
+      setSensorThresholds((prev) => ({
+        ...prev,
+        [selectedControl]: {
+          min: threshold_min ?? "",
+          max: threshold_max ?? "",
+        },
+      }));
+
+      // Update control ID map
+      setControlIds((prev) => ({
+        ...prev,
+        [selectedControl]: controlId,
+      }));
+    };
+
+    fetchAndMapControlInfo();
+  }, [selectedControl, deviceId]);
 
   const handleAddSchedule = async (deviceType) => {
     const newSchedule = {
@@ -411,7 +531,6 @@ export default function IrrigationModeSection({ deviceId }) {
   return (
     <div className="mx-5 bg-white rounded-xl shadow-md p-4 my-2">
       <h2 className="text-xl font-semibold mb-4 px-2">Lịch tưới</h2>
-
       {/* Mode and Control Selection */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 mb-6 gap-4">
         {/* Mode Buttons */}
@@ -457,7 +576,6 @@ export default function IrrigationModeSection({ deviceId }) {
           ))}
         </div>
       </div>
-
       {activeMode === "THEO_LICH" && (
         <div className="flex flex-wrap gap-4 px-2 items-start">
           {loading ? (
@@ -527,6 +645,51 @@ export default function IrrigationModeSection({ deviceId }) {
               <span className="text-4xl font-bold">+</span>
             </div>
           )}
+        </div>
+      )}
+      {/* Sensor mode UI panel for editing min/max thresholds per control type (single unified view) */}
+      {activeMode === "CAM_BIEN" && (
+        <div className="mt-4 p-4 border rounded bg-white">
+          <h2 className="font-bold text-lg mb-4">Thiết lập ngưỡng cảm biến</h2>
+
+          {/* Shared threshold form */}
+          <form
+            className="grid grid-cols-2 gap-4"
+            onSubmit={handleSensorConfigSubmit}
+          >
+            <label className="flex flex-col">
+              Ngưỡng tối thiểu:
+              <input
+                type="number"
+                value={sensorThresholds[selectedControl]?.min ?? ""}
+                onChange={(e) =>
+                  updateSensorThreshold(selectedControl, "min", e.target.value)
+                }
+                className="p-2 border rounded"
+              />
+            </label>
+
+            <label className="flex flex-col">
+              Ngưỡng tối đa:
+              <input
+                type="number"
+                value={sensorThresholds[selectedControl]?.max ?? ""}
+                onChange={(e) =>
+                  updateSensorThreshold(selectedControl, "max", e.target.value)
+                }
+                className="p-2 border rounded"
+              />
+            </label>
+
+            <div className="col-span-2 text-right">
+              <button
+                type="submit"
+                className="bg-green-500 px-4 py-2 text-white rounded hover:bg-green-600"
+              >
+                Lưu ngưỡng
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>
