@@ -36,3 +36,10 @@ export const updateUserGarden = async (gardenId) => {
     return response.data;  // Return the data from the API response
 };
 
+// Function to Logout user 
+export const logOutAPI = async (gardenId) => {
+    const response = await axiosClient.post(`/api/user/logout`, gardenId);
+    return response.data;  // Return the data from the API response
+};
+
+

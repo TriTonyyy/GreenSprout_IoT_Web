@@ -4,6 +4,7 @@ import {
   removeMemberByIdDevice,
   renameDeviceByIdDevice,
 } from "../../api/deviceApi"; // Import the API function to update device members
+import i18n from "../../i18n";
 
 // SweetAlert2 popup function to add a device
 export const addDevicePopup = (member, fetchUserDevices) => {
@@ -135,3 +136,43 @@ export const areUSurePopup = (message) => {
     });
   });
 }
+export const changePasswordPopUp = (message) => {
+  return new Promise((resolve, reject) => {
+    Swal.fire({
+      title: message || "Change Password",
+      html:
+        '<input id="swal-input3" class="swal2-input" type="password" placeholder="Old Password">' +
+        '<input id="swal-input1" class="swal2-input" type="password" placeholder="New Password">' +
+        '<input id="swal-input2" class="swal2-input" type="password" placeholder="Confirm Password">',
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "OK",
+      cancelButtonText: "Cancel",
+      preConfirm: () => {
+        const oldPassword = document.getElementById("swal-input3").value;
+        const password = document.getElementById("swal-input1").value;
+        const confirmPassword = document.getElementById("swal-input2").value;
+
+        // Basic validation
+        if(!oldPassword) {
+          Swal.showValidationMessage("Old password is required!");
+          return false;
+        }
+        if (!password || !confirmPassword) {
+          Swal.showValidationMessage("Both fields are required!");
+          return false;
+        }
+        if (password !== confirmPassword) {
+          Swal.showValidationMessage("Passwords do not match!");
+          return false;
+        }
+
+        return { oldPassword,password, confirmPassword };
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        resolve(result.value); // Pass the values to the caller
+      }
+    });
+  });
+};
