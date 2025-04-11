@@ -1,13 +1,25 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router"; // Import useNavigate for redirection
 import { Home, BarChart2, Settings, Leaf, LogOut } from "lucide-react";
+import { logOutAPI } from "../../api/AuthApi";
+import { apiResponseHandler } from "../Alert/alertComponent";
+import { removeToken } from "../../helper/tokenHelper";
 
 const SideNavigationBar = () => {
   const navigate = useNavigate(); // Get the navigate function
 
-  const handleLogout = () => {
-    // Insert any logout logic here (e.g., clearing tokens, calling an API)
-    // Example: localStorage.removeItem("authToken");
+  const handleLogout = async () => {
+    await logOutAPI()
+      .then((res)=>{
+        removeToken();
+        console.log(res, "res");
+        
+      })
+      .catch((err)=>{
+        console.log(err);
+        
+        // apiResponseHandler(err)
+      })  
     navigate("/login"); // Redirect to the login page
   };
 
