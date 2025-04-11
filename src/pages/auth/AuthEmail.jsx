@@ -11,42 +11,44 @@ const userCre = useSelector(getUserCredential);
     
   const navigate = useNavigate();
 
-  const sendOTP = ()=>{
-    sendCodeApi(email)
+  const sendOTP = async ()=>{
+    await sendCodeApi(email)
         .then((res)=>{
-            console.log(res);
-            alert(res.data.message);
-
-        })
-        .catch((err)=>{
-            console.log(err);
-            alert(err.response.data.message);
-        })
-
-    registerApi({
-        name:userCre.userName,
-        email:userCre.email,
-        password:userCre.password
-    })
-        .then((res)=>{
-            console.log(res);
+            alert(res.message);
+            console.log(res, "send code");
             navigate('/otp')
         })
         .catch((err)=>{
             console.log(err);
             alert(err.response.data.message);
         })
+
+    
   }
 
-  const verifyOTP = ()=>{
+  const verifyOTP = async ()=>{
     console.log(email, otp);
     
-    verifyOtpApi({email, code:otp})
+    await verifyOtpApi({email, code:otp})
         .then((res)=>{
             console.log(res);
             setOtp('');
             alert(res.data.message);
+        })
+        .catch((err)=>{
+            console.log(err);
+            alert(err.response.message);
+        })
+
+    await registerApi({
+        name:userCre.userName,
+        email:userCre.email,
+        password:userCre.password
+    })
+        .then((res)=>{
+            console.log(res, "register");
             navigate('/login')
+
         })
         .catch((err)=>{
             console.log(err);

@@ -22,7 +22,6 @@ function HomePage() {
   const [deviceData, setDeviceData] = useState(null);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  console.log(user, "user");
   
   const fetchUserDevices = async () => {
     try {
@@ -31,8 +30,9 @@ function HomePage() {
           setUser(res.data);
         })
         .catch((err)=>{
-          navigate('/login')
+          console.log(err);
           
+          // navigate('/login')
         })
 
       const deviceResponse = await getGardenby();
