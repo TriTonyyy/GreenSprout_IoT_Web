@@ -2,25 +2,28 @@ import React from "react";
 import { NavLink, useNavigate } from "react-router"; // Import useNavigate for redirection
 import { Home, BarChart2, Settings, Leaf, LogOut } from "lucide-react";
 import { logOutAPI } from "../../api/AuthApi";
-import { apiResponseHandler } from "../Alert/alertComponent";
+import { apiResponseHandler, areUSurePopup } from "../Alert/alertComponent";
 import { removeToken } from "../../helper/tokenHelper";
+import i18n from "../../i18n";
 
 const SideNavigationBar = () => {
   const navigate = useNavigate(); // Get the navigate function
 
   const handleLogout = async () => {
-    await logOutAPI()
-      .then((res)=>{
-        removeToken();
-        console.log(res, "res");
-        
+    areUSurePopup(i18n.t("logout-confirm"))
+      .then(async(res)=>{
+        await logOutAPI()
+          .then((res)=>{
+            removeToken();
+            navigate("/login")
+          })
+          .catch((err)=>{
+            apiResponseHandler(err)
+          })
       })
       .catch((err)=>{
-        console.log(err);
-        
-        // apiResponseHandler(err)
-      })  
-    navigate("/login"); // Redirect to the login page
+        apiResponseHandler(err)
+      })
   };
 
   return (

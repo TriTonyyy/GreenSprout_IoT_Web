@@ -33,11 +33,11 @@ const userCre = useSelector(getUserCredential);
         .then((res)=>{
             console.log(res);
             setOtp('');
-            alert(res.data.message);
+            alert(res.message);
         })
         .catch((err)=>{
             console.log(err);
-            alert(err.response.message);
+            alert(err);
         })
 
     await registerApi({

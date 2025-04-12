@@ -42,4 +42,10 @@ export const logOutAPI = async (gardenId) => {
     return response.data;  // Return the data from the API response
 };
 
+// Function to Logout user 
+export const changePasswordAPI = async (payload) => {
+    const response = await axiosClient.put(`/api/user/changePassword`, payload);
+    return response.data;  // Return the data from the API response
+};
+
 

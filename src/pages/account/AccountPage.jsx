@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import HeaderComponent from '../../components/Header/HeaderComponent'
 import { useNavigate } from "react-router";
-import { getUserInfoAPI } from '../../api/AuthApi';
+import { getUserInfoAPI, changePasswordAPI} from '../../api/AuthApi';
 import { updateProfileApi } from '../../api/userApi';
 import {apiResponseHandler, areUSurePopup, changePasswordPopUp} from '../../components/Alert/alertComponent';
 import SideNavigationBar from '../../components/SideNavigationBar/SideNavigationBar';
@@ -50,8 +50,16 @@ export default function AccountPage() {
     const changePassword = async ()=>{
         await changePasswordPopUp()
             .then((res)=>{
-                console.log(res);
-                
+                changePasswordAPI({
+                    currentPassword:res.oldPassword,
+                    newPassword:res.password
+                })
+                    .then((res)=>{
+                        apiResponseHandler(res.message)
+                    })
+                    .catch((err)=>{
+                        apiResponseHandler(err.message)
+                    })
             })
     }
 

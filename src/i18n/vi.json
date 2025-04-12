@@ -16,6 +16,8 @@
     "fullname":"Họ và tên",
     "save":"Lưu",
     "change-password":"Đổi mật khẩu",
-    "change-lang-mess":"Bạn chắn chắc muốn đổi ngôn ngữ ?"
+    "change-lang-mess":"Bạn chắn chắc muốn đổi ngôn ngữ ?",
+    "logout-confirm":"Bạn muốn đăng xuất tài khoản ?"
+
 
 }
