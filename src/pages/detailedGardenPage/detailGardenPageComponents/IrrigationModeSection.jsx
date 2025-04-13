@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Droplets, Sun, Wind } from "lucide-react";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import {
   createSchedule,
@@ -11,8 +11,9 @@ import {
   apiResponseHandler,
   areUSurePopup,
 } from "../../../components/Alert/alertComponent";
-import { updateThreshold } from "../../../api/thresholdApi";
 import { getGardenByDevice } from "../../../api/deviceApi";
+// update threshold via controlId
+import { updateControlById } from "../../../api/deviceApi";
 
 // Day mapping constants
 const dayOrder = ["2", "3", "4", "5", "6", "7", "CN"];
@@ -93,7 +94,7 @@ export default function IrrigationModeSection({ deviceId }) {
     };
 
     try {
-      await updateThreshold({
+      await updateControlById({
         id_esp: deviceId,
         controlId,
         data: payload,
@@ -650,7 +651,28 @@ export default function IrrigationModeSection({ deviceId }) {
       {/* Sensor mode UI panel for editing min/max thresholds per control type (single unified view) */}
       {activeMode === "CAM_BIEN" && (
         <div className="mt-4 p-4 border rounded bg-white">
-          <h2 className="font-bold text-lg mb-4">Thiết lập ngưỡng cảm biến</h2>
+          {/* <h2 className="font-bold text-lg mb-4">Thiết lập ngưỡng cảm biến</h2> */}
+          {/* Contextual sensor label based on selected control */}
+          {selectedControl === "water" && (
+            <h2 className="flex items-center gap-2 text-lg font-semibold mb-2">
+              <Droplets size={20} color="#60a5fa" />
+              Điều khiển nước dựa trên độ ẩm đất (%)
+            </h2>
+          )}
+
+          {selectedControl === "light" && (
+            <h2 className="flex items-center gap-2 text-lg font-semibold mb-2">
+              <Sun size={20} color="#facc15" />
+              Điều khiển đèn dựa trên cường độ ánh sáng (%)
+            </h2>
+          )}
+
+          {selectedControl === "wind" && (
+            <h2 className="flex items-center gap-2 text-lg font-semibold mb-2">
+              <Wind size={20} color="#60a5fa" />
+              Điều khiển quạt dựa trên tốc độ gió (m/s)
+            </h2>
+          )}
 
           {/* Shared threshold form */}
           <form
