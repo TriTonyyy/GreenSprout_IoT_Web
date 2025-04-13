@@ -10,16 +10,15 @@ const SideNavigationBar = () => {
 
   const handleLogout = async () => {
     await logOutAPI()
-      .then((res)=>{
+      .then((res) => {
         removeToken();
         console.log(res, "res");
-        
       })
-      .catch((err)=>{
+      .catch((err) => {
         console.log(err);
-        
+
         // apiResponseHandler(err)
-      })  
+      });
     navigate("/login"); // Redirect to the login page
   };
 
@@ -37,16 +36,7 @@ const SideNavigationBar = () => {
           <Home size={20} />
           <span>Trang chủ</span>
         </NavLink>
-        <NavLink
-          to="/gardens"
-          className={({ isActive }) =>
-            "flex items-center space-x-3 px-4 py-3 rounded transition-colors " +
-            (isActive ? "bg-green-600" : "hover:bg-green-600")
-          }
-        >
-          <Leaf size={20} />
-          <span>Thông tin khu vườn</span>
-        </NavLink>
+
         <NavLink
           to="/statistics"
           className={({ isActive }) =>
@@ -58,7 +48,7 @@ const SideNavigationBar = () => {
           <span>Phân tích dữ liệu</span>
         </NavLink>
         <NavLink
-          to="/settings"
+          to="/account"
           className={({ isActive }) =>
             "flex items-center space-x-3 px-4 py-3 rounded transition-colors " +
             (isActive ? "bg-green-600" : "hover:bg-green-600")
