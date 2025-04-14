@@ -530,12 +530,12 @@ export default function IrrigationModeSection({ deviceId }) {
   };
 
   return (
-    <div className="mx-5 bg-white rounded-xl shadow-md p-4 my-2">
-      <h2 className="text-xl font-semibold mb-4 px-2">Lịch tưới</h2>
+    <div className="mx-5 bg-white rounded-xl shadow-lg p-6 my-4 border border-gray-100">
+      <h2 className="text-2xl font-bold mb-6 px-2 text-gray-800">Lịch tưới</h2>
       {/* Mode and Control Selection */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 mb-8 gap-4">
         {/* Mode Buttons */}
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           {[
             { key: "THEO_LICH", label: "Theo lịch" },
             { key: "CAM_BIEN", label: "Cảm biến" },
@@ -546,10 +546,10 @@ export default function IrrigationModeSection({ deviceId }) {
                 setActiveMode(mode.key);
                 setSelectedSchedule(null);
               }}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 activeMode === mode.key
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               {mode.label}
@@ -557,28 +557,41 @@ export default function IrrigationModeSection({ deviceId }) {
           ))}
         </div>
         {/* Control Buttons */}
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           {[
-            { key: "water", label: "Nước" },
-            { key: "light", label: "Đèn" },
-            { key: "wind", label: "Quạt" },
+            {
+              key: "water",
+              label: "Nước",
+              icon: <Droplets size={18} className="mr-1" />,
+            },
+            {
+              key: "light",
+              label: "Đèn",
+              icon: <Sun size={18} className="mr-1" />,
+            },
+            {
+              key: "wind",
+              label: "Quạt",
+              icon: <Wind size={18} className="mr-1" />,
+            },
           ].map((control) => (
             <button
               key={control.key}
               onClick={() => setSelectedControl(control.key)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center ${
                 selectedControl === control.key
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  ? "bg-green-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
+              {control.icon}
               {control.label}
             </button>
           ))}
         </div>
       </div>
       {activeMode === "THEO_LICH" && (
-        <div className="flex flex-wrap gap-4 px-2 items-start">
+        <div className="flex flex-wrap gap-6 px-2 items-start">
           {loading ? (
             <ScheduleSkeleton />
           ) : (
@@ -588,11 +601,11 @@ export default function IrrigationModeSection({ deviceId }) {
                 <div
                   key={s._id}
                   onClick={() => handleScheduleClick(s._id)}
-                  className="w-64 relative cursor-pointer"
+                  className="w-72 relative cursor-pointer transition-transform duration-200 hover:scale-[1.02]"
                 >
                   {/* Delete Button */}
                   <button
-                    className="absolute top-2 right-2 text-red-500 hover:text-red-600 z-10"
+                    className="absolute top-3 right-3 text-red-500 hover:text-red-600 z-10 bg-white rounded-full p-1.5 shadow-sm hover:shadow-md transition-all"
                     onClick={(e) => {
                       e.stopPropagation();
                       removeSchedule(s._id);
@@ -602,16 +615,21 @@ export default function IrrigationModeSection({ deviceId }) {
                     <X size={16} />
                   </button>
 
-                  <div className="bg-gray-50 rounded-lg shadow-md p-4">
-                    <h2 className="text-xl font-bold text-gray-800 mb-1">
+                  <div
+                    className={`bg-gray-50 rounded-xl shadow-md p-5 border-2 ${
+                      isSelected ? "border-blue-500" : "border-transparent"
+                    }`}
+                  >
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">
                       {s.startTime}
                     </h2>
-                    <div className="text-lg font-semibold">
-                      <p className="text-sm text-gray-600 py-2">
-                        Thời gian tưới: {s.duration / 60} phút
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Thời gian tưới:</span>{" "}
+                        {s.duration / 60} phút
                       </p>
-                      <p className="text-sm text-gray-600 py-2">
-                        Lặp lại:{" "}
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Lặp lại:</span>{" "}
                         {s.repeat && s.repeat.length > 0
                           ? s.repeat
                               .map((day) => dayDisplayMap[day] || day)
@@ -620,8 +638,8 @@ export default function IrrigationModeSection({ deviceId }) {
                       </p>
                     </div>
 
-                    <div className="flex w-4/5 py-2">
-                      <span className="font-medium text-gray-700 pr-2">
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
+                      <span className="font-medium text-gray-700">
                         Bật/ Tắt:
                       </span>
                       <ToggleSwitch
@@ -640,78 +658,226 @@ export default function IrrigationModeSection({ deviceId }) {
           {/* Add New Clock */}
           {schedules.length < 5 && (
             <div
-              className="w-40 p-4 bg-gray-50 rounded-lg shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer min-h-[185px]"
+              className="w-72 p-6 bg-gray-50 rounded-xl shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer min-h-[220px] border-2 border-dashed border-gray-300 hover:border-gray-400 transition-all duration-200"
               onClick={() => handleAddSchedule(selectedControl)}
             >
-              <span className="text-4xl font-bold">+</span>
+              <span className="text-5xl font-bold">+</span>
             </div>
           )}
         </div>
       )}
       {/* Sensor mode UI panel for editing min/max thresholds per control type (single unified view) */}
       {activeMode === "CAM_BIEN" && (
-        <div className="mt-4 p-4 border rounded bg-white">
-          {/* <h2 className="font-bold text-lg mb-4">Thiết lập ngưỡng cảm biến</h2> */}
+        <div className="mt-6 p-6 border rounded-xl bg-gray-50 shadow-sm">
           {/* Contextual sensor label based on selected control */}
           {selectedControl === "water" && (
-            <h2 className="flex items-center gap-2 text-lg font-semibold mb-2">
-              <Droplets size={20} color="#60a5fa" />
+            <h2 className="flex items-center gap-2 text-lg font-semibold mb-4 text-gray-800">
+              <Droplets size={24} color="#3b82f6" />
               Điều khiển nước dựa trên độ ẩm đất (%)
             </h2>
           )}
 
           {selectedControl === "light" && (
-            <h2 className="flex items-center gap-2 text-lg font-semibold mb-2">
-              <Sun size={20} color="#facc15" />
+            <h2 className="flex items-center gap-2 text-lg font-semibold mb-4 text-gray-800">
+              <Sun size={24} color="#eab308" />
               Điều khiển đèn dựa trên cường độ ánh sáng (%)
             </h2>
           )}
 
           {selectedControl === "wind" && (
-            <h2 className="flex items-center gap-2 text-lg font-semibold mb-2">
-              <Wind size={20} color="#60a5fa" />
+            <h2 className="flex items-center gap-2 text-lg font-semibold mb-4 text-gray-800">
+              <Wind size={24} color="#3b82f6" />
               Điều khiển quạt dựa trên tốc độ gió (m/s)
             </h2>
           )}
 
-          {/* Shared threshold form */}
-          <form
-            className="grid grid-cols-2 gap-4"
-            onSubmit={handleSensorConfigSubmit}
-          >
-            <label className="flex flex-col">
-              Ngưỡng tối thiểu:
-              <input
-                type="number"
-                value={sensorThresholds[selectedControl]?.min ?? ""}
-                onChange={(e) =>
-                  updateSensorThreshold(selectedControl, "min", e.target.value)
-                }
-                className="p-2 border rounded"
-              />
-            </label>
+          {/* Threshold range slider */}
+          <div className="space-y-6">
+            <div className="relative pt-6 pb-8">
+              {/* Background track with direct interaction */}
+              <div
+                className="h-4 bg-gray-200 rounded-lg relative cursor-pointer"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const percentage = Math.round((x / rect.width) * 100);
 
-            <label className="flex flex-col">
-              Ngưỡng tối đa:
-              <input
-                type="number"
-                value={sensorThresholds[selectedControl]?.max ?? ""}
-                onChange={(e) =>
-                  updateSensorThreshold(selectedControl, "max", e.target.value)
-                }
-                className="p-2 border rounded"
-              />
-            </label>
+                  // Determine if click is closer to min or max handle
+                  const currentMin =
+                    sensorThresholds[selectedControl]?.min || 0;
+                  const currentMax =
+                    sensorThresholds[selectedControl]?.max || 100;
+                  const distToMin = Math.abs(percentage - currentMin);
+                  const distToMax = Math.abs(percentage - currentMax);
 
-            <div className="col-span-2 text-right">
+                  if (distToMin < distToMax) {
+                    updateSensorThreshold(selectedControl, "min", percentage);
+                  } else {
+                    updateSensorThreshold(selectedControl, "max", percentage);
+                  }
+                }}
+              >
+                {/* Active range */}
+                <div
+                  className="absolute h-4 bg-blue-500 rounded-lg"
+                  style={{
+                    left: `${sensorThresholds[selectedControl]?.min || 0}%`,
+                    right: `${
+                      100 - (sensorThresholds[selectedControl]?.max || 100)
+                    }%`,
+                  }}
+                />
+
+                {/* Scale markers */}
+                <div className="absolute w-full flex justify-between px-2 -top-6">
+                  {[0, 25, 50, 75, 100].map((value) => {
+                    const currentMin = Math.round(
+                      Number(sensorThresholds[selectedControl]?.min) || 0
+                    );
+                    const currentMax = Math.round(
+                      Number(sensorThresholds[selectedControl]?.max) || 100
+                    );
+                    const shouldHideLabel =
+                      value === currentMin || value === currentMax;
+                    const unit = selectedControl === "wind" ? "m/s" : "%";
+
+                    return (
+                      <div key={value} className="flex flex-col items-center">
+                        <div
+                          className={`transition-opacity duration-200 ${
+                            shouldHideLabel ? "opacity-0" : "opacity-100"
+                          }`}
+                        >
+                          <span className="text-xs text-gray-600">
+                            {value}
+                            {unit}
+                          </span>
+                        </div>
+                        <div className="h-2 w-0.5 bg-gray-400 mt-1" />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Min marker */}
+                <div
+                  className="absolute -top-3 -ml-3 transform cursor-move"
+                  style={{
+                    left: `${sensorThresholds[selectedControl]?.min || 0}%`,
+                  }}
+                  onMouseDown={(startEvent) => {
+                    startEvent.preventDefault();
+                    const slider = startEvent.currentTarget.parentElement;
+                    if (!slider) return;
+
+                    const handleDrag = (moveEvent) => {
+                      const rect = slider.getBoundingClientRect();
+                      const x = Math.max(
+                        0,
+                        Math.min(moveEvent.clientX - rect.left, rect.width)
+                      );
+                      const percentage = Math.min(
+                        Math.round((x / rect.width) * 100),
+                        (sensorThresholds[selectedControl]?.max || 100) - 1
+                      );
+                      updateSensorThreshold(selectedControl, "min", percentage);
+                    };
+
+                    const handleMouseUp = () => {
+                      window.removeEventListener("mousemove", handleDrag);
+                      window.removeEventListener("mouseup", handleMouseUp);
+                    };
+
+                    window.addEventListener("mousemove", handleDrag);
+                    window.addEventListener("mouseup", handleMouseUp);
+                  }}
+                >
+                  <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full shadow-md" />
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                    <span className="text-sm font-medium text-blue-600">
+                      Tối thiểu: {sensorThresholds[selectedControl]?.min || 0}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Max marker */}
+                <div
+                  className="absolute -top-3 -ml-3 transform cursor-move"
+                  style={{
+                    left: `${sensorThresholds[selectedControl]?.max || 100}%`,
+                  }}
+                  onMouseDown={(startEvent) => {
+                    startEvent.preventDefault();
+                    const slider = startEvent.currentTarget.parentElement;
+                    if (!slider) return;
+
+                    const handleDrag = (moveEvent) => {
+                      const rect = slider.getBoundingClientRect();
+                      const x = Math.max(
+                        0,
+                        Math.min(moveEvent.clientX - rect.left, rect.width)
+                      );
+                      const percentage = Math.max(
+                        Math.round((x / rect.width) * 100),
+                        (sensorThresholds[selectedControl]?.min || 0) + 1
+                      );
+                      updateSensorThreshold(selectedControl, "max", percentage);
+                    };
+
+                    const handleMouseUp = () => {
+                      window.removeEventListener("mousemove", handleDrag);
+                      window.removeEventListener("mouseup", handleMouseUp);
+                    };
+
+                    window.addEventListener("mousemove", handleDrag);
+                    window.addEventListener("mouseup", handleMouseUp);
+                  }}
+                >
+                  <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full shadow-md" />
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                    <span className="text-sm font-medium text-blue-600">
+                      Tối đa: {sensorThresholds[selectedControl]?.max || 100}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description text */}
+              <div className="mt-8 text-sm text-gray-600 text-center">
+                {selectedControl === "water" && (
+                  <p>
+                    Thiết bị sẽ hoạt động khi độ ẩm đất nằm ngoài khoảng{" "}
+                    {sensorThresholds[selectedControl]?.min || 0}% -{" "}
+                    {sensorThresholds[selectedControl]?.max || 100}%
+                  </p>
+                )}
+                {selectedControl === "light" && (
+                  <p>
+                    Thiết bị sẽ hoạt động khi cường độ ánh sáng nằm ngoài khoảng{" "}
+                    {sensorThresholds[selectedControl]?.min || 0}% -{" "}
+                    {sensorThresholds[selectedControl]?.max || 100}%
+                  </p>
+                )}
+                {selectedControl === "wind" && (
+                  <p>
+                    Thiết bị sẽ hoạt động khi tốc độ gió nằm ngoài khoảng{" "}
+                    {sensorThresholds[selectedControl]?.min || 0}m/s -{" "}
+                    {sensorThresholds[selectedControl]?.max || 100}m/s
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end">
               <button
-                type="submit"
-                className="bg-green-500 px-4 py-2 text-white rounded hover:bg-green-600"
+                type="button"
+                onClick={handleSensorConfigSubmit}
+                className="bg-green-500 px-6 py-2.5 text-white rounded-lg hover:bg-green-600 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
               >
                 Lưu ngưỡng
               </button>
             </div>
-          </form>
+          </div>
         </div>
       )}
     </div>
@@ -720,20 +886,20 @@ export default function IrrigationModeSection({ deviceId }) {
 
 function ScheduleSkeleton() {
   return (
-    <div className="w-64 h-[185px] bg-gray-50 rounded-lg shadow-md p-4 animate-pulse flex flex-col justify-between">
+    <div className="w-72 h-[220px] bg-gray-50 rounded-xl shadow-md p-5 animate-pulse flex flex-col justify-between border-2 border-transparent">
       {/* Time */}
-      <div className="h-6 w-24 bg-gray-200 rounded mb-2" />
+      <div className="h-8 w-32 bg-gray-200 rounded-lg mb-3" />
 
       {/* Duration & Repeat */}
-      <div>
-        <div className="h-4 w-32 bg-gray-200 rounded my-2" /> {/* Duration */}
-        <div className="h-4 w-40 bg-gray-200 rounded my-2" /> {/* Repeat */}
+      <div className="space-y-3">
+        <div className="h-5 w-40 bg-gray-200 rounded-lg" /> {/* Duration */}
+        <div className="h-5 w-48 bg-gray-200 rounded-lg" /> {/* Repeat */}
       </div>
 
       {/* Toggle row */}
-      <div className="flex items-center w-full mt-auto">
-        <div className="h-4 w-16 bg-gray-200 rounded mr-4" /> {/* Label */}
-        <div className="h-6 w-12 bg-gray-200 rounded-full" /> {/* Toggle */}
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
+        <div className="h-5 w-20 bg-gray-200 rounded-lg" /> {/* Label */}
+        <div className="h-7 w-14 bg-gray-200 rounded-full" /> {/* Toggle */}
       </div>
     </div>
   );
