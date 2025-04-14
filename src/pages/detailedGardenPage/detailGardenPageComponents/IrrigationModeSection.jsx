@@ -691,46 +691,193 @@ export default function IrrigationModeSection({ deviceId }) {
             </h2>
           )}
 
-          {/* Shared threshold form */}
-          <form
-            className="grid grid-cols-2 gap-6"
-            onSubmit={handleSensorConfigSubmit}
-          >
-            <label className="flex flex-col space-y-2">
-              <span className="font-medium text-gray-700">
-                Ngưỡng tối thiểu:
-              </span>
-              <input
-                type="number"
-                value={sensorThresholds[selectedControl]?.min ?? ""}
-                onChange={(e) =>
-                  updateSensorThreshold(selectedControl, "min", e.target.value)
-                }
-                className="p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              />
-            </label>
+          {/* Threshold range slider */}
+          <div className="space-y-6">
+            <div className="relative pt-6 pb-8">
+              {/* Background track with direct interaction */}
+              <div
+                className="h-4 bg-gray-200 rounded-lg relative cursor-pointer"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const percentage = Math.round((x / rect.width) * 100);
 
-            <label className="flex flex-col space-y-2">
-              <span className="font-medium text-gray-700">Ngưỡng tối đa:</span>
-              <input
-                type="number"
-                value={sensorThresholds[selectedControl]?.max ?? ""}
-                onChange={(e) =>
-                  updateSensorThreshold(selectedControl, "max", e.target.value)
-                }
-                className="p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              />
-            </label>
+                  // Determine if click is closer to min or max handle
+                  const currentMin =
+                    sensorThresholds[selectedControl]?.min || 0;
+                  const currentMax =
+                    sensorThresholds[selectedControl]?.max || 100;
+                  const distToMin = Math.abs(percentage - currentMin);
+                  const distToMax = Math.abs(percentage - currentMax);
 
-            <div className="col-span-2 text-right">
+                  if (distToMin < distToMax) {
+                    updateSensorThreshold(selectedControl, "min", percentage);
+                  } else {
+                    updateSensorThreshold(selectedControl, "max", percentage);
+                  }
+                }}
+              >
+                {/* Active range */}
+                <div
+                  className="absolute h-4 bg-blue-500 rounded-lg"
+                  style={{
+                    left: `${sensorThresholds[selectedControl]?.min || 0}%`,
+                    right: `${
+                      100 - (sensorThresholds[selectedControl]?.max || 100)
+                    }%`,
+                  }}
+                />
+
+                {/* Scale markers */}
+                <div className="absolute w-full flex justify-between px-2 -top-6">
+                  {[0, 25, 50, 75, 100].map((value) => {
+                    const currentMin = Math.round(
+                      Number(sensorThresholds[selectedControl]?.min) || 0
+                    );
+                    const currentMax = Math.round(
+                      Number(sensorThresholds[selectedControl]?.max) || 100
+                    );
+                    const shouldHideLabel =
+                      value === currentMin || value === currentMax;
+                    const unit = selectedControl === "wind" ? "m/s" : "%";
+
+                    return (
+                      <div key={value} className="flex flex-col items-center">
+                        <div
+                          className={`transition-opacity duration-200 ${
+                            shouldHideLabel ? "opacity-0" : "opacity-100"
+                          }`}
+                        >
+                          <span className="text-xs text-gray-600">
+                            {value}
+                            {unit}
+                          </span>
+                        </div>
+                        <div className="h-2 w-0.5 bg-gray-400 mt-1" />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Min marker */}
+                <div
+                  className="absolute -top-3 -ml-3 transform cursor-move"
+                  style={{
+                    left: `${sensorThresholds[selectedControl]?.min || 0}%`,
+                  }}
+                  onMouseDown={(startEvent) => {
+                    startEvent.preventDefault();
+                    const slider = startEvent.currentTarget.parentElement;
+                    if (!slider) return;
+
+                    const handleDrag = (moveEvent) => {
+                      const rect = slider.getBoundingClientRect();
+                      const x = Math.max(
+                        0,
+                        Math.min(moveEvent.clientX - rect.left, rect.width)
+                      );
+                      const percentage = Math.min(
+                        Math.round((x / rect.width) * 100),
+                        (sensorThresholds[selectedControl]?.max || 100) - 1
+                      );
+                      updateSensorThreshold(selectedControl, "min", percentage);
+                    };
+
+                    const handleMouseUp = () => {
+                      window.removeEventListener("mousemove", handleDrag);
+                      window.removeEventListener("mouseup", handleMouseUp);
+                    };
+
+                    window.addEventListener("mousemove", handleDrag);
+                    window.addEventListener("mouseup", handleMouseUp);
+                  }}
+                >
+                  <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full shadow-md" />
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                    <span className="text-sm font-medium text-blue-600">
+                      Tối thiểu: {sensorThresholds[selectedControl]?.min || 0}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Max marker */}
+                <div
+                  className="absolute -top-3 -ml-3 transform cursor-move"
+                  style={{
+                    left: `${sensorThresholds[selectedControl]?.max || 100}%`,
+                  }}
+                  onMouseDown={(startEvent) => {
+                    startEvent.preventDefault();
+                    const slider = startEvent.currentTarget.parentElement;
+                    if (!slider) return;
+
+                    const handleDrag = (moveEvent) => {
+                      const rect = slider.getBoundingClientRect();
+                      const x = Math.max(
+                        0,
+                        Math.min(moveEvent.clientX - rect.left, rect.width)
+                      );
+                      const percentage = Math.max(
+                        Math.round((x / rect.width) * 100),
+                        (sensorThresholds[selectedControl]?.min || 0) + 1
+                      );
+                      updateSensorThreshold(selectedControl, "max", percentage);
+                    };
+
+                    const handleMouseUp = () => {
+                      window.removeEventListener("mousemove", handleDrag);
+                      window.removeEventListener("mouseup", handleMouseUp);
+                    };
+
+                    window.addEventListener("mousemove", handleDrag);
+                    window.addEventListener("mouseup", handleMouseUp);
+                  }}
+                >
+                  <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full shadow-md" />
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                    <span className="text-sm font-medium text-blue-600">
+                      Tối đa: {sensorThresholds[selectedControl]?.max || 100}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description text */}
+              <div className="mt-8 text-sm text-gray-600 text-center">
+                {selectedControl === "water" && (
+                  <p>
+                    Thiết bị sẽ hoạt động khi độ ẩm đất nằm ngoài khoảng{" "}
+                    {sensorThresholds[selectedControl]?.min || 0}% -{" "}
+                    {sensorThresholds[selectedControl]?.max || 100}%
+                  </p>
+                )}
+                {selectedControl === "light" && (
+                  <p>
+                    Thiết bị sẽ hoạt động khi cường độ ánh sáng nằm ngoài khoảng{" "}
+                    {sensorThresholds[selectedControl]?.min || 0}% -{" "}
+                    {sensorThresholds[selectedControl]?.max || 100}%
+                  </p>
+                )}
+                {selectedControl === "wind" && (
+                  <p>
+                    Thiết bị sẽ hoạt động khi tốc độ gió nằm ngoài khoảng{" "}
+                    {sensorThresholds[selectedControl]?.min || 0}m/s -{" "}
+                    {sensorThresholds[selectedControl]?.max || 100}m/s
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end">
               <button
-                type="submit"
+                type="button"
+                onClick={handleSensorConfigSubmit}
                 className="bg-green-500 px-6 py-2.5 text-white rounded-lg hover:bg-green-600 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
               >
                 Lưu ngưỡng
               </button>
             </div>
-          </form>
+          </div>
         </div>
       )}
     </div>
