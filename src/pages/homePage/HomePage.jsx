@@ -31,9 +31,9 @@ function HomePage() {
         .then((res) => {
           setUser(res.data);
         })
-        .catch((err) => {
-          navigate("/login");
-        });
+        .catch((err)=>{
+          console.log(err);
+        })
 
       const deviceResponse = await getGardenby();
       const deviceIds = deviceResponse.data || [];
