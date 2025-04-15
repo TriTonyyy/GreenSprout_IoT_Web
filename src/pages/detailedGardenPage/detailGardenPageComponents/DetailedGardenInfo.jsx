@@ -31,13 +31,18 @@ const GardenImage = ({ src }) => (
 
 const SensorReading = ({ label, value, unit, icon }) => (
   <div className="mx-2 my-3 flex justify-between items-center">
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2 min-w-[140px]">
       <span className="text-xl">{icon}</span>
-      <p className="font-semibold text-gray-600">{label}:</p>
+      <p className="font-semibold text-gray-600 truncate">{label}:</p>
     </div>
-    <p className="text-gray-800">
-      {value ?? "---"} {unit}
-    </p>
+    <div className="flex items-center space-x-1">
+      <p className="text-gray-800 font-medium min-w-[50px] text-right">
+        {value ?? "---"}
+      </p>
+      <p className="text-gray-500 text-sm">
+        {unit}
+      </p>
+    </div>
   </div>
 );
 
@@ -45,17 +50,19 @@ const MemberList = ({ members, onEdit }) => (
   <div className="flex flex-col px-2">
     {members.map((member, index) => (
       <div
-        key={member._id || member.name || index}
-        className="bg-white border border-gray-200 shadow-sm rounded-md px-3 py-2 my-2 flex justify-between items-center hover:shadow-md transition"
+        key={member.email || member.name || index}
+        className="border rounded-md px-3 py-2 my-2 flex justify-between items-center transition-all duration-200 bg-white border-gray-200 hover:shadow-md"
       >
         <div className="flex items-center space-x-2">
-          <span className="text-sky-500 text-lg">
+          <span className="text-lg text-sky-500">
             <User size={20} />
           </span>
           <div className="flex flex-col leading-tight">
-            <span className="text-gray-800 font-medium">
-              {member.name ?? "Unknown"}
-            </span>
+            <div className="flex items-center">
+              <span className="font-medium text-gray-800">
+                {member.name ?? "Unknown"}
+              </span>
+            </div>
             <span className="text-sm text-gray-500">
               {member.role ?? "no-role"}
             </span>
@@ -103,7 +110,7 @@ const ModeSelector = ({ currentMode, onChange }) => {
   );
 };
 
-export const DetailedGardenInfo = ({ deviceId }) => {
+export const DetailedGardenInfo = ({ deviceId, currentUserEmail }) => {
   const [loading, setLoading] = useState(true);
   const [gardenData, setGardenData] = useState(null);
   const [sensorsMap, setSensorsMap] = useState({});
@@ -113,6 +120,8 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   const [windOn, setWindOn] = useState(false);
   const [controlModes, setControlModes] = useState({});
   const [controlStatuses, setControlStatuses] = useState({});
+  const [error, setError] = useState(null);
+  const [isPolling, setIsPolling] = useState(true);
 
   // Define all possible sensor types
   const allSensorTypes = [
@@ -159,18 +168,19 @@ export const DetailedGardenInfo = ({ deviceId }) => {
     );
   };
   const fetchGardenData = async () => {
+    if (!isPolling) return;
+    
     try {
       const res = await getGardenByDevice(deviceId);
       const device = res.data || {};
-
       // Get members and attach to device
       const result = await getMemberByIdDevice(deviceId);
-      device.members = result.members || [];
-
+      device.members = result.data || [];
+  
       setGardenData(device);
       // Map sensors by type for easy access
       const tempSensorsMap = {};
-      device.sensors.forEach((sensor) => {
+      device.sensors?.forEach((sensor) => {
         tempSensorsMap[sensor.type] = sensor;
       });
       setSensorsMap(tempSensorsMap);
@@ -179,7 +189,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       const tempControlsMap = {};
       const initialModes = {};
       const initialStatuses = {};
-      device.controls.forEach((control) => {
+      device.controls?.forEach((control) => {
         tempControlsMap[control.name] = control;
         initialModes[control.name] = control.mode || "manual";
         initialStatuses[control.name] = control.status || false;
@@ -187,58 +197,69 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       setControlsMap(tempControlsMap);
       setControlModes(initialModes);
       setControlStatuses(initialStatuses);
-
+      
       // Set control statuses based on control data
-      const waterControl = device.controls.find(
+      const waterControl = device.controls?.find(
         (control) => control.name === "water"
       );
-      const lightControl = device.controls.find(
+      const lightControl = device.controls?.find(
         (control) => control.name === "light"
       );
-      const windControl = device.controls.find(
+      const windControl = device.controls?.find(
         (control) => control.name === "wind"
       );
 
       setWaterOn(waterControl ? waterControl.status : false);
       setLightOn(lightControl ? lightControl.status : false);
       setWindOn(windControl ? windControl.status : false);
+      
+      setError(null);
     } catch (error) {
-      // console.error("Error fetching garden data:", error);
+      console.error("Error fetching garden data:", error);
+      setError("Failed to load device data");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // Initial fetch
     fetchGardenData();
-    const intervalId = setInterval(fetchGardenData, 2000); // Fetch every ... seconds
-    return () => clearInterval(intervalId);
+    
+    // Set up polling
+    const intervalId = setInterval(fetchGardenData, 1000); // Fetch every 1 second
+    
+    // Cleanup
+    return () => {
+      clearInterval(intervalId);
+      setIsPolling(false);
+    };
   }, [deviceId]);
-
+  
   // Handler for toggling control status
   const handleStatusToggle = async (controlName, controlId) => {
-    const currentStatus = controlStatuses[controlName]; // Get current status
-    const newStatus = !currentStatus; // Calculate new status
+    const currentStatus = controlStatuses[controlName];
+    const newStatus = !currentStatus;
 
     // Optimistically update the UI
     setControlStatuses((prev) => ({
       ...prev,
       [controlName]: newStatus,
     }));
+
     try {
-      // Call the API to update the control status with exact body layout
       await updateControlById({
-        id_esp: deviceId, // Device ID from props
-        controlId: controlId, // Control ID from the function parameter
-        data: { status: newStatus }, // Ensure the body is { "status": true/false }
+        id_esp: deviceId,
+        controlId: controlId,
+        data: { status: newStatus },
       });
-      console.log("updated", controlId, " status to ", newStatus);
     } catch (error) {
+      // Revert on error
       setControlStatuses((prev) => ({
         ...prev,
-        [controlName]: currentStatus, // Revert to the previous status
+        [controlName]: currentStatus,
       }));
-      alert("Failed to update control status. Please try again.");
+      apiResponseHandler("Failed to update control status. Please try again.", "error");
     }
   };
 

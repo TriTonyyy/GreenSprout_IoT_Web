@@ -72,7 +72,9 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
       </div>
       <div className="w-3/5 p-2 flex flex-col justify-between">
         <div className="m-1 flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-green-800 truncate">{name}</h1>
+          <h1 className="text-2xl font-semibold text-green-800 truncate">
+            {name}
+          </h1>
           <img
             src={require("../../../assets/images/TreePlanting.png")}
             className="w-6 h-6 cursor-pointer hover:opacity-80"
@@ -89,15 +91,16 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
             };
             return (
               <div key={index} className="flex justify-between">
-                <h2 className="w-3/5 font-medium text-gray-600 flex items-center">
+                <h2 className="w-4/5 font-medium text-gray-600 flex items-center">
                   <span className="mr-2">{sensorIcons[sensor.type]}</span>
                   {sensor.type === "temperature" ? "Nhiệt độ" : "Độ ẩm đất"}:
                 </h2>
-                <div className="w-2/5 flex justify-between items-right">
-                  <h2 className="w-3/4 text-xl font-semibold text-green-600 ">
+
+                <div className="w-1/5 flex justify-end items-center">
+                  <h2 className="text-xl font-semibold text-green-600">
                     {sensor?.value}
                   </h2>
-                  <h2 className="w-1/4 text-xl font-semibold text-green-600 ">
+                  <h2 className="text-xl font-semibold text-green-600 ml-2">
                     {sensor.type === "temperature" ? "°C" : "%"}
                   </h2>
                 </div>

@@ -1,17 +1,24 @@
 import { Pencil, Trash } from "lucide-react";
+
 export const GardenTitle = ({
   gardenName = "Unnamed Garden",
   areaGardenName = "Unknown Area",
   onEdit,
   onDelete,
+  isOwner,
+  deviceId,
 }) => (
-  <div className="relative mx-5 my-2 text-center p-8 bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-xl shadow-2xl">
+  // console.log(isOwner),
+
+  <div className="relative m-5 text-center p-8 bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-xl shadow-2xl">
     {/* Title */}
-    <h1 className="text-4xl font-bold text-white">{gardenName}</h1>
-    <h2 className="text-2xl text-gray-200 mt-3 tracking-wide">
+    <h1 className="text-4xl font-bold text-white mb-3">{gardenName}</h1>
+    {isOwner && (
+      <p className="text-2sm text-gray-200 mb-2">ID khu vườn: {deviceId}</p>
+    )}
+    <h2 className="text-2xl text-gray-200 tracking-wide">
       {areaGardenName}
     </h2>
-
     {/* Buttons */}
     <div className="absolute top-4 right-4 flex space-x-2">
       {onEdit && (
