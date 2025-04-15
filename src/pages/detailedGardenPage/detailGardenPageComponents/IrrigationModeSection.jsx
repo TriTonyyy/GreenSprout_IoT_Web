@@ -177,13 +177,13 @@ export default function IrrigationModeSection({ deviceId }) {
 
   useEffect(() => {
     fetchScheduleById(deviceId);
-  }, []);
+  }, [deviceId]);
 
   useEffect(() => {
     if (selectedControl) {
       fetchScheduleById(deviceId);
     }
-  }, [selectedControl]);
+  }, [selectedControl, deviceId]);
 
   // Fetch controlId and threshold data for a specific control type from garden/device data
   const fetchControlThresholdInfo = async (deviceId, controlType) => {

@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from "react";
 import HeaderComponent from "../../components/Header/HeaderComponent";
 import { useNavigate, useParams } from "react-router";
-import { GardenTitle,GardenTitleSkeleton } from "../../pages/detailedGardenPage/detailGardenPageComponents/GardenTitle";
-import { DetailedGardenInfo } from "../../pages/detailedGardenPage/detailGardenPageComponents/DetailedGardenInfo";
-import IrrigationModeSection from "../../pages/detailedGardenPage/detailGardenPageComponents/IrrigationModeSection";
+import {
+  GardenTitle,
+  GardenTitleSkeleton,
+} from "./detailGardenPageComponents/GardenTitle";
+import { DetailedGardenInfo } from "./detailGardenPageComponents/DetailedGardenInfo";
+import IrrigationModeSection from "./detailGardenPageComponents/IrrigationModeSection";
 import FooterComponent from "../../components/FooterComponent/FooterComponent";
 import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar";
 import { getUserInfoAPI } from "../../api/AuthApi";
 import {
   removeDevicePopup,
   renameDevicePopup,
+  apiResponseHandler,
 } from "../../components/Alert/alertComponent";
-import { getGardenByDevice } from "../../api/deviceApi";
+import { getGardenby, getGardenByDevice } from "../../api/deviceApi";
 
 function DetailedGarden() {
   const { gardenId } = useParams();
   const [user, setUser] = useState(null);
   const [data, setData] = useState();
+  const [allGardens, setAllGardens] = useState([]);
   const navigate = useNavigate();
 
   const fetchUser = async () => {
@@ -28,15 +33,39 @@ function DetailedGarden() {
     const gardenData = await getGardenByDevice(gardenId);
     setData(gardenData.data);
   };
-  
+
+  const fetchAllGardens = async () => {
+    try {
+      const response = await getGardenby();
+      const deviceIds = response.data || [];
+
+      const gardensPromises = deviceIds.map(async (deviceId) => {
+        try {
+          const res = await getGardenByDevice(deviceId);
+          return res?.data || null;
+        } catch (err) {
+          console.error(`Failed to fetch garden ${deviceId}:`, err);
+          return null;
+        }
+      });
+
+      const gardens = await Promise.all(gardensPromises);
+      setAllGardens(gardens.filter((garden) => garden !== null));
+    } catch (error) {
+      console.error("Failed to fetch gardens:", error);
+      setAllGardens([]);
+    }
+  };
+
   const handleEdit = () => {
-    renameDevicePopup(gardenId,data.name_area) // ✅ pass fetchGardenData here
+    renameDevicePopup(gardenId, data.name_area)
       .then(() => {
-        fetchGardenData(); // ✅ refresh garden data instead of user info
+        fetchGardenData();
+        fetchAllGardens(); // Refresh all gardens data after rename
       })
       .catch((err) => {
         if (err !== "cancelled") {
-          // console.error("Rename failed:", err);
+          console.error("Rename failed:", err);
         }
       });
   };
@@ -52,11 +81,12 @@ function DetailedGarden() {
   useEffect(() => {
     fetchUser();
     fetchGardenData();
-  }, []);
+    fetchAllGardens();
+  }, [gardenId]);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <HeaderComponent />
+      <HeaderComponent gardens={allGardens} />
       <div className="flex flex-grow">
         <SideNavigationBar />
         <div className="flex-grow">
