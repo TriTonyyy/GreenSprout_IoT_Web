@@ -4,7 +4,6 @@ import HomePage from "./pages/homePage/HomePage";
 import AuthPage from "./pages/auth/AuthPage";
 import DetailedGardenPage from "./pages/detailedGardenPage/DetailedGardenPage";
 import AuthEmail from "./pages/auth/AuthEmail";
-import SchedulePage from "./pages/schedule/SchedulePage";
 import AccountPage from "./pages/account/AccountPage";
 import { getToken } from "./helper/tokenHelper";
 import { useEffect, useState } from "react";

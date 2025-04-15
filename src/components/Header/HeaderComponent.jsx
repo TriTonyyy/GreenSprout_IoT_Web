@@ -1,37 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { User } from "lucide-react";
 import { useNavigate } from "react-router";
 import { getUserInfoAPI } from "../../api/AuthApi";
+import { SearchBarComponent } from "./SearchBarComponent";
 
-function SearchBarComponent() {
-  const searchData = () => {
-    // console.log("wqeqweq");
-  };
-  return (
-    <div className="p-5 h-auto ">
-      <div className="flex items-center bg-gray-100 rounded-lg">
-        <input
-          type="text"
-          className="p-2 rounded-lg bg-gray-100"
-          placeholder="Tìm kiếm"
-        />
-        <div onClick={searchData}>
-          <Search size={48} className="p-2" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function HeaderComponent({
-  titleScheduleColor = "black",
-  titleReportColor = "black",
-}) {
+function HeaderComponent({ gardens }) {
   const headerFont = "Kodchasan";
-  // const user = useSelector(getTokenUser);
-  // console.log(user, "asdasdasd");
   const [userName, setUserName] = useState("");
   const [avatar, setAvatar] = useState("");
+  const navigate = useNavigate();
+
+  // console.log(gardens);
 
   useEffect(() => {
     getUserInfoAPI()
@@ -43,48 +23,58 @@ function HeaderComponent({
         console.log(err);
       });
   }, []);
-  const navigate = useNavigate();
+
+
   return (
-    <div className="flex items-center p-1 border-b-2">
-      <div className="flex justify-between items-center w-full">
-        <div className="flex items-center">
+    <header className="w-full bg-white border-b border-gray-200">
+      <div className="h-16 px-6">
+        <div className="flex h-full items-center justify-between">
+          {/* Left side - Logo and Brand */}
           <div
-            className="flex items-center cursor-pointer"
+            className="flex items-center gap-2 cursor-pointer"
             onClick={() => navigate("/home")}
           >
             <img
               src={require("../../assets/images/TreePlanting.png")}
-              className="w-24 h-auto max-w-full"
+              className="h-12 w-12 object-contain"
               alt="logo"
             />
-            <h1 className="text-4xl p-4" style={{ fontFamily: "fantasy" }}>
+            <h1 className="text-2xl font-semibold text-green-600">
               GreenSprout
             </h1>
           </div>
-        </div>
-        <div className="flex items-center">
-          <SearchBarComponent />
-          <div
-            className="flex items-center"
-            onClick={() => {
-              navigate("/account");
-            }}
-          >
-            <h2 className="text-2xl p-4" style={{ fontFamily: headerFont }}>
-              {userName}
-            </h2>
-            <img
-              onClick={() => {
-                console.log("dasd");
-              }}
-              src={require("../../assets/images/AvatarDefault.png")}
-              className="w-18 h-auto max-w-full"
-              alt="avatar"
-            />
+
+          {/* Right side - Search and Profile */}
+          <div className="flex items-center gap-8">
+            <SearchBarComponent gardens={gardens} />
+
+            <div
+              className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors duration-200"
+              onClick={() => navigate("/account")}
+            >
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{userName}</p>
+                <p className="text-xs text-gray-500">Tài khoản</p>
+              </div>
+
+              <div className="flex-shrink-0">
+                {avatar ? (
+                  <img
+                    src={avatar}
+                    className="h-9 w-9 rounded-full border border-gray-200"
+                    alt="avatar"
+                  />
+                ) : (
+                  <div className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+                    <User size={20} className="text-gray-400" />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 }
 

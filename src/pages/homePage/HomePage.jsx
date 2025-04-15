@@ -23,16 +23,16 @@ function HomePage() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   
+  console.log(user, "user");
+
   const fetchUserDevices = async () => {
     try {
       await getUserInfoAPI()
-        .then((res)=>{
+        .then((res) => {
           setUser(res.data);
         })
         .catch((err)=>{
           console.log(err);
-          
-          // navigate('/login')
         })
 
       const deviceResponse = await getGardenby();
@@ -71,7 +71,7 @@ function HomePage() {
     <div>
       {user ? (
         <>
-          <HeaderComponent />
+          <HeaderComponent gardens={deviceData || []} />
           <div className="flex">
             {/* Sidebar */}
             <SideNavigationBar />
@@ -79,7 +79,9 @@ function HomePage() {
             <div className="flex-grow mb-10 min-h-screen">
               <div className="flex justify-between items-center px-10 py-10">
                 <h1 className="text-4xl font-bold">
-                  <span className="text-green-500">{i18n.t("garden_of_account",{accountName:user.name})}</span>
+                  <span className="text-green-500">
+                    {i18n.t("garden_of_account", { accountName: user.name })}
+                  </span>
                 </h1>
                 <div className="flex items-center gap-4">
                   <button
