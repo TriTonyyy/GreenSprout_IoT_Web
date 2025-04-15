@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import HeaderComponent from '../../components/Header/HeaderComponent'
 import { useNavigate } from "react-router";
-import { getUserInfoAPI } from '../../api/AuthApi';
+import { getUserInfoAPI } from '../../api/authApi';
 import { updateProfileApi } from '../../api/userApi';
 import {apiResponseHandler, areUSurePopup, changePasswordPopUp} from '../../components/Alert/alertComponent';
 import SideNavigationBar from '../../components/SideNavigationBar/SideNavigationBar';

@@ -1,8 +1,7 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router";
 import { Home, BarChart2, Settings, LogOut } from "lucide-react";
-import { logOutAPI } from "../../api/AuthApi";
-import { apiResponseHandler } from "../Alert/alertComponent";
+import { logOutAPI } from "../../api/authApi";
 import { removeToken } from "../../helper/tokenHelper";
 
 const SideNavigationBar = () => {

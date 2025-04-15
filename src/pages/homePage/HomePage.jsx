@@ -7,7 +7,7 @@ import {
   GardenItemSkeleton,
 } from "./homePageComponents/GardenItem.jsx";
 import { Plus, RefreshCcw } from "lucide-react";
-import { getUserInfoAPI } from "../../api/AuthApi.js";
+import { getUserInfoAPI } from "../../api/authApi.js";
 import { getGardenby, getGardenByDevice } from "../../api/deviceApi.js";
 import AddDeviceButton from "./homePageComponents/addDevice.jsx";
 import "react-loading-skeleton/dist/skeleton.css"; // To style the skeleton
@@ -22,7 +22,7 @@ function HomePage() {
   const [deviceData, setDeviceData] = useState(null);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  
+
   console.log(user, "user");
 
   const fetchUserDevices = async () => {

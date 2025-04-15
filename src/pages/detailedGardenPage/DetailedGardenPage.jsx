@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import HeaderComponent from "../../components/Header/HeaderComponent";
 import { useNavigate, useParams } from "react-router";
 import {
@@ -9,33 +10,43 @@ import { DetailedGardenInfo } from "./detailGardenPageComponents/DetailedGardenI
 import IrrigationModeSection from "./detailGardenPageComponents/IrrigationModeSection";
 import FooterComponent from "../../components/FooterComponent/FooterComponent";
 import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar";
-import { getUserInfoAPI } from "../../api/AuthApi";
+import { getUserInfoAPI } from "../../api/authApi";
 import {
   removeDevicePopup,
   renameDevicePopup,
-  apiResponseHandler,
 } from "../../components/Alert/alertComponent";
 import { getGardenby, getGardenByDevice } from "../../api/deviceApi";
 
 function DetailedGarden() {
   const { gardenId } = useParams();
-  const [user, setUser] = useState(null);
-  const [data, setData] = useState();
-  const [allGardens, setAllGardens] = useState([]);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const fetchUser = async () => {
-    const user = await getUserInfoAPI();
-    setUser(user.data);
-  };
+  // Query for user data
+  const { data: user, error: userError } = useQuery({
+    queryKey: ['user'],
+    queryFn: async () => {
+      const response = await getUserInfoAPI();
+      return response.data;
+    },
+    staleTime: 300000, // Consider data fresh for 5 minutes
+  });
 
-  const fetchGardenData = async () => {
-    const gardenData = await getGardenByDevice(gardenId);
-    setData(gardenData.data);
-  };
+  // Query for garden data
+  const { data: gardenData, error: gardenError } = useQuery({
+    queryKey: ['garden', gardenId],
+    queryFn: async () => {
+      const response = await getGardenByDevice(gardenId);
+      return response.data;
+    },
+    refetchInterval: 5000, // Refetch every 5 seconds
+    staleTime: 2000, // Consider data fresh for 2 seconds
+  });
 
-  const fetchAllGardens = async () => {
-    try {
+  // Query for all gardens
+  const { data: allGardens, error: gardensError } = useQuery({
+    queryKey: ['gardens'],
+    queryFn: async () => {
       const response = await getGardenby();
       const deviceIds = response.data || [];
 
@@ -50,56 +61,78 @@ function DetailedGarden() {
       });
 
       const gardens = await Promise.all(gardensPromises);
-      setAllGardens(gardens.filter((garden) => garden !== null));
-    } catch (error) {
-      console.error("Failed to fetch gardens:", error);
-      setAllGardens([]);
+      return gardens.filter((garden) => garden !== null);
+    },
+    staleTime: 10000, // Consider data fresh for 10 seconds
+  });
+
+  const handleEdit = async () => {
+    try {
+      await renameDevicePopup(gardenId, gardenData.name_area);
+      // Invalidate queries to refetch latest data
+      queryClient.invalidateQueries(['garden', gardenId]);
+      queryClient.invalidateQueries(['gardens']);
+    } catch (err) {
+      if (err !== "cancelled") {
+        console.error("Rename failed:", err);
+      }
     }
   };
 
-  const handleEdit = () => {
-    renameDevicePopup(gardenId, data.name_area)
-      .then(() => {
-        fetchGardenData();
-        fetchAllGardens(); // Refresh all gardens data after rename
-      })
-      .catch((err) => {
-        if (err !== "cancelled") {
-          console.error("Rename failed:", err);
-        }
-      });
+  const handleDelete = async () => {
+    try {
+      await removeDevicePopup(gardenId, user._id);
+      navigate("/home");
+    } catch (err) {
+      if (err !== "Cancelled") {
+        console.error(err);
+      }
+    }
   };
 
-  const handleDelete = () => {
-    removeDevicePopup(gardenId, user._id)
-      .then(() => navigate("/home"))
-      .catch((err) => {
-        if (err !== "Cancelled") console.error(err);
-      });
-  };
+  // Combine all errors
+  const error = userError || gardenError || gardensError;
 
-  useEffect(() => {
-    fetchUser();
-    fetchGardenData();
-    fetchAllGardens();
-  }, [gardenId]);
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <div className="text-red-500 text-lg">
+          {error.message || "An error occurred while loading data"}
+        </div>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  const isLoading = !user || !gardenData || !allGardens;
 
   return (
     <div className="min-h-screen flex flex-col">
-      <HeaderComponent gardens={allGardens} />
+      <HeaderComponent gardens={allGardens || []} />
       <div className="flex flex-grow">
         <SideNavigationBar />
         <div className="flex-grow">
-          {data ? (
-            <GardenTitle
-              gardenName={`${data.name_area}`}
-              areaGardenName="Thông tin khu vườn"
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ) : (
+          {isLoading ? (
             <GardenTitleSkeleton />
-          )}
+          ) : gardenData ? (
+            <>
+              <GardenTitle
+                gardenName={gardenData.name_area}
+                areaGardenName="Thông tin khu vườn"
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                isOwner={gardenData.members?.some(
+                  (member) => member.userId === user?._id && member.role === "owner"
+                )}
+                deviceId={gardenId}
+              />
+            </>
+          ) : null}
           <DetailedGardenInfo deviceId={gardenId} />
           <IrrigationModeSection deviceId={gardenId} />
         </div>

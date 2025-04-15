@@ -1,42 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { X, Droplets, Sun, Wind } from "lucide-react";
-import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
-import {
-  createSchedule,
-  deleteSchedule,
-  getSchedule,
-  updateSchedule,
-} from "../../../api/scheduleApi";
-import {
-  apiResponseHandler,
-  areUSurePopup,
-} from "../../../components/Alert/alertComponent";
-import { getGardenByDevice } from "../../../api/deviceApi";
-// update threshold via controlId
-import { updateControlById } from "../../../api/deviceApi";
+import { createSchedule, deleteSchedule, getSchedule, updateSchedule } from "../../../api/scheduleApi";
+import { apiResponseHandler, areUSurePopup } from "../../../components/Alert/alertComponent";
+import { getGardenByDevice, updateControlById } from "../../../api/deviceApi";
+import { getUserInfoAPI } from "../../../api/authApi";
+import ModeSelector from './ModeSelector';
+import ControlSelector from './ControlSelector';
+import ScheduleList from './ScheduleList';
+import SensorConfigPanel from './SensorConfigPanel';
 
 // Day mapping constants
-const dayOrder = ["2", "3", "4", "5", "6", "7", "CN"];
+export const dayOrder = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
 const weekdayMap = {
-  Monday: "2",
-  Tuesday: "3",
-  Wednesday: "4",
-  Thursday: "5",
-  Friday: "6",
-  Saturday: "7",
+  Monday: "T2",
+  Tuesday: "T3",
+  Wednesday: "T4",
+  Thursday: "T5",
+  Friday: "T6",
+  Saturday: "T7",
   Sunday: "CN",
 };
 const dayCodeToWeekday = {
-  2: "Monday",
-  3: "Tuesday",
-  4: "Wednesday",
-  5: "Thursday",
-  6: "Friday",
-  7: "Saturday",
+  T2: "Monday",
+  T3: "Tuesday",
+  T4: "Wednesday",
+  T5: "Thursday",
+  T6: "Friday",
+  T7: "Saturday",
   CN: "Sunday",
 };
 // For displaying in the UI
-const dayDisplayMap = {
+export const dayDisplayMap = {
   2: "T2",
   3: "T3",
   4: "T4",
@@ -53,7 +46,8 @@ export default function IrrigationModeSection({ deviceId }) {
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [originalSchedule, setOriginalSchedule] = useState(null);
   const [loading, setLoading] = useState(true);
-  const maxDuration = 15 * 60; // 15 minutes in seconds
+  const [isOwner, setIsOwner] = useState(false);
+  const [gardenData, setGardenData] = useState(null);
 
   // Local state storing threshold values for each control type (water, light, wind)
   const [sensorThresholds, setSensorThresholds] = useState({
@@ -62,7 +56,7 @@ export default function IrrigationModeSection({ deviceId }) {
     wind: { min: "", max: "" },
   });
 
-  const [controlIds, setControlIds] = useState({}); // New: { water: 'id123', ... }
+  const [controlIds, setControlIds] = useState({});
 
   // Updates the min/max threshold value locally for the selected control type
   const updateSensorThreshold = (type, field, value) => {
@@ -79,6 +73,11 @@ export default function IrrigationModeSection({ deviceId }) {
   const handleSensorConfigSubmit = async (e) => {
     e.preventDefault();
 
+    if (!isOwner) {
+      apiResponseHandler("Chỉ chủ sở hữu mới có thể thay đổi ngưỡng cảm biến", "error");
+      return;
+    }
+
     const thresholds = sensorThresholds[selectedControl];
     const controlId = controlIds[selectedControl];
 
@@ -92,11 +91,11 @@ export default function IrrigationModeSection({ deviceId }) {
     const payload = {
       threshold_min:
         selectedControl === "wind"
-          ? convertToDisplayValue(thresholds.min || 0, "wind") // Convert to actual temperature for wind
+          ? convertToDisplayValue(thresholds.min || 0, "wind")
           : Number(thresholds.min),
       threshold_max:
         selectedControl === "wind"
-          ? convertToDisplayValue(thresholds.max || 100, "wind") // Convert to actual temperature for wind
+          ? convertToDisplayValue(thresholds.max || 100, "wind")
           : Number(thresholds.max),
     };
 
@@ -114,33 +113,6 @@ export default function IrrigationModeSection({ deviceId }) {
     }
   };
 
-  // Utility functions for conversion
-  const convertTo24Hour = (time12) => {
-    const [time, modifier] = time12.split(" ");
-    let [hours, minutes] = time.split(":");
-    if (modifier === "PM" && hours !== "12") {
-      hours = String(parseInt(hours, 10) + 12);
-    }
-    if (modifier === "AM" && hours === "12") {
-      hours = "00";
-    }
-    return `${hours.padStart(2, "0")}:${minutes}`;
-  };
-
-  const convertTo12Hour = (time24) => {
-    const [hourStr, minute] = time24.split(":");
-    let hour = parseInt(hourStr, 10);
-    const suffix = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12 || 12;
-    return `${hour}:${minute} ${suffix}`;
-  };
-
-  // Convert weekday names to day codes for UI
-  const convertToDayCodes = (weekdayNames) => {
-    if (!Array.isArray(weekdayNames)) return [];
-    return weekdayNames.map((day) => weekdayMap[day] || day);
-  };
-
   // Convert day codes to weekday names for API
   const convertToWeekdayNames = (dayCodes) => {
     if (!Array.isArray(dayCodes)) return [];
@@ -155,23 +127,15 @@ export default function IrrigationModeSection({ deviceId }) {
 
       // Process the data to convert weekday names to day codes for UI
       const processedSchedules = scheduleData.map((schedule) => {
-        // Make a copy of the schedule object
         const processedSchedule = { ...schedule };
-
-        // Convert weekday names to day codes for UI
-        if (
-          processedSchedule.repeat &&
-          Array.isArray(processedSchedule.repeat)
-        ) {
-          processedSchedule.repeat = convertToDayCodes(
-            processedSchedule.repeat
+        if (processedSchedule.repeat && Array.isArray(processedSchedule.repeat)) {
+          processedSchedule.repeat = processedSchedule.repeat.map(
+            (day) => weekdayMap[day] || day
           );
         }
-
         return processedSchedule;
       });
 
-      console.log("Processed schedules for UI:", processedSchedules);
       setSchedules(processedSchedules);
       return processedSchedules;
     } catch (error) {
@@ -268,7 +232,57 @@ export default function IrrigationModeSection({ deviceId }) {
     fetchAndMapControlInfo();
   }, [selectedControl, deviceId]);
 
+  useEffect(() => {
+    const checkOwnership = async () => {
+      try {
+        const user = await getUserInfoAPI();
+        const gardenData = await getGardenByDevice(deviceId);
+        setGardenData(gardenData.data);
+        const isDeviceOwner = gardenData.data.members?.some(
+          member => member.userId === user.data._id && member.role === 'owner'
+        );
+        setIsOwner(isDeviceOwner);
+      } catch (error) {
+        console.error("Error checking ownership:", error);
+        setIsOwner(false);
+      }
+    };
+
+    checkOwnership();
+  }, [deviceId]);
+
   const handleAddSchedule = async (deviceType) => {
+    if (!isOwner) {
+      apiResponseHandler("Chỉ chủ sở hữu mới có thể thêm lịch tưới", "error");
+      return;
+    }
+
+    // Check for unsaved changes in currently selected schedule
+    if (selectedSchedule) {
+      const current = schedules.find((s) => s._id === selectedSchedule);
+      if (hasUnsavedChanges(current, originalSchedule)) {
+        try {
+          const confirmed = await areUSurePopup(
+            "Bạn có thay đổi chưa lưu. Bạn có chắc muốn hủy thay đổi?"
+          );
+          if (!confirmed) {
+            // Restore the old values if user cancels
+            setSchedules((prev) =>
+              prev.map((s) =>
+                s._id === current._id ? { ...originalSchedule } : s
+              )
+            );
+            return;
+          }
+        } catch (error) {
+          if (error === "cancelled") {
+            // User canceled, no need to do anything
+            return;
+          }
+        }
+      }
+    }
+
     const newSchedule = {
       startTime: "10:30 AM",
       duration: 60,
@@ -295,22 +309,25 @@ export default function IrrigationModeSection({ deviceId }) {
   };
 
   const saveSchedule = async (id, schedule) => {
+    if (!isOwner) {
+      apiResponseHandler("Chỉ chủ sở hữu mới có thể lưu lịch tưới", "error");
+      return;
+    }
+
     // Create a copy of the schedule to modify
     const scheduleToSend = { ...schedule };
     // Convert day codes to weekday names for the API
     if (scheduleToSend.repeat && Array.isArray(scheduleToSend.repeat)) {
       scheduleToSend.repeat = convertToWeekdayNames(scheduleToSend.repeat);
     }
-    console.log("Sending schedule to API:", scheduleToSend);
     try {
       await updateSchedule({
         id_esp: deviceId,
         scheduleId: id,
         data: scheduleToSend,
       });
-      // console.log("Schedule saved successfully");
       apiResponseHandler("Cập nhật lịch tưới thành công", "success");
-      await fetchScheduleById(deviceId); // Refresh data after update
+      await fetchScheduleById(deviceId);
     } catch (error) {
       console.error("Failed to save schedule:", error);
       apiResponseHandler("Lỗi khi cập nhật lịch tưới", "error");
@@ -390,6 +407,11 @@ export default function IrrigationModeSection({ deviceId }) {
   };
 
   const removeSchedule = async (id) => {
+    if (!isOwner) {
+      apiResponseHandler("Chỉ chủ sở hữu mới có thể xóa lịch tưới", "error");
+      return;
+    }
+
     try {
       await areUSurePopup("Bạn có chắc chắn muốn xóa lịch tưới này?");
       await deleteSchedule(deviceId, id);
@@ -409,144 +431,6 @@ export default function IrrigationModeSection({ deviceId }) {
     }
   };
 
-  const SelectedSchedule = (s) => {
-    return (
-      <div
-        className="mt-4 bg-white border rounded-md p-2"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-2">
-          <label className="block text-sm font-medium mb-1">Giờ tưới</label>
-          <input
-            type="time"
-            className="border rounded px-2 py-1 w-full"
-            value={convertTo24Hour(s.startTime)}
-            onChange={(e) =>
-              changeSchedule(
-                s._id,
-                "startTime",
-                convertTo12Hour(e.target.value)
-              )
-            }
-          />
-        </div>
-
-        <div className="mb-2">
-          <label className="block text-sm font-medium mb-1">
-            Thời gian tưới (phút)
-          </label>
-          <input
-            type="number"
-            max="120"
-            className="border rounded px-2 py-1 w-full"
-            value={s.duration / 60}
-            onChange={(e) =>
-              changeSchedule(
-                s._id,
-                "duration",
-                Math.min(
-                  Math.max(1, parseInt(e.target.value) * 60),
-                  maxDuration
-                )
-              )
-            }
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Lặp lại</label>
-          <div className="flex gap-1 flex-wrap">
-            {dayOrder.map((day) => (
-              <button
-                key={day}
-                className={`w-8 h-8 rounded-full text-sm font-semibold border ${
-                  s.repeat && s.repeat.includes(day)
-                    ? "bg-orange-400 text-white"
-                    : "text-gray-600"
-                }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const updated =
-                    s.repeat && s.repeat.includes(day)
-                      ? s.repeat.filter((d) => d !== day)
-                      : [...(s.repeat || []), day];
-                  changeSchedule(s._id, "repeat", updated);
-                }}
-              >
-                {day}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div
-          className="bg-white rounded-md py-2"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Save & Cancel Buttons */}
-          <div className="flex justify-end gap-2">
-            <button
-              className="px-4 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-              onClick={async (e) => {
-                e.stopPropagation();
-                const current = schedules.find(
-                  (s) => s._id === selectedSchedule
-                );
-                if (hasUnsavedChanges(current, originalSchedule)) {
-                  try {
-                    const confirmed = await areUSurePopup(
-                      "Bạn có thay đổi chưa lưu. Bạn có chắc muốn hủy thay đổi?"
-                    );
-                    if (!confirmed) {
-                      // ❗ Restore the old values before leaving
-                      setSchedules((prev) =>
-                        prev.map((s) =>
-                          s._id === current._id ? { ...originalSchedule } : s
-                        )
-                      );
-                      setSelectedSchedule(null);
-                      setOriginalSchedule(null);
-                      return;
-                    }
-                  } catch (error) {
-                    if (error === "cancelled") {
-                      // ❗ Restore the old values if user cancels
-                      setSchedules((prev) =>
-                        prev.map((s) =>
-                          s._id === current._id ? { ...originalSchedule } : s
-                        )
-                      );
-                    }
-                    return;
-                  }
-                } // Refresh to discard changes
-              }}
-            >
-              Huỷ
-            </button>
-            <button
-              className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-              onClick={(e) => {
-                e.stopPropagation();
-                const updatedSchedule = schedules.find(
-                  (s) => s._id === selectedSchedule
-                );
-                saveSchedule(updatedSchedule._id, {
-                  duration: updatedSchedule.duration,
-                  repeat: updatedSchedule.repeat,
-                  startTime: updatedSchedule.startTime,
-                  status: updatedSchedule.status,
-                });
-                setSelectedSchedule(null); // exit edit mode
-              }}
-            >
-              Lưu
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Add these conversion utilities at the top of the component
   const MAX_VALUES = {
     water: 100, // %
     light: 100, // %
@@ -560,407 +444,52 @@ export default function IrrigationModeSection({ deviceId }) {
     return value;
   };
 
-  const convertToPercentage = (value, controlType) => {
-    if (controlType === "wind") {
-      return Math.round((value / MAX_VALUES.wind) * 100);
-    }
-    return value;
-  };
-
   return (
     <div className="mx-5 bg-white rounded-xl shadow-lg p-6 my-4 border border-gray-100">
       <h2 className="text-2xl font-bold mb-6 px-2 text-gray-800">Lịch tưới</h2>
       {/* Mode and Control Selection */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 mb-8 gap-4">
-        {/* Mode Buttons */}
-        <div className="flex gap-3">
-          {[
-            { key: "THEO_LICH", label: "Theo lịch" },
-            { key: "CAM_BIEN", label: "Cảm biến" },
-          ].map((mode) => (
-            <button
-              key={mode.key}
-              onClick={() => {
-                setActiveMode(mode.key);
-                setSelectedSchedule(null);
-              }}
-              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                activeMode === mode.key
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {mode.label}
-            </button>
-          ))}
-        </div>
-        {/* Control Buttons */}
-        <div className="flex gap-3">
-          {[
-            {
-              key: "water",
-              label: "Nước",
-              icon: <Droplets size={18} className="mr-1" />,
-            },
-            {
-              key: "light",
-              label: "Đèn",
-              icon: <Sun size={18} className="mr-1" />,
-            },
-            {
-              key: "wind",
-              label: "Quạt",
-              icon: <Wind size={18} className="mr-1" />,
-            },
-          ].map((control) => (
-            <button
-              key={control.key}
-              onClick={() => setSelectedControl(control.key)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center ${
-                selectedControl === control.key
-                  ? "bg-green-500 text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {control.icon}
-              {control.label}
-            </button>
-          ))}
-        </div>
+        <ModeSelector
+          activeMode={activeMode}
+          setActiveMode={setActiveMode}
+          setSelectedSchedule={setSelectedSchedule}
+          isOwner={isOwner}
+        />
+        <ControlSelector
+          selectedControl={selectedControl}
+          setSelectedControl={setSelectedControl}
+        />
       </div>
+
       {activeMode === "THEO_LICH" && (
-        <div className="flex flex-wrap gap-6 px-2 items-start">
-          {loading ? (
-            <ScheduleSkeleton />
-          ) : (
-            schedules.map((s) => {
-              const isSelected = selectedSchedule === s._id;
-              return (
-                <div
-                  key={s._id}
-                  onClick={() => handleScheduleClick(s._id)}
-                  className="w-72 relative cursor-pointer transition-transform duration-200 hover:scale-[1.02]"
-                >
-                  {/* Delete Button */}
-                  <button
-                    className="absolute top-3 right-3 text-red-500 hover:text-red-600 z-10 bg-white rounded-full p-1.5 shadow-sm hover:shadow-md transition-all"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeSchedule(s._id);
-                    }}
-                    title="Xoá lịch tưới"
-                  >
-                    <X size={16} />
-                  </button>
-
-                  <div
-                    className={`bg-gray-50 rounded-xl shadow-md p-5 border-2 ${
-                      isSelected ? "border-blue-500" : "border-transparent"
-                    }`}
-                  >
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                      {s.startTime}
-                    </h2>
-                    <div className="space-y-3">
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Thời gian tưới:</span>{" "}
-                        {s.duration / 60} phút
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Lặp lại:</span>{" "}
-                        {s.repeat && s.repeat.length > 0
-                          ? s.repeat
-                              .map((day) => dayDisplayMap[day] || day)
-                              .join(", ")
-                          : "Không lặp lại"}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
-                      <span className="font-medium text-gray-700">
-                        Bật/ Tắt:
-                      </span>
-                      <ToggleSwitch
-                        isOn={s.status}
-                        onToggle={() =>
-                          changeSchedule(s._id, "status", !s.status)
-                        }
-                      />
-                    </div>
-                    {isSelected && SelectedSchedule(s)}
-                  </div>
-                </div>
-              );
-            })
-          )}
-          {/* Add New Clock */}
-          {schedules.length < 5 && (
-            <div
-              className="w-72 p-6 bg-gray-50 rounded-xl shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer min-h-[220px] border-2 border-dashed border-gray-300 hover:border-gray-400 transition-all duration-200"
-              onClick={() => handleAddSchedule(selectedControl)}
-            >
-              <span className="text-5xl font-bold">+</span>
-            </div>
-          )}
-        </div>
+        <ScheduleList
+          schedules={schedules}
+          loading={loading}
+          selectedSchedule={selectedSchedule}
+          onScheduleSelect={handleScheduleClick}
+          onScheduleDelete={removeSchedule}
+          onScheduleChange={changeSchedule}
+          onScheduleSave={saveSchedule}
+          onScheduleCancel={() => {
+            setSelectedSchedule(null);
+            setOriginalSchedule(null);
+          }}
+          onScheduleToggleStatus={(id, status) => changeSchedule(id, "status", status)}
+          selectedControl={selectedControl}
+          onAddSchedule={handleAddSchedule}
+          isOwner={isOwner}
+        />
       )}
-      {/* Sensor mode UI panel for editing min/max thresholds per control type (single unified view) */}
+
       {activeMode === "CAM_BIEN" && (
-        <div className="mt-6 p-6 border rounded-xl bg-gray-50 shadow-sm">
-          {/* Contextual sensor label based on selected control */}
-          {selectedControl === "wind" && (
-            <h2 className="flex items-center gap-2 text-lg font-semibold mb-8 text-gray-800">
-              <Wind size={24} color="#3b82f6" />
-              Điều khiển quạt dựa trên nhiệt độ (°C)
-            </h2>
-          )}
-
-          {selectedControl === "water" && (
-            <h2 className="flex items-center gap-2 text-lg font-semibold mb-8 text-gray-800">
-              <Droplets size={24} color="#3b82f6" />
-              Điều khiển nước dựa trên độ ẩm đất (%)
-            </h2>
-          )}
-
-          {selectedControl === "light" && (
-            <h2 className="flex items-center gap-2 text-lg font-semibold mb-8 text-gray-800">
-              <Sun size={24} color="#eab308" />
-              Điều khiển đèn dựa trên cường độ ánh sáng (%)
-            </h2>
-          )}
-
-          {/* Threshold range slider */}
-          <div className="space-y-6">
-            <div className="relative pt-6 pb-8">
-              {/* Background track with direct interaction */}
-              <div
-                className="h-4 bg-gray-200 rounded-lg relative cursor-pointer"
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const x = e.clientX - rect.left;
-                  const percentage = Math.round((x / rect.width) * 100);
-
-                  // Determine if click is closer to min or max handle
-                  const currentMin =
-                    sensorThresholds[selectedControl]?.min || 0;
-                  const currentMax =
-                    sensorThresholds[selectedControl]?.max || 100;
-                  const distToMin = Math.abs(percentage - currentMin);
-                  const distToMax = Math.abs(percentage - currentMax);
-
-                  if (distToMin < distToMax) {
-                    updateSensorThreshold(selectedControl, "min", percentage);
-                  } else {
-                    updateSensorThreshold(selectedControl, "max", percentage);
-                  }
-                }}
-              >
-                {/* Active range */}
-                <div
-                  className="absolute h-4 bg-blue-500 rounded-lg"
-                  style={{
-                    left: `${sensorThresholds[selectedControl]?.min || 0}%`,
-                    right: `${
-                      100 - (sensorThresholds[selectedControl]?.max || 100)
-                    }%`,
-                  }}
-                />
-
-                {/* Scale markers */}
-                <div className="absolute w-full flex justify-between px-2 -top-6">
-                  {[0, 25, 50, 75, 100].map((value) => {
-                    const currentMin = Math.round(
-                      Number(sensorThresholds[selectedControl]?.min) || 0
-                    );
-                    const currentMax = Math.round(
-                      Number(sensorThresholds[selectedControl]?.max) || 100
-                    );
-                    const shouldHideLabel =
-                      value === currentMin || value === currentMax;
-                    const unit = selectedControl === "wind" ? "°C" : "%";
-                    const displayValue =
-                      selectedControl === "wind"
-                        ? Math.round((value * MAX_VALUES.wind) / 100)
-                        : value;
-
-                    return (
-                      <div key={value} className="flex flex-col items-center">
-                        <div
-                          className={`transition-opacity duration-200 ${
-                            shouldHideLabel ? "opacity-0" : "opacity-100"
-                          }`}
-                        >
-                          <span className="text-xs text-gray-600">
-                            {displayValue}
-                            {unit}
-                          </span>
-                        </div>
-                        <div className="h-2 w-0.5 bg-gray-400 mt-1" />
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Min marker */}
-                <div
-                  className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
-                  style={{
-                    left: `${sensorThresholds[selectedControl]?.min || 0}%`,
-                  }}
-                  onMouseDown={(startEvent) => {
-                    startEvent.preventDefault();
-                    const slider = startEvent.currentTarget.parentElement;
-                    if (!slider) return;
-
-                    const handleDrag = (moveEvent) => {
-                      const rect = slider.getBoundingClientRect();
-                      const x = Math.max(
-                        0,
-                        Math.min(moveEvent.clientX - rect.left, rect.width)
-                      );
-                      const percentage = Math.min(
-                        Math.round((x / rect.width) * 100),
-                        (sensorThresholds[selectedControl]?.max || 100) - 1
-                      );
-                      updateSensorThreshold(selectedControl, "min", percentage);
-                    };
-
-                    const handleMouseUp = () => {
-                      window.removeEventListener("mousemove", handleDrag);
-                      window.removeEventListener("mouseup", handleMouseUp);
-                    };
-
-                    window.addEventListener("mousemove", handleDrag);
-                    window.addEventListener("mouseup", handleMouseUp);
-                  }}
-                >
-                  <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full shadow-md" />
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                    <span className="text-sm font-medium text-blue-600">
-                      Tối thiểu:{" "}
-                      {selectedControl === "wind"
-                        ? convertToDisplayValue(
-                            sensorThresholds[selectedControl]?.min || 0,
-                            "wind"
-                          )
-                        : sensorThresholds[selectedControl]?.min || 0}
-                      {selectedControl === "wind" ? "°C" : "%"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Max marker */}
-                <div
-                  className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
-                  style={{
-                    left: `${sensorThresholds[selectedControl]?.max || 100}%`,
-                  }}
-                  onMouseDown={(startEvent) => {
-                    startEvent.preventDefault();
-                    const slider = startEvent.currentTarget.parentElement;
-                    if (!slider) return;
-
-                    const handleDrag = (moveEvent) => {
-                      const rect = slider.getBoundingClientRect();
-                      const x = Math.max(
-                        0,
-                        Math.min(moveEvent.clientX - rect.left, rect.width)
-                      );
-                      const percentage = Math.max(
-                        Math.round((x / rect.width) * 100),
-                        (sensorThresholds[selectedControl]?.min || 0) + 1
-                      );
-                      updateSensorThreshold(selectedControl, "max", percentage);
-                    };
-
-                    const handleMouseUp = () => {
-                      window.removeEventListener("mousemove", handleDrag);
-                      window.removeEventListener("mouseup", handleMouseUp);
-                    };
-
-                    window.addEventListener("mousemove", handleDrag);
-                    window.addEventListener("mouseup", handleMouseUp);
-                  }}
-                >
-                  <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full shadow-md" />
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                    <span className="text-sm font-medium text-blue-600">
-                      Tối đa:{" "}
-                      {selectedControl === "wind"
-                        ? convertToDisplayValue(
-                            sensorThresholds[selectedControl]?.max || 100,
-                            "wind"
-                          )
-                        : sensorThresholds[selectedControl]?.max || 100}
-                      {selectedControl === "wind" ? "°C" : "%"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Description text */}
-              <div className="mt-8 text-sm text-gray-600 text-center">
-                {selectedControl === "wind" ? (
-                  <p>
-                    Thiết bị sẽ hoạt động khi nhiệt độ nằm ngoài khoảng{" "}
-                    {convertToDisplayValue(
-                      sensorThresholds[selectedControl]?.min || 0,
-                      "wind"
-                    )}
-                    °C -{" "}
-                    {convertToDisplayValue(
-                      sensorThresholds[selectedControl]?.max || 100,
-                      "wind"
-                    )}
-                    °C
-                  </p>
-                ) : (
-                  <p>
-                    Thiết bị sẽ hoạt động khi{" "}
-                    {selectedControl === "water"
-                      ? "độ ẩm đất"
-                      : "cường độ ánh sáng"}{" "}
-                    nằm ngoài khoảng{" "}
-                    {sensorThresholds[selectedControl]?.min || 0}% -{" "}
-                    {sensorThresholds[selectedControl]?.max || 100}%
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={handleSensorConfigSubmit}
-                className="bg-green-500 px-6 py-2.5 text-white rounded-lg hover:bg-green-600 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
-              >
-                Lưu ngưỡng
-              </button>
-            </div>
-          </div>
-        </div>
+        <SensorConfigPanel
+          selectedControl={selectedControl}
+          sensorThresholds={sensorThresholds}
+          onThresholdChange={updateSensorThreshold}
+          onSubmit={handleSensorConfigSubmit}
+          isOwner={isOwner}
+        />
       )}
-    </div>
-  );
-}
-
-function ScheduleSkeleton() {
-  return (
-    <div className="w-72 h-[220px] bg-gray-50 rounded-xl shadow-md p-5 animate-pulse flex flex-col justify-between border-2 border-transparent">
-      {/* Time */}
-      <div className="h-8 w-32 bg-gray-200 rounded-lg mb-3" />
-
-      {/* Duration & Repeat */}
-      <div className="space-y-3">
-        <div className="h-5 w-40 bg-gray-200 rounded-lg" /> {/* Duration */}
-        <div className="h-5 w-48 bg-gray-200 rounded-lg" /> {/* Repeat */}
-      </div>
-
-      {/* Toggle row */}
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
-        <div className="h-5 w-20 bg-gray-200 rounded-lg" /> {/* Label */}
-        <div className="h-7 w-14 bg-gray-200 rounded-full" /> {/* Toggle */}
-      </div>
     </div>
   );
 }
