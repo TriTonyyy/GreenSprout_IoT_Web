@@ -88,9 +88,16 @@ export default function IrrigationModeSection({ deviceId }) {
       return;
     }
 
+    // Convert the values based on control type
     const payload = {
-      threshold_min: Number(thresholds.min),
-      threshold_max: Number(thresholds.max),
+      threshold_min:
+        selectedControl === "wind"
+          ? convertToDisplayValue(thresholds.min || 0, "wind") // Convert to actual temperature for wind
+          : Number(thresholds.min),
+      threshold_max:
+        selectedControl === "wind"
+          ? convertToDisplayValue(thresholds.max || 100, "wind") // Convert to actual temperature for wind
+          : Number(thresholds.max),
     };
 
     try {
@@ -203,19 +210,29 @@ export default function IrrigationModeSection({ deviceId }) {
 
       const { _id: controlId, threshold_min, threshold_max } = control;
 
+      // For wind control, convert temperature back to percentage for UI
+      const convertedMin =
+        controlType === "wind"
+          ? (threshold_min / MAX_VALUES.wind) * 100
+          : threshold_min;
+      const convertedMax =
+        controlType === "wind"
+          ? (threshold_max / MAX_VALUES.wind) * 100
+          : threshold_max;
+
       // Update the local state (for input binding)
       setSensorThresholds((prev) => ({
         ...prev,
         [controlType]: {
-          min: threshold_min ?? "",
-          max: threshold_max ?? "",
+          min: convertedMin ?? "",
+          max: convertedMax ?? "",
         },
       }));
 
       return {
         controlId,
-        threshold_min,
-        threshold_max,
+        threshold_min: convertedMin,
+        threshold_max: convertedMax,
       };
     } catch (error) {
       console.error("❌ Failed to fetch control threshold info:", error);
@@ -529,6 +546,27 @@ export default function IrrigationModeSection({ deviceId }) {
     );
   };
 
+  // Add these conversion utilities at the top of the component
+  const MAX_VALUES = {
+    water: 100, // %
+    light: 100, // %
+    wind: 50, // °C - typical max temperature for garden monitoring
+  };
+
+  const convertToDisplayValue = (value, controlType) => {
+    if (controlType === "wind") {
+      return Math.round((value / 100) * MAX_VALUES.wind);
+    }
+    return value;
+  };
+
+  const convertToPercentage = (value, controlType) => {
+    if (controlType === "wind") {
+      return Math.round((value / MAX_VALUES.wind) * 100);
+    }
+    return value;
+  };
+
   return (
     <div className="mx-5 bg-white rounded-xl shadow-lg p-6 my-4 border border-gray-100">
       <h2 className="text-2xl font-bold mb-6 px-2 text-gray-800">Lịch tưới</h2>
@@ -670,24 +708,24 @@ export default function IrrigationModeSection({ deviceId }) {
       {activeMode === "CAM_BIEN" && (
         <div className="mt-6 p-6 border rounded-xl bg-gray-50 shadow-sm">
           {/* Contextual sensor label based on selected control */}
+          {selectedControl === "wind" && (
+            <h2 className="flex items-center gap-2 text-lg font-semibold mb-8 text-gray-800">
+              <Wind size={24} color="#3b82f6" />
+              Điều khiển quạt dựa trên nhiệt độ (°C)
+            </h2>
+          )}
+
           {selectedControl === "water" && (
-            <h2 className="flex items-center gap-2 text-lg font-semibold mb-4 text-gray-800">
+            <h2 className="flex items-center gap-2 text-lg font-semibold mb-8 text-gray-800">
               <Droplets size={24} color="#3b82f6" />
               Điều khiển nước dựa trên độ ẩm đất (%)
             </h2>
           )}
 
           {selectedControl === "light" && (
-            <h2 className="flex items-center gap-2 text-lg font-semibold mb-4 text-gray-800">
+            <h2 className="flex items-center gap-2 text-lg font-semibold mb-8 text-gray-800">
               <Sun size={24} color="#eab308" />
               Điều khiển đèn dựa trên cường độ ánh sáng (%)
-            </h2>
-          )}
-
-          {selectedControl === "wind" && (
-            <h2 className="flex items-center gap-2 text-lg font-semibold mb-4 text-gray-800">
-              <Wind size={24} color="#3b82f6" />
-              Điều khiển quạt dựa trên tốc độ gió (m/s)
             </h2>
           )}
 
@@ -739,7 +777,11 @@ export default function IrrigationModeSection({ deviceId }) {
                     );
                     const shouldHideLabel =
                       value === currentMin || value === currentMax;
-                    const unit = selectedControl === "wind" ? "m/s" : "%";
+                    const unit = selectedControl === "wind" ? "°C" : "%";
+                    const displayValue =
+                      selectedControl === "wind"
+                        ? Math.round((value * MAX_VALUES.wind) / 100)
+                        : value;
 
                     return (
                       <div key={value} className="flex flex-col items-center">
@@ -749,7 +791,7 @@ export default function IrrigationModeSection({ deviceId }) {
                           }`}
                         >
                           <span className="text-xs text-gray-600">
-                            {value}
+                            {displayValue}
                             {unit}
                           </span>
                         </div>
@@ -761,7 +803,7 @@ export default function IrrigationModeSection({ deviceId }) {
 
                 {/* Min marker */}
                 <div
-                  className="absolute -top-3 -ml-3 transform cursor-move"
+                  className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
                   style={{
                     left: `${sensorThresholds[selectedControl]?.min || 0}%`,
                   }}
@@ -795,14 +837,21 @@ export default function IrrigationModeSection({ deviceId }) {
                   <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full shadow-md" />
                   <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                     <span className="text-sm font-medium text-blue-600">
-                      Tối thiểu: {sensorThresholds[selectedControl]?.min || 0}%
+                      Tối thiểu:{" "}
+                      {selectedControl === "wind"
+                        ? convertToDisplayValue(
+                            sensorThresholds[selectedControl]?.min || 0,
+                            "wind"
+                          )
+                        : sensorThresholds[selectedControl]?.min || 0}
+                      {selectedControl === "wind" ? "°C" : "%"}
                     </span>
                   </div>
                 </div>
 
                 {/* Max marker */}
                 <div
-                  className="absolute -top-3 -ml-3 transform cursor-move"
+                  className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
                   style={{
                     left: `${sensorThresholds[selectedControl]?.max || 100}%`,
                   }}
@@ -836,7 +885,14 @@ export default function IrrigationModeSection({ deviceId }) {
                   <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full shadow-md" />
                   <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                     <span className="text-sm font-medium text-blue-600">
-                      Tối đa: {sensorThresholds[selectedControl]?.max || 100}%
+                      Tối đa:{" "}
+                      {selectedControl === "wind"
+                        ? convertToDisplayValue(
+                            sensorThresholds[selectedControl]?.max || 100,
+                            "wind"
+                          )
+                        : sensorThresholds[selectedControl]?.max || 100}
+                      {selectedControl === "wind" ? "°C" : "%"}
                     </span>
                   </div>
                 </div>
@@ -844,25 +900,29 @@ export default function IrrigationModeSection({ deviceId }) {
 
               {/* Description text */}
               <div className="mt-8 text-sm text-gray-600 text-center">
-                {selectedControl === "water" && (
+                {selectedControl === "wind" ? (
                   <p>
-                    Thiết bị sẽ hoạt động khi độ ẩm đất nằm ngoài khoảng{" "}
+                    Thiết bị sẽ hoạt động khi nhiệt độ nằm ngoài khoảng{" "}
+                    {convertToDisplayValue(
+                      sensorThresholds[selectedControl]?.min || 0,
+                      "wind"
+                    )}
+                    °C -{" "}
+                    {convertToDisplayValue(
+                      sensorThresholds[selectedControl]?.max || 100,
+                      "wind"
+                    )}
+                    °C
+                  </p>
+                ) : (
+                  <p>
+                    Thiết bị sẽ hoạt động khi{" "}
+                    {selectedControl === "water"
+                      ? "độ ẩm đất"
+                      : "cường độ ánh sáng"}{" "}
+                    nằm ngoài khoảng{" "}
                     {sensorThresholds[selectedControl]?.min || 0}% -{" "}
                     {sensorThresholds[selectedControl]?.max || 100}%
-                  </p>
-                )}
-                {selectedControl === "light" && (
-                  <p>
-                    Thiết bị sẽ hoạt động khi cường độ ánh sáng nằm ngoài khoảng{" "}
-                    {sensorThresholds[selectedControl]?.min || 0}% -{" "}
-                    {sensorThresholds[selectedControl]?.max || 100}%
-                  </p>
-                )}
-                {selectedControl === "wind" && (
-                  <p>
-                    Thiết bị sẽ hoạt động khi tốc độ gió nằm ngoài khoảng{" "}
-                    {sensorThresholds[selectedControl]?.min || 0}m/s -{" "}
-                    {sensorThresholds[selectedControl]?.max || 100}m/s
                   </p>
                 )}
               </div>
