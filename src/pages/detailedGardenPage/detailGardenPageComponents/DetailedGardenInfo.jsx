@@ -241,7 +241,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
     fetchGardenData();
     
     // Set up polling
-    const intervalId = setInterval(fetchGardenData, 1000); // Fetch every 1 second
+    const intervalId = setInterval(fetchGardenData, 4000); // Fetch every 5 seconds
     
     // Cleanup
     return () => {
