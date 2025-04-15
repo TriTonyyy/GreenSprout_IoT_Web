@@ -23,3 +23,8 @@ export const updateProfileApi = async (payload) => {
     const response = await axiosClient.put(`/api/user/updateProfile`, payload);
     return response.data;  // Return the data from the API response
 };
+
+export const updateAvatarAPI = async (payload) => {
+    const response = await axiosClient.put(`/api/user/avatar`, payload);
+    return response.data;  // Return the data from the API response
+};
