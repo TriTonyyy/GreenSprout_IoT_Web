@@ -31,13 +31,6 @@ const ScheduleList = ({
   };
 
   const handleScheduleSelect = (scheduleId) => {
-    if (!isOwner) {
-      apiResponseHandler(
-        "Chỉ chủ sở hữu mới có thể xem chi tiết lịch tưới",
-        "error"
-      );
-      return;
-    }
     onScheduleSelect(scheduleId);
   };
 
@@ -49,15 +42,13 @@ const ScheduleList = ({
     onScheduleDelete(scheduleId);
   };
 
-  const handleScheduleChange = (field, value) => {
+  const handleScheduleChange = (scheduleId, field, value) => {
     if (!isOwner) {
-      apiResponseHandler(
-        "Chỉ chủ sở hữu mới có thể thay đổi lịch tưới",
-        "error"
-      );
+      apiResponseHandler("Chỉ chủ sở hữu mới có thể thay đổi lịch tưới", "error");
       return;
     }
-    onScheduleChange(field, value);
+    console.log("Changing schedule:", { scheduleId, field, value });
+    onScheduleChange(scheduleId, field, value);
   };
 
   return (
@@ -87,7 +78,7 @@ const ScheduleList = ({
       {isOwner && schedules.length < 5 && (
         <div
           onClick={handleAddSchedule}
-          className="w-[320px] h-[160px] flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all duration-200"
+          className="w-[310px] h-[196px] flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all duration-200"
         >
           <div className="text-3xl text-gray-400 mb-1">+</div>
           <div className="text-gray-600 font-medium">Thêm lịch tưới</div>

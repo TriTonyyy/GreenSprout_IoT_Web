@@ -10,27 +10,32 @@ const ScheduleCard = ({
   onDelete,
   onToggleStatus,
   children,
+  isOwner,
 }) => {
   return (
     <div
       onClick={() => onSelect(schedule._id)}
-      className="w-80 relative cursor-pointer transition-transform duration-200 hover:scale-[1.02]"
+      className="w-80 relative cursor-pointer transition-all duration-200 hover:scale-[1.02]"
     >
-      {/* Delete Button */}
-      <button
-        className="absolute top-3 right-3 text-red-500 hover:text-red-600 z-10 bg-white rounded-full p-1.5 shadow-sm hover:shadow-md transition-all"
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(schedule._id);
-        }}
-        title="Xoá lịch tưới"
-      >
-        <X size={16} />
-      </button>
+      {/* Delete Button - Only for owners */}
+      {isOwner && (
+        <button
+          className="absolute top-3 right-3 text-red-500 hover:text-red-600 z-10 bg-white rounded-full p-1.5 shadow-sm hover:shadow-md transition-all"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(schedule._id);
+          }}
+          title="Xoá lịch tưới"
+        >
+          <X size={16} />
+        </button>
+      )}
 
       <div
-        className={`bg-gray-50 rounded-xl shadow-md p-5 border-2 ${
-          isSelected ? "border-blue-500" : "border-transparent"
+        className={`bg-white rounded-xl shadow-md p-5 border-2 ${
+          isSelected 
+            ? "border-green-500 bg-green-50" 
+            : "border-transparent hover:border-green-200"
         }`}
       >
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -38,11 +43,11 @@ const ScheduleCard = ({
         </h2>
         <div className="space-y-3">
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Thời gian tưới:</span>{" "}
-            {schedule.duration / 60} phút
+            <span className="font-medium text-green-600">Thời gian tưới:</span>{" "}
+            {Math.round(schedule.duration / 60)} phút
           </p>
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Lặp lại:</span>{" "}
+            <span className="font-medium text-green-600">Lặp lại:</span>{" "}
             {schedule.repeat && schedule.repeat.length > 0
               ? schedule.repeat
                   .map((day) => dayDisplayMap[day] || day)

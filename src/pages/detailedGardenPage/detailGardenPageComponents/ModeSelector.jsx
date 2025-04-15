@@ -1,12 +1,7 @@
 import React from 'react';
-import { apiResponseHandler } from "../../../components/Alert/alertComponent";
 
 const ModeSelector = ({ activeMode, setActiveMode, setSelectedSchedule, isOwner }) => {
   const handleModeChange = (modeKey) => {
-    if (!isOwner && (modeKey === "THEO_LICH" || modeKey === "CAM_BIEN")) {
-      apiResponseHandler("Chỉ chủ sở hữu mới có thể thay đổi chế độ", "error");
-      return;
-    }
     setActiveMode(modeKey);
     setSelectedSchedule(null);
   };
@@ -25,6 +20,7 @@ const ModeSelector = ({ activeMode, setActiveMode, setSelectedSchedule, isOwner 
               ? "bg-green-600 text-white shadow-md"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
+          title={!isOwner ? "Bạn có thể xem nhưng không thể thay đổi cài đặt" : ""}
         >
           {mode.label}
         </button>

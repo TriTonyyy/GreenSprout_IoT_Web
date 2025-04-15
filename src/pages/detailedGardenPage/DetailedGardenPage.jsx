@@ -28,7 +28,7 @@ function DetailedGarden() {
   const fetchUser = async () => {
     try {
       const user = await getUserInfoAPI();
-      console.log("User Data:", user.data);
+      // console.log("User Data:", user.data);
       setUser(user.data);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -39,7 +39,7 @@ function DetailedGarden() {
   const fetchGardenData = async () => {
     try {
       const gardenData = await getGardenByDevice(gardenId);
-      console.log("Garden Data:", gardenData.data);
+      // console.log("Garden Data:", gardenData.data);
       setData(gardenData.data);
     } catch (error) {
       console.error("Error fetching garden data:", error);
@@ -68,12 +68,7 @@ function DetailedGarden() {
       setError("Failed to load gardens list");
       setAllGardens([]);
     }
-  };
-
-  console.log(data);
-  console.log(user);
-  
-  
+  };  
 
   const handleEdit = () => {
     renameDevicePopup(gardenId, data.name_area)
@@ -132,7 +127,6 @@ function DetailedGarden() {
       </div>
     );
   }
-  console.log(data);
   return (
     <div className="min-h-screen flex flex-col">
       <HeaderComponent gardens={allGardens} />

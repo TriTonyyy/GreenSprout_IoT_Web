@@ -127,6 +127,13 @@ export const areUSurePopup = (message) => {
       showCancelButton: true,
       confirmButtonText: "Có",
       cancelButtonText: "Không",
+      confirmButtonColor: "#22c55e", // Green color
+      cancelButtonColor: "#ef4444", // Red color
+      buttonsStyling: true,
+      customClass: {
+        confirmButton: "bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg",
+        cancelButton: "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg"
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         resolve();
