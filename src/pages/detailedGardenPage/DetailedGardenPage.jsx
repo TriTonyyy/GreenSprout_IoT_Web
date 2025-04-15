@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import HeaderComponent from "../../components/Header/HeaderComponent";
 import { useNavigate, useParams } from "react-router";
 import {
@@ -19,34 +18,36 @@ import { getGardenby, getGardenByDevice } from "../../api/deviceApi";
 
 function DetailedGarden() {
   const { gardenId } = useParams();
+  const [user, setUser] = useState(null);
+  const [data, setData] = useState();
+  const [allGardens, setAllGardens] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
-  // Query for user data
-  const { data: user, error: userError } = useQuery({
-    queryKey: ['user'],
-    queryFn: async () => {
-      const response = await getUserInfoAPI();
-      return response.data;
-    },
-    staleTime: 300000, // Consider data fresh for 5 minutes
-  });
+  const fetchUser = async () => {
+    try {
+      const user = await getUserInfoAPI();
+      console.log("User Data:", user.data);
+      setUser(user.data);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      setError("Failed to load user data");
+    }
+  };
 
-  // Query for garden data
-  const { data: gardenData, error: gardenError } = useQuery({
-    queryKey: ['garden', gardenId],
-    queryFn: async () => {
-      const response = await getGardenByDevice(gardenId);
-      return response.data;
-    },
-    refetchInterval: 5000, // Refetch every 5 seconds
-    staleTime: 2000, // Consider data fresh for 2 seconds
-  });
-
-  // Query for all gardens
-  const { data: allGardens, error: gardensError } = useQuery({
-    queryKey: ['gardens'],
-    queryFn: async () => {
+  const fetchGardenData = async () => {
+    try {
+      const gardenData = await getGardenByDevice(gardenId);
+      console.log("Garden Data:", gardenData.data);
+      setData(gardenData.data);
+    } catch (error) {
+      console.error("Error fetching garden data:", error);
+      setError("Failed to load garden data");
+    }
+  };
+  const fetchAllGardens = async () => {
+    try {
       const response = await getGardenby();
       const deviceIds = response.data || [];
 
@@ -61,44 +62,67 @@ function DetailedGarden() {
       });
 
       const gardens = await Promise.all(gardensPromises);
-      return gardens.filter((garden) => garden !== null);
-    },
-    staleTime: 10000, // Consider data fresh for 10 seconds
-  });
-
-  const handleEdit = async () => {
-    try {
-      await renameDevicePopup(gardenId, gardenData.name_area);
-      // Invalidate queries to refetch latest data
-      queryClient.invalidateQueries(['garden', gardenId]);
-      queryClient.invalidateQueries(['gardens']);
-    } catch (err) {
-      if (err !== "cancelled") {
-        console.error("Rename failed:", err);
-      }
+      setAllGardens(gardens.filter((garden) => garden !== null));
+    } catch (error) {
+      console.error("Failed to fetch gardens:", error);
+      setError("Failed to load gardens list");
+      setAllGardens([]);
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      await removeDevicePopup(gardenId, user._id);
-      navigate("/home");
-    } catch (err) {
-      if (err !== "Cancelled") {
-        console.error(err);
-      }
-    }
+  console.log(data);
+  console.log(user);
+  
+  
+
+  const handleEdit = () => {
+    renameDevicePopup(gardenId, data.name_area)
+      .then(() => {
+        fetchGardenData();
+        fetchAllGardens();
+      })
+      .catch((err) => {
+        if (err !== "cancelled") {
+          console.error("Rename failed:", err);
+          setError("Failed to rename garden");
+        }
+      });
   };
 
-  // Combine all errors
-  const error = userError || gardenError || gardensError;
+  const handleDelete = () => {
+    removeDevicePopup(gardenId, user._id)
+      .then(() => navigate("/home"))
+      .catch((err) => {
+        if (err !== "Cancelled") {
+          console.error(err);
+          setError("Failed to delete garden");
+        }
+      });
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        await Promise.all([fetchUser(), fetchGardenData(), fetchAllGardens()]);
+      } catch (error) {
+        console.error("Error loading initial data:", error);
+        setError("Failed to load initial data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [gardenId]);
+
+
 
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <div className="text-red-500 text-lg">
-          {error.message || "An error occurred while loading data"}
-        </div>
+        <div className="text-red-500 text-lg">{error}</div>
         <button
           onClick={() => window.location.reload()}
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -108,27 +132,23 @@ function DetailedGarden() {
       </div>
     );
   }
-
-  const isLoading = !user || !gardenData || !allGardens;
-
+  console.log(data);
   return (
     <div className="min-h-screen flex flex-col">
-      <HeaderComponent gardens={allGardens || []} />
+      <HeaderComponent gardens={allGardens} />
       <div className="flex flex-grow">
         <SideNavigationBar />
         <div className="flex-grow">
-          {isLoading ? (
+          {loading ? (
             <GardenTitleSkeleton />
-          ) : gardenData ? (
+          ) : data ? (
             <>
               <GardenTitle
-                gardenName={gardenData.name_area}
+                gardenName={`${data.name_area}`}
                 areaGardenName="Thông tin khu vườn"
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                isOwner={gardenData.members?.some(
-                  (member) => member.userId === user?._id && member.role === "owner"
-                )}
+                isOwner={data.members?.some(member => member.userId === user?._id && member.role === 'owner')}
                 deviceId={gardenId}
               />
             </>
