@@ -178,6 +178,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       device.members = result.data || [];
   
       setGardenData(device);
+      
       // Map sensors by type for easy access
       const tempSensorsMap = {};
       device.sensors?.forEach((sensor) => {
@@ -189,11 +190,14 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       const tempControlsMap = {};
       const initialModes = {};
       const initialStatuses = {};
+      
       device.controls?.forEach((control) => {
         tempControlsMap[control.name] = control;
         initialModes[control.name] = control.mode || "manual";
         initialStatuses[control.name] = control.status || false;
       });
+
+      // Update states with new data
       setControlsMap(tempControlsMap);
       setControlModes(initialModes);
       setControlStatuses(initialStatuses);
@@ -209,9 +213,19 @@ export const DetailedGardenInfo = ({ deviceId }) => {
         (control) => control.name === "wind"
       );
 
-      setWaterOn(waterControl ? waterControl.status : false);
-      setLightOn(lightControl ? lightControl.status : false);
-      setWindOn(windControl ? windControl.status : false);
+      // Update control statuses with actual values from API
+      if (waterControl) {
+        setWaterOn(waterControl.status);
+        setControlStatuses(prev => ({ ...prev, water: waterControl.status }));
+      }
+      if (lightControl) {
+        setLightOn(lightControl.status);
+        setControlStatuses(prev => ({ ...prev, light: lightControl.status }));
+      }
+      if (windControl) {
+        setWindOn(windControl.status);
+        setControlStatuses(prev => ({ ...prev, wind: windControl.status }));
+      }
       
       setError(null);
     } catch (error) {
@@ -247,17 +261,31 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       [controlName]: newStatus,
     }));
 
+    // Switch mode to manual when toggling status
+    setControlModes((prev) => ({
+      ...prev,
+      [controlName]: "manual",
+    }));
+
     try {
+      // Update both status and mode in one API call
       await updateControlById({
         id_esp: deviceId,
         controlId: controlId,
-        data: { status: newStatus },
+        data: { 
+          status: newStatus,
+          mode: "manual" 
+        },
       });
     } catch (error) {
       // Revert on error
       setControlStatuses((prev) => ({
         ...prev,
         [controlName]: currentStatus,
+      }));
+      setControlModes((prev) => ({
+        ...prev,
+        [controlName]: controlModes[controlName],
       }));
       apiResponseHandler("Failed to update control status. Please try again.", "error");
     }
