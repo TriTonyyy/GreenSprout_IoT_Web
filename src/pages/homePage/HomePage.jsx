@@ -22,6 +22,7 @@ function HomePage() {
   const [deviceData, setDeviceData] = useState(null);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  
   console.log(user, "user");
 
   const fetchUserDevices = async () => {

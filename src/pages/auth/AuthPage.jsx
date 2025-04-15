@@ -27,7 +27,7 @@ function AuthPage({ isLogin }) {
         navigate("/home");
       })
       .catch((err) => {
-        apiResponseHandler(err.response.data.message);
+        apiResponseHandler(err.response.data.message,"error");
       });
   };
 
