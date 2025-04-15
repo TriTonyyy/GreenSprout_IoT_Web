@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import HeaderComponent from '../../components/Header/HeaderComponent'
 import { useNavigate } from "react-router";
 import { getUserInfoAPI, changePasswordAPI} from '../../api/AuthApi';
-import { updateProfileApi } from '../../api/userApi';
+import { updateAvatarAPI, updateProfileApi } from '../../api/userApi';
 import {apiResponseHandler, areUSurePopup, changePasswordPopUp} from '../../components/Alert/alertComponent';
 import SideNavigationBar from '../../components/SideNavigationBar/SideNavigationBar';
 import FooterComponent from '../../components/FooterComponent/FooterComponent';
@@ -16,6 +16,8 @@ export default function AccountPage() {
     const lang = useSelector(getLang);
     const [name, setName] = useState('');
     const [avatar, setAvatar] = useState('');
+    const [fileUpload, setFileUpload] = useState('');
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState("");
     const [userInfo, setUserInfo] = useState({});
@@ -32,6 +34,16 @@ export default function AccountPage() {
             .catch((err)=>{
                 apiResponseHandler(err.response.data.message);
             })  
+        updateAvatarAPI(fileUpload)
+            .then((res)=>{
+                console.log(res,'res');
+                
+            })
+            .catch((err)=>{
+                console.log(err);
+                
+            })
+        
     }
 
     const changeLanguage = async (language)=>{
@@ -63,6 +75,21 @@ export default function AccountPage() {
             })
     }
 
+    const handleImgUpload=async(e)=>{
+        const file = e.target.files[0];
+        console.log(file, "file");
+        
+        if(file){
+            const reader = new FileReader();
+            reader.onload = (e)=>{
+                const base64 = e.target.result;
+                setAvatar(base64)
+                setFileUpload(base64.split(',')[1])
+            }
+            reader.readAsDataURL(file)
+        }   
+    }
+
     useEffect(()=>{
         getUserInfoAPI()
         .then((res)=>{
@@ -77,6 +104,7 @@ export default function AccountPage() {
         setName(userInfo?.name ? userInfo.name : '');
 
     }, [userInfo])
+
   return (
     <div>
         <HeaderComponent/>
@@ -86,15 +114,19 @@ export default function AccountPage() {
                 <h1 className='text-3xl'><strong>{i18n.t("account")}</strong></h1>
                 <div className='flex pt-5  justify-between items-center '>
                     <div className='flex'>
-                        <img src={avatar !== "" ? avatar : require("../../assets/images/AvatarDefault.png")} className='py-5' alt='avatar'/>
-                        <h2 className='text-2xl p-4'>
-                            Ảnh cá nhân <br/>
-                            PNG, JPEG dưới 5MB <br/>
-                        </h2>
+                        <img src={avatar !== "" ? avatar : require("../../assets/images/AvatarDefault.png")} className='py-5 max-w-lg' alt='avatar'/>
+                        {avatar === ''? 
+                            <h2 className='text-2xl p-4'>
+                                Ảnh cá nhân <br/>
+                                PNG, JPEG dưới 5MB <br/>
+                            </h2>: <></>}
+                        
                     </div>
-                    <button className='bg-gray-300 p-5 rounded-2xl text-xl border-2 border-gray-500 hover:bg-gray-400'>
+                    {/* <button className='bg-gray-300 p-5 rounded-2xl text-xl border-2 border-gray-500 hover:bg-gray-400'>
                         Tải hình ảnh lên
-                    </button>
+                    </button> */}
+
+                    <input type='file' onChange={(e)=>handleImgUpload(e)}/>
                 </div>
 
                 <div className='pt-5  justify-between items-center border-b-2 pb-4 '>

@@ -17,6 +17,7 @@
     "save":"Save",
     "change-password":"Change password",
     "change-lang-mess":"Are you sure you want to chagne language ?",
-    "logout-confirm":"Are you sure you want to log out ?"
+    "logout-confirm":"Are you sure you want to log out ?",
+    "upload-img":"Upload your image"
 
 }

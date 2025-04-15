@@ -12,6 +12,7 @@ const userCre = useSelector(getUserCredential);
   const navigate = useNavigate();
 
   const sendOTP = async ()=>{
+    console.log(userCre, 'usercre');
     await sendCodeApi(email)
         .then((res)=>{
             alert(res.message);

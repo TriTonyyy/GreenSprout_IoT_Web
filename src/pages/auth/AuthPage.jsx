@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
-import { loginApi } from "../../api/AuthApi";
+import { googleAuthAPI, loginApi } from "../../api/AuthApi";
 import { deviceDetect } from "react-device-detect";
 import { UserCredential, tokenUser } from "../../redux/Reducers/AuthReducer";
 import { getUserCredential } from "../../redux/selectors/authSelectors";
@@ -41,6 +41,18 @@ function AuthPage({ isLogin }) {
       isLogin ? signIn() : register();
     }
   };
+
+  const googleHandle=async()=>{
+    await googleAuthAPI()
+      .then((res)=>{
+        console.log(res,'res');
+        
+      })
+      .catch((err)=>{
+        console.log(err);
+        
+      })
+  }
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-bgPurple ">
@@ -95,7 +107,7 @@ function AuthPage({ isLogin }) {
             </p>
             <div className="w-5/12 h-px bg-slate-400"></div>
           </div>
-          <button className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-red">
+          <button className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-red" onClick={googleHandle}>
             Google
           </button>
           {isLogin ? (
