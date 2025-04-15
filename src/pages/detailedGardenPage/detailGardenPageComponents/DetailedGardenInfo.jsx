@@ -110,7 +110,7 @@ const ModeSelector = ({ currentMode, onChange }) => {
   );
 };
 
-export const DetailedGardenInfo = ({ deviceId, currentUserEmail }) => {
+export const DetailedGardenInfo = ({ deviceId }) => {
   const [loading, setLoading] = useState(true);
   const [gardenData, setGardenData] = useState(null);
   const [sensorsMap, setSensorsMap] = useState({});
