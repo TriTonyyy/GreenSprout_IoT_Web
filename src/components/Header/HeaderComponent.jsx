@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { User } from "lucide-react";
 import { useNavigate } from "react-router";
-import { getUserInfoAPI } from "../../api/AuthApi";
+import { getUserInfoAPI } from "../../api/authApi";
 import { SearchBarComponent } from "./SearchBarComponent";
 
 

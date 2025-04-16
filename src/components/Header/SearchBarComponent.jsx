@@ -99,7 +99,6 @@ export function SearchBarComponent({ gardens = [] }) {
                   <p className="text-sm font-medium text-gray-800">
                     {garden.name_area}
                   </p>
-                  <p className="text-xs text-gray-500">ID: {garden.id_esp}</p>
                 </div>
               </div>
             ))

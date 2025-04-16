@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router";
 import { Home, BarChart2, Settings, LogOut } from "lucide-react";
-import { logOutAPI } from "../../api/AuthApi";
+import { logOutAPI } from "../../api/authApi";
 import { apiResponseHandler, areUSurePopup } from "../Alert/alertComponent";
 import { removeToken } from "../../helper/tokenHelper";
 import i18n from "../../i18n";
