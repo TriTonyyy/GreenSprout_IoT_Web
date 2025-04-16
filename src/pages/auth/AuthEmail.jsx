@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import {useNavigate } from "react-router";
 import { registerApi, sendCodeApi, verifyOtpApi } from '../../api/authApi';
 import{ useSelector } from 'react-redux';
@@ -11,8 +11,24 @@ const userCre = useSelector(getUserCredential);
     
   const navigate = useNavigate();
 
+  const [seconds, setSeconds] = useState(15); // 2 minutes = 120 seconds
+
+    useEffect(() => {
+        if (seconds <= 0) return;
+        const timer = setInterval(() => {
+            setSeconds(prev => prev - 1);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [seconds]);
+
+  const formatTime = (totalSeconds) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+};
+
   const sendOTP = async ()=>{
-    console.log(userCre, 'usercre');
+    setSeconds(120)
     await sendCodeApi(email)
         .then((res)=>{
             alert(res.message);
@@ -65,6 +81,21 @@ const userCre = useSelector(getUserCredential);
             <div className='input-box flex flex-col'>
                 {isTypeOTP ?(
                     <>
+                        <div className="p-4 rounded-lg">
+                            <div className="text-2xl font-mono text-center">
+                                {formatTime(seconds)}
+                            </div>
+                            {seconds === 0 && (
+                                <div className="flex justify-center mt-4">
+                                <button
+                                    className="bg-purple text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                                    onClick={sendOTP}
+                                >
+                                    Send OTP
+                                </button>
+                            </div>
+                            )}
+                        </div>
                         <input value={otp}
                             onChange={(e)=> setOtp(e.target.value)} 
                             type='text' 
@@ -72,18 +103,8 @@ const userCre = useSelector(getUserCredential);
                             placeholder='Nhập OTP' 
                             className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
                         /> 
+                        
                         <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-purple' onClick={isTypeOTP ? verifyOTP :sendOTP}>Gửi OTP</button>
-                        {/* <div className='flex justify-center items-center'>
-                            <div className='w-5/12 h-px bg-slate-400'></div>
-                            <p className='w-full text-center text-slate-400'>Hoặc đăng ký với</p>
-                        <div className='w-5/12 h-px bg-slate-400'></div>
-                        </div> */}
-                        {/* <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-red'>Google</button> */}
-                        {/* {isTypeOTP ? (
-                        <h2 className='p-1 m-1'>Bạn chưa có tài khoản? <a href='/register' className='text-stone-950 font-bold'>Đăng ký</a></h2>
-                        ): (
-                        <h2 className='p-1 m-1'>Bạn đã có tài khoản? <a href='/login' className='text-stone-950 font-bold'>Đăng nhập</a></h2>
-                        )} */}
                     </>
                 ):(
                     <>
