@@ -39,9 +39,7 @@ const SensorReading = ({ label, value, unit, icon }) => (
       <p className="text-gray-800 font-medium min-w-[50px] text-right">
         {value ?? "---"}
       </p>
-      <p className="text-gray-500 text-sm">
-        {unit}
-      </p>
+      <p className="text-gray-500 text-sm">{unit}</p>
     </div>
   </div>
 );
@@ -169,16 +167,16 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   };
   const fetchGardenData = async () => {
     if (!isPolling) return;
-    
+
     try {
       const res = await getGardenByDevice(deviceId);
       const device = res.data || {};
       // Get members and attach to device
       const result = await getMemberByIdDevice(deviceId);
       device.members = result.data || [];
-  
+
       setGardenData(device);
-      
+
       // Map sensors by type for easy access
       const tempSensorsMap = {};
       device.sensors?.forEach((sensor) => {
@@ -190,7 +188,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       const tempControlsMap = {};
       const initialModes = {};
       const initialStatuses = {};
-      
+
       device.controls?.forEach((control) => {
         tempControlsMap[control.name] = control;
         initialModes[control.name] = control.mode || "manual";
@@ -201,7 +199,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       setControlsMap(tempControlsMap);
       setControlModes(initialModes);
       setControlStatuses(initialStatuses);
-      
+
       // Set control statuses based on control data
       const waterControl = device.controls?.find(
         (control) => control.name === "water"
@@ -216,17 +214,17 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       // Update control statuses with actual values from API
       if (waterControl) {
         setWaterOn(waterControl.status);
-        setControlStatuses(prev => ({ ...prev, water: waterControl.status }));
+        setControlStatuses((prev) => ({ ...prev, water: waterControl.status }));
       }
       if (lightControl) {
         setLightOn(lightControl.status);
-        setControlStatuses(prev => ({ ...prev, light: lightControl.status }));
+        setControlStatuses((prev) => ({ ...prev, light: lightControl.status }));
       }
       if (windControl) {
         setWindOn(windControl.status);
-        setControlStatuses(prev => ({ ...prev, wind: windControl.status }));
+        setControlStatuses((prev) => ({ ...prev, wind: windControl.status }));
       }
-      
+
       setError(null);
     } catch (error) {
       console.error("Error fetching garden data:", error);
@@ -239,17 +237,17 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   useEffect(() => {
     // Initial fetch
     fetchGardenData();
-    
+
     // Set up polling
-    const intervalId = setInterval(fetchGardenData, 4000); // Fetch every 5 seconds
-    
+    const intervalId = setInterval(fetchGardenData, 1000); // Fetch every 1 second
+
     // Cleanup
     return () => {
       clearInterval(intervalId);
       setIsPolling(false);
     };
   }, [deviceId]);
-  
+
   // Handler for toggling control status
   const handleStatusToggle = async (controlName, controlId) => {
     const currentStatus = controlStatuses[controlName];
@@ -272,9 +270,9 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       await updateControlById({
         id_esp: deviceId,
         controlId: controlId,
-        data: { 
+        data: {
           status: newStatus,
-          mode: "manual" 
+          mode: "manual",
         },
       });
     } catch (error) {
@@ -283,11 +281,10 @@ export const DetailedGardenInfo = ({ deviceId }) => {
         ...prev,
         [controlName]: currentStatus,
       }));
-      setControlModes((prev) => ({
-        ...prev,
-        [controlName]: controlModes[controlName],
-      }));
-      apiResponseHandler("Failed to update control status. Please try again.", "error");
+      apiResponseHandler(
+        "Failed to update control status. Please try again.",
+        "error"
+      );
     }
   };
 
