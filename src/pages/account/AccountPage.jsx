@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import HeaderComponent from "../../components/Header/HeaderComponent";
 import { useNavigate } from "react-router";
-import {
-  changePasswordAPI,
-  getUserInfoAPI,
-  changePasswordAPI,
-} from "../../api/authApi";
+import { changePasswordAPI, getUserInfoAPI } from "../../api/authApi";
 import { updateAvatarAPI, updateProfileApi } from "../../api/userApi";
 import {
   apiResponseHandler,
