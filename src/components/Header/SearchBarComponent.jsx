@@ -61,6 +61,7 @@ export function SearchBarComponent({ gardens = [] }) {
     setIsSearching(false);
     setSearchTerm("");
     navigate(`/garden/${gardenId}`);
+    a;
   };
 
   return (

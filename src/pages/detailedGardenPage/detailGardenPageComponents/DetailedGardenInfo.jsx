@@ -39,9 +39,7 @@ const SensorReading = ({ label, value, unit, icon }) => (
       <p className="text-gray-800 font-medium min-w-[50px] text-right">
         {value ?? "---"}
       </p>
-      <p className="text-gray-500 text-sm">
-        {unit}
-      </p>
+      <p className="text-gray-500 text-sm">{unit}</p>
     </div>
   </div>
 );
@@ -169,14 +167,14 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   };
   const fetchGardenData = async () => {
     if (!isPolling) return;
-    
+
     try {
       const res = await getGardenByDevice(deviceId);
       const device = res.data || {};
       // Get members and attach to device
       const result = await getMemberByIdDevice(deviceId);
       device.members = result.data || [];
-  
+
       setGardenData(device);
       // Map sensors by type for easy access
       const tempSensorsMap = {};
@@ -197,7 +195,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       setControlsMap(tempControlsMap);
       setControlModes(initialModes);
       setControlStatuses(initialStatuses);
-      
+
       // Set control statuses based on control data
       const waterControl = device.controls?.find(
         (control) => control.name === "water"
@@ -212,7 +210,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       setWaterOn(waterControl ? waterControl.status : false);
       setLightOn(lightControl ? lightControl.status : false);
       setWindOn(windControl ? windControl.status : false);
-      
+
       setError(null);
     } catch (error) {
       console.error("Error fetching garden data:", error);
@@ -225,17 +223,17 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   useEffect(() => {
     // Initial fetch
     fetchGardenData();
-    
+
     // Set up polling
     const intervalId = setInterval(fetchGardenData, 1000); // Fetch every 1 second
-    
+
     // Cleanup
     return () => {
       clearInterval(intervalId);
       setIsPolling(false);
     };
   }, [deviceId]);
-  
+
   // Handler for toggling control status
   const handleStatusToggle = async (controlName, controlId) => {
     const currentStatus = controlStatuses[controlName];
@@ -259,7 +257,10 @@ export const DetailedGardenInfo = ({ deviceId }) => {
         ...prev,
         [controlName]: currentStatus,
       }));
-      apiResponseHandler("Failed to update control status. Please try again.", "error");
+      apiResponseHandler(
+        "Failed to update control status. Please try again.",
+        "error"
+      );
     }
   };
 

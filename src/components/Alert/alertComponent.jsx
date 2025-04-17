@@ -4,7 +4,6 @@ import {
   removeMemberByIdDevice,
   renameDeviceByIdDevice,
 } from "../../api/deviceApi"; // Import the API function to update device members
-import i18n from "../../i18n";
 
 // SweetAlert2 popup function to add a device
 export const addDevicePopup = (member, fetchUserDevices) => {
@@ -49,7 +48,7 @@ export const addDevicePopup = (member, fetchUserDevices) => {
   retryFunction();
 };
 
-export const apiResponseHandler = (message,type) => {
+export const apiResponseHandler = (message, type) => {
   Swal.fire({
     icon: type || "success",
     text: message || "Something went wrong!",
@@ -86,7 +85,7 @@ export const removeDevicePopup = (deviceId, userId) => {
   });
 };
 
-export const renameDevicePopup = (deviceId,name_area) => {
+export const renameDevicePopup = (deviceId, name_area) => {
   return new Promise((resolve, reject) => {
     Swal.fire({
       title: "Vui lòng nhập tên mới cho khu vườn",
@@ -131,9 +130,11 @@ export const areUSurePopup = (message) => {
       cancelButtonColor: "#ef4444", // Red color
       buttonsStyling: true,
       customClass: {
-        confirmButton: "bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg",
-        cancelButton: "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg"
-      }
+        confirmButton:
+          "bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg",
+        cancelButton:
+          "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg",
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         resolve();
@@ -142,7 +143,7 @@ export const areUSurePopup = (message) => {
       }
     });
   });
-}
+};
 export const changePasswordPopUp = (message) => {
   return new Promise((resolve, reject) => {
     Swal.fire({
@@ -161,7 +162,7 @@ export const changePasswordPopUp = (message) => {
         const confirmPassword = document.getElementById("swal-input2").value;
 
         // Basic validation
-        if(!oldPassword) {
+        if (!oldPassword) {
           Swal.showValidationMessage("Old password is required!");
           return false;
         }
@@ -174,7 +175,7 @@ export const changePasswordPopUp = (message) => {
           return false;
         }
 
-        return { oldPassword,password, confirmPassword };
+        return { oldPassword, password, confirmPassword };
       },
     }).then((result) => {
       if (result.isConfirmed) {

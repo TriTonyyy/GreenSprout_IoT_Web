@@ -5,6 +5,7 @@ import AuthPage from "./pages/auth/AuthPage";
 import DetailedGardenPage from "./pages/detailedGardenPage/DetailedGardenPage";
 import AuthEmail from "./pages/auth/AuthEmail";
 import AccountPage from "./pages/account/AccountPage";
+import Statistics from "./pages/Statistics";
 import { getToken } from "./helper/tokenHelper";
 import { useEffect, useState } from "react";
 
@@ -39,7 +40,7 @@ function ProtectedRoute() {
   return <Outlet />;
 }
 
-function App ()  {
+function App() {
   // return(
   //   <Routes>
   //     <Route path="/" element={<Navigate to="/login" />} />
@@ -70,6 +71,7 @@ function App ()  {
         <Route path="/home" element={<HomePage />} />
         <Route path="/garden/:gardenId" element={<DetailedGardenPage />} />
         <Route path="/account" element={<AccountPage />} />
+        <Route path="/statistics" element={<Statistics />} />
       </Route>
     </Routes>
   );
