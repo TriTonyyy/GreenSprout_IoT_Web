@@ -70,6 +70,7 @@ function App() {
         <Route path="/" element={<Navigate to="/home" />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/garden/:gardenId" element={<DetailedGardenPage />} />
+        {/* <Route path="/schedule" element={<SchedulePage />} /> */}
         <Route path="/account" element={<AccountPage />} />
         <Route path="/statistics" element={<Statistics />} />
       </Route>

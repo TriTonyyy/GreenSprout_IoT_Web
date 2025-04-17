@@ -43,15 +43,16 @@ function AuthPage({ isLogin }) {
   };
 
   const googleHandle=async()=>{
-    await googleAuthAPI()
-      .then((res)=>{
-        console.log(res,'res');
+    // await googleAuthAPI()
+    //   .then((res)=>{
+    //     console.log(res,'res');
         
-      })
-      .catch((err)=>{
-        console.log(err);
+    //   })
+    //   .catch((err)=>{
+    //     console.log(err);
         
-      })
+    //   })
+    window.location.href = "https://capstone-project-iot-1.onrender.com/api/user/google";
   }
 
   return (
