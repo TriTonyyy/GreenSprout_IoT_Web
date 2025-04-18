@@ -206,9 +206,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       const device = res.data || {};
       // Get members and attach to device
       const result = await getMemberByIdDevice(deviceId);
-      // console.log(result.members);
       device.members = result.members || [];
-      // console.log(device);
       setGardenData(device);
 
       // Map sensors by type for easy access
@@ -354,13 +352,6 @@ export const DetailedGardenInfo = ({ deviceId }) => {
           status: false, // Turn off the control
         },
       });
-      console.log(
-        "updated",
-        controlId,
-        " mode to ",
-        newMode,
-        " and turned off"
-      );
     } catch (error) {
       // Revert on error
       setControlModes((prev) => ({

@@ -185,8 +185,6 @@ function DetailedGarden() {
   
   useEffect(()=>{
     const interval = setInterval(()=>{
-      console.log(12313123);
-      
       getMemberByIdDevice(gardenId)
       .then((res)=>{
         const allMems = res.members;

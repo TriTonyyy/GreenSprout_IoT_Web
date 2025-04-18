@@ -48,7 +48,6 @@ const userCre = useSelector(getUserCredential);
     
     await verifyOtpApi({email, code:otp})
         .then((res)=>{
-            console.log(res);
             setOtp('');
             alert(res.message);
         })
@@ -63,7 +62,6 @@ const userCre = useSelector(getUserCredential);
         password:userCre.password
     })
         .then((res)=>{
-            console.log(res, "register");
             navigate('/login')
 
         })

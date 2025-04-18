@@ -30,7 +30,6 @@ const Statistics = () => {
 
   // Generate mock data for testing
   const generateMockData = () => {
-    console.log("Generating mock data for testing");
     const now = new Date();
     const mockReadings = [];
 
@@ -50,7 +49,6 @@ const Statistics = () => {
 
   const fetchReport = async () => {
     const response = await getReport(selectedGarden);
-    console.log(response);
   };
 
   // Fetch available gardens
