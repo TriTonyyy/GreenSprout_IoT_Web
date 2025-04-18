@@ -372,7 +372,6 @@ export default function IrrigationModeSection({ deviceId }) {
   };
 
   const changeSchedule = (id, field, value) => {
-    // console.log("Changing schedule:", { id, field, value });
     setSchedules((prev) =>
       prev.map((schedule) => {
         if (schedule._id === id) {

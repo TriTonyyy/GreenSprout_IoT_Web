@@ -22,8 +22,6 @@ export const addDevicePopup = (member, fetchUserDevices) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const deviceId = result.value;
-        // console.log(deviceId);
-        // console.log(member.userId);
         try {
           await addMemberByIdDevice(deviceId, {
             userId: member.userId,
@@ -101,8 +99,6 @@ export const renameDevicePopup = (deviceId, name_area) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const newName = result.value;
-        // console.log(newName);
-        // console.log(deviceId);
         try {
           await renameDeviceByIdDevice(deviceId, { name_area: newName });
           Swal.fire("Thành công!", "Thiết bị đã được đổi tên.", "success");
