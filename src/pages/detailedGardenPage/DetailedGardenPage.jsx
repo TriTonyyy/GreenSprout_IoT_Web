@@ -15,7 +15,6 @@ import {
   areUSurePopup,
   removeDevicePopup,
   renameDevicePopup,
-  apiResponseHandler,
   selectNewOwnerPopup,
 } from "../../components/Alert/alertComponent";
 import { getGardenby, getGardenByDevice, getMemberByIdDevice, removeMemberByIdDevice, addMemberByIdDevice } from "../../api/deviceApi";
@@ -203,10 +202,13 @@ function DetailedGarden() {
         
       })
     
-  },[user])
+  },[user,allGardens])
+
+  // console.log(data.members);
+  // console.log(user._id);
 
   const isOwner = data?.members?.some(
-    (member) => member.userId === user?._id && member.role === "owner"
+    (member) => member.userId === user?._id && member.role === "owner"  
   );
 
   if (error) {
@@ -243,7 +245,7 @@ function DetailedGarden() {
               />
             </>
           ) : null}
-          <DetailedGardenInfo deviceId={gardenId} />
+          <DetailedGardenInfo deviceId={gardenId} isOwner={isOwner} />
           <IrrigationModeSection deviceId={gardenId} isOwner={isOwner} />
         </div>
       </div>

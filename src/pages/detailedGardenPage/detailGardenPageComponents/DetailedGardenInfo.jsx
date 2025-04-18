@@ -78,6 +78,7 @@ const SensorReading = ({ label, value, unit, icon }) => (
 );
 
 const MemberList = ({ members, onEdit, isOwner }) => (
+  // console.log(isOwner),
   <div className="flex flex-col px-2">
     {members.map((member, index) => (
       <div
@@ -141,18 +142,19 @@ const ModeSelector = ({ currentMode, onChange }) => {
   );
 };
 
-export const DetailedGardenInfo = ({ deviceId }) => {
+export const DetailedGardenInfo = ({ deviceId,isOwner }) => {
   const [loading, setLoading] = useState(true);
   const [gardenData, setGardenData] = useState(null);
   const [sensorsMap, setSensorsMap] = useState({});
   const [controlsMap, setControlsMap] = useState({});
-  const [waterOn, setWaterOn] = useState(false);
-  const [lightOn, setLightOn] = useState(false);
-  const [windOn, setWindOn] = useState(false);
+  // const [waterOn, setWaterOn] = useState(false);
+  // const [lightOn, setLightOn] = useState(false);
+  // const [windOn, setWindOn] = useState(false);
   const [controlModes, setControlModes] = useState({});
   const [controlStatuses, setControlStatuses] = useState({});
   const [error, setError] = useState(null);
   const [isPolling, setIsPolling] = useState(true);
+  
 
   // Define all possible sensor types
   const allSensorTypes = [
@@ -247,15 +249,15 @@ export const DetailedGardenInfo = ({ deviceId }) => {
 
       // Update control statuses with actual values from API
       if (waterControl) {
-        setWaterOn(waterControl.status);
+        // setWaterOn(waterControl.status);
         setControlStatuses((prev) => ({ ...prev, water: waterControl.status }));
       }
       if (lightControl) {
-        setLightOn(lightControl.status);
+        // setLightOn(lightControl.status);
         setControlStatuses((prev) => ({ ...prev, light: lightControl.status }));
       }
       if (windControl) {
-        setWindOn(windControl.status);
+        // setWindOn(windControl.status);
         setControlStatuses((prev) => ({ ...prev, wind: windControl.status }));
       }
 
@@ -341,9 +343,9 @@ export const DetailedGardenInfo = ({ deviceId }) => {
     }));
 
     // Update specific control state
-    if (controlName === "water") setWaterOn(false);
-    if (controlName === "light") setLightOn(false);
-    if (controlName === "wind") setWindOn(false);
+    // if (controlName === "water") setWaterOn(false);
+    // if (controlName === "light") setLightOn(false);
+    // if (controlName === "wind") setWindOn(false);
 
     try {
       await updateControlById({
@@ -372,9 +374,9 @@ export const DetailedGardenInfo = ({ deviceId }) => {
         [controlName]: controlStatuses[controlName],
       }));
       // Revert specific control state
-      if (controlName === "water") setWaterOn(controlStatuses.water);
-      if (controlName === "light") setLightOn(controlStatuses.light);
-      if (controlName === "wind") setWindOn(controlStatuses.wind);
+      // if (controlName === "water") setWaterOn(controlStatuses.water);
+      // if (controlName === "light") setLightOn(controlStatuses.light);
+      // if (controlName === "wind") setWindOn(controlStatuses.wind);
 
       apiResponseHandler(
         `Failed to update mode for ${controlName}. Please try again.`
@@ -389,7 +391,9 @@ export const DetailedGardenInfo = ({ deviceId }) => {
     }
 
     try {
-      const isCurrentUserOwner = gardenData.members.some(m => m.role === "owner" && m.userId === member.userId);
+      const isCurrentUserOwner = gardenData.members.some(
+        (m) => m.role === "owner" && m.userId === member.userId
+      );
       const totalMembers = gardenData.members.length;
 
       // If owner is leaving and there are other members
@@ -397,34 +401,35 @@ export const DetailedGardenInfo = ({ deviceId }) => {
         try {
           // First, select new owner
           const newOwner = await selectNewOwnerPopup(gardenData.members);
-          
+
           // Update the new owner's role first
           await addMemberByIdDevice(deviceId, {
             userId: newOwner.userId,
-            role: "owner"
+            role: "owner",
           });
 
           // Then proceed with removing the current owner
           await areUSurePopup(`Bạn có chắc chắn muốn rời khỏi khu vườn?`);
-          
         } catch (error) {
-          if (error === 'cancelled') return;
+          if (error === "cancelled") return;
           apiResponseHandler("Không thể thay đổi chủ vườn", "error");
           return;
         }
       } else {
         // For non-owners or owner leaving empty garden
         await areUSurePopup(
-          `Bạn có chắc chắn muốn ${isCurrentUserOwner ? 'rời khỏi' : 'xóa thành viên khỏi'} khu vườn?`
+          `Bạn có chắc chắn muốn ${
+            isCurrentUserOwner ? "rời khỏi" : "xóa thành viên khỏi"
+          } khu vườn?`
         );
       }
 
       const response = await removeMemberByIdDevice(deviceId, member.userId);
       if (response.success) {
         apiResponseHandler(
-          isCurrentUserOwner 
-            ? "Bạn đã rời khỏi khu vườn thành công" 
-            : "Đã xóa thành viên khỏi thiết bị", 
+          isCurrentUserOwner
+            ? "Bạn đã rời khỏi khu vườn thành công"
+            : "Đã xóa thành viên khỏi thiết bị",
           "success"
         );
         // Refresh garden data to update members list
@@ -502,7 +507,6 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   const imageUrl =
     gardenData.img_area || require("../../../assets/images/ItemImg.png");
 
-  const isOwner = gardenData.members?.some((member) => member.role === "owner");
 
   // Display all sensors, even if missing
   const displayedSensors = allSensorTypes.map((type) => {
@@ -634,9 +638,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
           <MemberList
             members={gardenData.members}
             onEdit={handleRemoveMember}
-            isOwner={gardenData.members.some(
-              (member) => member.role === "owner"
-            )}
+            isOwner={isOwner}
           />
         </div>
       </div>
