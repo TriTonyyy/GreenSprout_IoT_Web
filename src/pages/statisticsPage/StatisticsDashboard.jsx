@@ -14,7 +14,7 @@ import ErrorMessage from "./statisticPageComponents/ErrorMessage";
 import { timeRanges, sensorTypes } from "./constants";
 import { getReport } from "../../api/reportApi";
 
-const StatisticsDashboard = () => {
+const Statistics = () => {
   const [timeRange, setTimeRange] = useState(timeRanges.WEEK);
   const [startDate, setStartDate] = useState(subDays(new Date(), 7));
   const [endDate, setEndDate] = useState(new Date());
@@ -49,7 +49,8 @@ const StatisticsDashboard = () => {
   };
 
   const fetchReport = async () => {
-    const response = await getReport(selectedGarden);
+    // const response = await getReport(selectedGarden);
+    // return response.data;
   };
 
   // Fetch available gardens
@@ -301,4 +302,4 @@ const StatisticsDashboard = () => {
   );
 };
 
-export default StatisticsDashboard;
+export default Statistics;
