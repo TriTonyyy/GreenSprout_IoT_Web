@@ -11,7 +11,6 @@ import FooterComponent from "../../components/FooterComponent/FooterComponent";
 import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar";
 import { getUserInfoAPI } from "../../api/authApi";
 import {
-  apiResponseHandler,
   areUSurePopup,
   removeDevicePopup,
   renameDevicePopup,
@@ -183,8 +182,12 @@ function DetailedGarden() {
       }
     };
   }, [gardenId, fetchUser, fetchGardenData, fetchAllGardens, navigate]);
+  
   useEffect(()=>{
-    getMemberByIdDevice(gardenId)
+    const interval = setInterval(()=>{
+      console.log(12313123);
+      
+      getMemberByIdDevice(gardenId)
       .then((res)=>{
         const allMems = res.members;
         let isHas = false
@@ -202,7 +205,8 @@ function DetailedGarden() {
         console.log(err);
         
       })
-    
+    }, 5000)
+    return ()=>clearInterval(interval)
   },[user])
 
   const isOwner = data?.members?.some(
