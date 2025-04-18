@@ -184,3 +184,37 @@ export const changePasswordPopUp = (message) => {
     });
   });
 };
+
+export const selectNewOwnerPopup = (members) => {
+  return new Promise((resolve, reject) => {
+    const nonOwnerMembers = members.filter(member => member.role !== 'owner');
+    const options = nonOwnerMembers.map(member => ({
+      text: member.name,
+      value: member.userId
+    }));
+
+    Swal.fire({
+      title: 'Chọn thành viên làm chủ vườn mới',
+      text: 'Bạn cần chọn một thành viên làm chủ vườn mới trước khi rời đi',
+      input: 'select',
+      inputOptions: Object.fromEntries(options.map(opt => [opt.value, opt.text])),
+      showCancelButton: true,
+      confirmButtonText: 'Xác nhận',
+      cancelButtonText: 'Hủy',
+      confirmButtonColor: "#22c55e", // Green color
+      cancelButtonColor: "#ef4444", 
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Bạn cần chọn một thành viên!';
+        }
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const selectedMember = nonOwnerMembers.find(m => m.userId === result.value);
+        resolve(selectedMember);
+      } else {
+        reject('cancelled');
+      }
+    });
+  });
+};

@@ -13,8 +13,10 @@ import { getUserInfoAPI } from "../../api/authApi";
 import {
   removeDevicePopup,
   renameDevicePopup,
+  apiResponseHandler,
+  selectNewOwnerPopup,
 } from "../../components/Alert/alertComponent";
-import { getGardenby, getGardenByDevice } from "../../api/deviceApi";
+import { getGardenby, getGardenByDevice, getMemberByIdDevice, removeMemberByIdDevice, addMemberByIdDevice } from "../../api/deviceApi";
 
 function DetailedGarden() {
   const { gardenId } = useParams();
@@ -34,7 +36,10 @@ function DetailedGarden() {
     try {
       const response = await getGardenByDevice(gardenId);
       if (response?.data) {
-        setData(response.data);
+        const device = response.data || {};
+        const result = await getMemberByIdDevice(gardenId);
+        device.members = result.members || [];
+        setData(device);
         setError(null);
       } else {
         throw new Error("Invalid response format");
@@ -47,6 +52,8 @@ function DetailedGarden() {
       } else {
         setError("Failed to load garden data");
       }
+    } finally {
+      setLoading(false);
     }
   }, [gardenId, navigate]);
 
@@ -90,34 +97,53 @@ function DetailedGarden() {
     }
   }, []);
 
-  const handleEdit = useCallback(() => {
-    if (!data?.name_area) return;
-    
-    renameDevicePopup(gardenId, data.name_area)
-      .then(() => {
-        fetchGardenData();
-        fetchAllGardens();
-      })
-      .catch((err) => {
-        if (err !== "cancelled") {
-          console.error("Rename failed:", err);
-          setError("Failed to rename garden");
-        }
-      });
-  }, [gardenId, data?.name_area, fetchGardenData, fetchAllGardens]);
+  const handleEdit = async () => {
+    try {
+      await renameDevicePopup(gardenId, data.name_area);
+      fetchGardenData(); // Refresh data after rename
+    } catch (error) {
+      if (error !== "cancelled") {
+        console.error("Error renaming device:", error);
+      }
+    }
+  };
 
-  const handleDelete = useCallback(() => {
-    if (!user?._id) return;
-    
-    removeDevicePopup(gardenId, user._id)
-      .then(() => navigate("/home"))
-      .catch((err) => {
-        if (err !== "Cancelled") {
-          console.error(err);
-          setError("Failed to delete garden");
+  const handleDelete = async () => {
+    try {
+      const isOwner = data.members?.some(m => m.role === "owner");
+      const totalMembers = data.members?.length || 0;
+
+      // If owner is leaving and there are other members
+      if (isOwner && totalMembers > 1) {
+        try {
+          // First, select new owner
+          const newOwner = await selectNewOwnerPopup(data.members);
+          
+          // Update the new owner's role first
+          await addMemberByIdDevice(gardenId, {
+            userId: newOwner.userId,
+            role: "owner"
+          });
+
+          // Then remove the current owner
+          await removeMemberByIdDevice(gardenId, data.members.find(m => m.role === "owner").userId);
+          apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
+          navigate("/home");
+        } catch (error) {
+          if (error === 'cancelled') return;
+          apiResponseHandler("Không thể thay đổi chủ vườn", "error");
         }
-      });
-  }, [gardenId, user?._id, navigate]);
+      } else {
+        // For non-owners or owner leaving empty garden
+        await removeMemberByIdDevice(gardenId, data.members.find(m => m.role === "owner").userId);
+        apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
+        navigate("/home");
+      }
+    } catch (error) {
+      console.error("Error leaving garden:", error);
+      apiResponseHandler("Không thể rời khỏi khu vườn", "error");
+    }
+  };
 
   useEffect(() => {
     if (!gardenId) {
@@ -185,7 +211,7 @@ function DetailedGarden() {
               <GardenTitle
                 gardenName={data.name_area}
                 areaGardenName="Thông tin khu vườn"
-                onEdit={handleEdit}
+                onEdit={isOwner ? handleEdit : null}
                 onDelete={handleDelete}
                 isOwner={isOwner}
                 deviceId={gardenId}

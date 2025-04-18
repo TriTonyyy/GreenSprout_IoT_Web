@@ -12,7 +12,7 @@ import StatisticsSummary from "./StatisticsSummary";
 import StatisticsChart from "./StatisticsChart";
 import ErrorMessage from "./ErrorMessage";
 import { timeRanges, sensorTypes } from "./constants";
-
+import { getReport } from "../../api/reportApi";
 const Statistics = () => {
   const [timeRange, setTimeRange] = useState(timeRanges.WEEK);
   const [startDate, setStartDate] = useState(subDays(new Date(), 7));
@@ -46,6 +46,11 @@ const Statistics = () => {
     }
 
     return mockReadings;
+  };
+
+  const fetchReport = async () => {
+    const response = await getReport(selectedGarden);
+    console.log(response);
   };
 
   // Fetch available gardens
@@ -85,8 +90,8 @@ const Statistics = () => {
         setLoadingGardens(false);
       }
     };
-
     fetchGardens();
+    fetchReport();
   }, []);
 
   // Fetch garden device data when garden selection changes
