@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import StatisticsDashboard from "StatisticsDashboard";
+import StatisticsDashboard from "./StatisticsDashboard";
 
 function StatisticsPage() {
   return (
