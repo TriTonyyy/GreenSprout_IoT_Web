@@ -28,7 +28,7 @@ export default function AccountPage() {
   const navigate = useNavigate();
 
   const saveUpdateUserInfo = () => {
-    updateProfileApi({ name, email, avatar })
+    updateProfileApi({ name, email })
       .then((res) => {
         console.log(res, "res");
         setUserInfo(res.data);
@@ -36,7 +36,7 @@ export default function AccountPage() {
         window.location.reload();
       })
       .catch((err) => {
-        apiResponseHandler(err.response.data.message);
+        apiResponseHandler(err);
       });
     updateAvatarAPI(fileUpload)
       .then((res) => {
