@@ -54,12 +54,6 @@ const StatisticsControls = ({
                     );
                   })}
                 </select>
-                <button
-                  onClick={() => setUseMockData(true)}
-                  className="mt-2 text-sm text-green-600 hover:text-green-700 hover:underline block w-full text-left"
-                >
-                  Sử dụng dữ liệu mẫu
-                </button>
               </>
             )}
           </div>
