@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
-import StatisticsDashboard from "./StatisticsDashboard";
+import Statistics from "./StatisticsDashboard";
 
 function StatisticsPage() {
   return (
     <div>
-      <StatisticsDashboard />
+      <Statistics/>
     </div>
   );
 }

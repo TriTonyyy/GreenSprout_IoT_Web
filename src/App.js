@@ -5,9 +5,9 @@ import AuthPage from "./pages/auth/AuthPage";
 import DetailedGardenPage from "./pages/detailedGardenPage/DetailedGardenPage";
 import AuthEmail from "./pages/auth/AuthEmail";
 import AccountPage from "./pages/account/AccountPage";
-import StatisticsPage from "./pages/StatisticsPage/StatisticPage";
 import { getToken } from "./helper/tokenHelper";
 import { useEffect, useState } from "react";
+import StatisticsPage from "./pages/statisticsPage/StatisticPage";
 
 
 function ProtectedRoute() {
@@ -73,7 +73,7 @@ function App() {
         <Route path="/garden/:gardenId" element={<DetailedGardenPage />} />
         {/* <Route path="/schedule" element={<SchedulePage />} /> */}
         <Route path="/account" element={<AccountPage />} />
-        <Route path="/statistics" element={<StatisticsPage/>} />
+        <Route path="/statistics" element={<StatisticsPage/>}/>
       </Route>
     </Routes>
   );
