@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-  Pencil,
+  Trash,
   Droplets,
   Thermometer,
   CloudRain,
@@ -18,8 +18,13 @@ import {
   updateControlById,
   removeMemberByIdDevice,
   uploadImage,
+  addMemberByIdDevice,
 } from "../../../api/deviceApi";
-import { apiResponseHandler, areUSurePopup } from "../../../components/Alert/alertComponent";
+import {
+  apiResponseHandler,
+  areUSurePopup,
+  selectNewOwnerPopup,
+} from "../../../components/Alert/alertComponent";
 
 const GardenImage = ({ src, onImageClick }) => (
   <div className="flex justify-center items-center p-4 w-full">
@@ -31,31 +36,27 @@ const GardenImage = ({ src, onImageClick }) => (
         onClick={onImageClick}
       />
     ) : (
-      <div 
+      <div
         className="w-full h-64 rounded-xl bg-gray-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-gray-100 hover:border-green-400 transition-all duration-200"
         onClick={onImageClick}
       >
         <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
-          <svg 
-            className="w-10 h-10 text-gray-500" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className="w-10 h-10 text-gray-500"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="2" 
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
             />
           </svg>
         </div>
-        <p className="text-base font-medium text-gray-600">
-          Thêm hình ảnh
-        </p>
-        <p className="text-sm text-gray-500">
-          Nhấn để tải lên
-        </p>
+        <p className="text-base font-medium text-gray-600">Thêm hình ảnh</p>
+        <p className="text-sm text-gray-500">Nhấn để tải lên</p>
       </div>
     )}
   </div>
@@ -101,9 +102,9 @@ const MemberList = ({ members, onEdit, isOwner }) => (
         {isOwner && member.role !== "owner" && (
           <button
             onClick={() => onEdit(member)}
-            className="text-green-600 hover:text-green-800 transition p-1 rounded-md hover:bg-green-100"
+            className="text-rose-600 hover:text-rose-800 transition p-1 rounded-md hover:bg-rose-100"
           >
-            <Pencil size={16} className="text-green-600" />
+            <Trash size={16} className="text-red-600" />
           </button>
         )}
       </div>
@@ -205,7 +206,9 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       const device = res.data || {};
       // Get members and attach to device
       const result = await getMemberByIdDevice(deviceId);
-      device.members = result.data || [];
+      // console.log(result.members);
+      device.members = result.members || [];
+      // console.log(device);
       setGardenData(device);
 
       // Map sensors by type for easy access
@@ -346,12 +349,18 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       await updateControlById({
         id_esp: deviceId,
         controlId: controlId,
-        data: { 
+        data: {
           mode: newMode,
-          status: false // Turn off the control
+          status: false, // Turn off the control
         },
       });
-      console.log("updated", controlId, " mode to ", newMode, " and turned off");
+      console.log(
+        "updated",
+        controlId,
+        " mode to ",
+        newMode,
+        " and turned off"
+      );
     } catch (error) {
       // Revert on error
       setControlModes((prev) => ({
@@ -366,7 +375,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       if (controlName === "water") setWaterOn(controlStatuses.water);
       if (controlName === "light") setLightOn(controlStatuses.light);
       if (controlName === "wind") setWindOn(controlStatuses.wind);
-      
+
       apiResponseHandler(
         `Failed to update mode for ${controlName}. Please try again.`
       );
@@ -380,20 +389,54 @@ export const DetailedGardenInfo = ({ deviceId }) => {
     }
 
     try {
-      // Show confirmation popup
-      await areUSurePopup(`Bạn có chắc chắn muốn xóa thành viên ${member.name}?`);
-      
+      const isCurrentUserOwner = gardenData.members.some(m => m.role === "owner" && m.userId === member.userId);
+      const totalMembers = gardenData.members.length;
+
+      // If owner is leaving and there are other members
+      if (isCurrentUserOwner && totalMembers > 1) {
+        try {
+          // First, select new owner
+          const newOwner = await selectNewOwnerPopup(gardenData.members);
+          
+          // Update the new owner's role first
+          await addMemberByIdDevice(deviceId, {
+            userId: newOwner.userId,
+            role: "owner"
+          });
+
+          // Then proceed with removing the current owner
+          await areUSurePopup(`Bạn có chắc chắn muốn rời khỏi khu vườn?`);
+          
+        } catch (error) {
+          if (error === 'cancelled') return;
+          apiResponseHandler("Không thể thay đổi chủ vườn", "error");
+          return;
+        }
+      } else {
+        // For non-owners or owner leaving empty garden
+        await areUSurePopup(
+          `Bạn có chắc chắn muốn ${isCurrentUserOwner ? 'rời khỏi' : 'xóa thành viên khỏi'} khu vườn?`
+        );
+      }
+
       const response = await removeMemberByIdDevice(deviceId, member.userId);
       if (response.success) {
-        apiResponseHandler("Đã xóa thành viên khỏi thiết bị", "success");
+        apiResponseHandler(
+          isCurrentUserOwner 
+            ? "Bạn đã rời khỏi khu vườn thành công" 
+            : "Đã xóa thành viên khỏi thiết bị", 
+          "success"
+        );
         // Refresh garden data to update members list
         fetchGardenData();
       } else {
-        apiResponseHandler(response.message || "Không thể xóa thành viên", "error");
+        apiResponseHandler(
+          response.message || "Không thể xóa thành viên",
+          "error"
+        );
       }
     } catch (error) {
       if (error === "cancelled") {
-        // User cancelled the action, no need to show error
         return;
       }
       console.error("Error removing member:", error);
@@ -404,10 +447,10 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   const handleImageClick = async () => {
     try {
       // Create a file input element
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+
       input.onchange = async (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -418,26 +461,32 @@ export const DetailedGardenInfo = ({ deviceId }) => {
           }
           try {
             const formData = new FormData();
-            formData.append('img_area', file); // Changed from 'image' to 'img_area' to match backend
-            
+            formData.append("img_area", file); // Changed from 'image' to 'img_area' to match backend
+
             const response = await uploadImage(deviceId, formData);
-            if (response.message === 'Device image updated') {
+            if (response.message === "Device image updated") {
               apiResponseHandler("Đã cập nhật ảnh thiết bị", "success");
               // Update the image URL in the state
-              setGardenData(prev => ({
+              setGardenData((prev) => ({
                 ...prev,
-                img_area: response.img_area
+                img_area: response.img_area,
               }));
             } else {
-              apiResponseHandler(response.message || "Không thể cập nhật ảnh", "error");
+              apiResponseHandler(
+                response.message || "Không thể cập nhật ảnh",
+                "error"
+              );
             }
           } catch (error) {
             console.error("Error uploading image:", error);
-            apiResponseHandler(error.response?.data?.message || "Không thể cập nhật ảnh", "error");
+            apiResponseHandler(
+              error.response?.data?.message || "Không thể cập nhật ảnh",
+              "error"
+            );
           }
         }
       };
-      
+
       // Trigger file selection
       input.click();
     } catch (error) {
@@ -453,9 +502,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
   const imageUrl =
     gardenData.img_area || require("../../../assets/images/ItemImg.png");
 
-  const isOwner = gardenData.members?.some(
-    (member) => member.role === "owner"
-  );
+  const isOwner = gardenData.members?.some((member) => member.role === "owner");
 
   // Display all sensors, even if missing
   const displayedSensors = allSensorTypes.map((type) => {
@@ -485,10 +532,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
           Hình ảnh
         </h2>
-        <GardenImage 
-          src={imageUrl} 
-          onImageClick={handleImageClick}
-        />
+        <GardenImage src={imageUrl} onImageClick={handleImageClick} />
       </div>
 
       {/* Sensor Section */}
@@ -587,8 +631,8 @@ export const DetailedGardenInfo = ({ deviceId }) => {
           Thành viên
         </h2>
         <div className="flex flex-col">
-          <MemberList 
-            members={gardenData.members} 
+          <MemberList
+            members={gardenData.members}
             onEdit={handleRemoveMember}
             isOwner={gardenData.members.some(
               (member) => member.role === "owner"
