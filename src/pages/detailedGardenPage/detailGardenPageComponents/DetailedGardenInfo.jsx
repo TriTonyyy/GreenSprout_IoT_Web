@@ -205,9 +205,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
       const device = res.data || {};
       // Get members and attach to device
       const result = await getMemberByIdDevice(deviceId);
-      console.log(result.data);
       device.members = result.data || [];
-      console.log(device);
       setGardenData(device);
 
       // Map sensors by type for easy access

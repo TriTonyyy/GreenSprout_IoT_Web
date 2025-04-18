@@ -39,7 +39,7 @@ export const updateControlById = async (params) => {
 };
 
 export const getMemberByIdDevice = async (id) => {
-  const response = await axiosClient.get(`/api/device/membersBy/${id}`);
+  const response = await axiosClient.get(`/api/device/membersDetail/${id}`);
   return response.data; // Return the data from the API response
 };
 
