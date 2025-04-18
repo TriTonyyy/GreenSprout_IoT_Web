@@ -11,10 +11,12 @@ import FooterComponent from "../../components/FooterComponent/FooterComponent";
 import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar";
 import { getUserInfoAPI } from "../../api/authApi";
 import {
+  apiResponseHandler,
+  areUSurePopup,
   removeDevicePopup,
   renameDevicePopup,
 } from "../../components/Alert/alertComponent";
-import { getGardenby, getGardenByDevice } from "../../api/deviceApi";
+import { getGardenby, getGardenByDevice, getMemberByIdDevice } from "../../api/deviceApi";
 
 function DetailedGarden() {
   const { gardenId } = useParams();
@@ -57,9 +59,11 @@ function DetailedGarden() {
         setUser(response.data);
         setError(null);
       } else {
+        setUser(null)
         throw new Error("Invalid response format");
       }
     } catch (error) {
+
       console.error("Error fetching user:", error);
       setError("Failed to load user data");
     }
@@ -72,7 +76,7 @@ function DetailedGarden() {
 
       const gardensPromises = deviceIds.map(async (deviceId) => {
         try {
-          const res = await getGardenByDevice(deviceId);
+          const res = await getGardenByDevice(deviceId);           
           return res?.data || null;
         } catch (err) {
           console.error(`Failed to fetch garden ${deviceId}:`, err);
@@ -153,6 +157,27 @@ function DetailedGarden() {
       }
     };
   }, [gardenId, fetchUser, fetchGardenData, fetchAllGardens, navigate]);
+  useEffect(()=>{
+    getMemberByIdDevice(gardenId)
+      .then((res)=>{
+        const allMems = res.members;
+        let isHas = false
+        allMems.map((item)=>{
+          if(item.userId === user._id){
+            isHas = true
+          }
+        }) 
+        if(isHas === false){
+          apiResponseHandler("Bạn không có quyền truy cập khu vườn này !", "error")
+          navigate('/home')
+        }
+      })
+      .catch((err)=>{
+        console.log(err);
+        
+      })
+    
+  },[user])
 
   const isOwner = data?.members?.some(
     (member) => member.userId === user?._id && member.role === "owner"
