@@ -11,8 +11,6 @@ function HeaderComponent({ gardens }) {
   const [avatar, setAvatar] = useState("");
   const navigate = useNavigate();
 
-  // console.log(gardens);
-
   useEffect(() => {
     getUserInfoAPI()
       .then((res) => {

@@ -30,7 +30,6 @@ export default function AccountPage() {
   const saveUpdateUserInfo = () => {
     updateProfileApi({ name, email })
       .then((res) => {
-        console.log(res, "res");
         setUserInfo(res.data);
         alert(res.message);
         window.location.reload();
@@ -50,7 +49,6 @@ export default function AccountPage() {
   };
 
   const changeLanguage = async (language) => {
-    console.log(language);
     areUSurePopup(i18n.t("change-lang-mess"))
       .then((res) => {
         i18n.changeLanguage(language).then((t) => {
@@ -63,14 +61,12 @@ export default function AccountPage() {
 
   const changePassword = async () => {
     await changePasswordPopUp().then((popupres) => {
-      console.log(popupres,"popupres");
       
       changePasswordAPI({
         currentPassword: popupres.oldPassword,
         newPassword: popupres.password,
       })
         .then((res) => {
-          console.log(res,'success');
           
           apiResponseHandler(res.message);
         })
