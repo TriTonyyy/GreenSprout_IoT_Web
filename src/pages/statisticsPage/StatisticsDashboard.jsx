@@ -6,14 +6,15 @@ import FooterComponent from "../../components/FooterComponent/FooterComponent";
 import SensorChart from "../../components/Charts/SensorChart";
 import { getGardenByDevice, getGardenby } from "../../api/deviceApi";
 
-import StatisticsHeader from "./StatisticsHeader";
-import StatisticsControls from "./StatisticsControls";
-import StatisticsSummary from "./StatisticsSummary";
-import StatisticsChart from "./StatisticsChart";
-import ErrorMessage from "./ErrorMessage";
+import StatisticsHeader from "./statisticPageComponents/StatisticsHeader";
+import StatisticsControls from "./statisticPageComponents/StatisticsControls";
+import StatisticsSummary from "./statisticPageComponents/StatisticsSummary";
+import StatisticsChart from "./statisticPageComponents/StatisticsChart";
+import ErrorMessage from "./statisticPageComponents/ErrorMessage";
 import { timeRanges, sensorTypes } from "./constants";
 import { getReport } from "../../api/reportApi";
-const Statistics = () => {
+
+const StatisticsDashboard = () => {
   const [timeRange, setTimeRange] = useState(timeRanges.WEEK);
   const [startDate, setStartDate] = useState(subDays(new Date(), 7));
   const [endDate, setEndDate] = useState(new Date());
@@ -300,4 +301,4 @@ const Statistics = () => {
   );
 };
 
-export default Statistics;
+export default StatisticsDashboard;

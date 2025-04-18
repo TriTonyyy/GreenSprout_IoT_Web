@@ -1,6 +1,6 @@
 import React from "react";
-import { sensorTypes } from "./constants";
-import SensorChart from "../../components/Charts/SensorChart";
+import { sensorTypes } from "../constants";
+import SensorChart from "../../../components/Charts/SensorChart";
 
 const StatisticsChart = ({ sensorData, selectedSensor }) => {
   if (!sensorData) return null;

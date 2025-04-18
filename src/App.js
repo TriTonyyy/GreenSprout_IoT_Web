@@ -5,9 +5,10 @@ import AuthPage from "./pages/auth/AuthPage";
 import DetailedGardenPage from "./pages/detailedGardenPage/DetailedGardenPage";
 import AuthEmail from "./pages/auth/AuthEmail";
 import AccountPage from "./pages/account/AccountPage";
-import Statistics from "./pages/Statistics";
+import StatisticsPage from "./pages/StatisticsPage/StatisticPage";
 import { getToken } from "./helper/tokenHelper";
 import { useEffect, useState } from "react";
+
 
 function ProtectedRoute() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading, true = authenticated, false = unauthenticated
@@ -72,7 +73,7 @@ function App() {
         <Route path="/garden/:gardenId" element={<DetailedGardenPage />} />
         {/* <Route path="/schedule" element={<SchedulePage />} /> */}
         <Route path="/account" element={<AccountPage />} />
-        <Route path="/statistics" element={<Statistics />} />
+        <Route path="/statistics" element={<StatisticsPage/>} />
       </Route>
     </Routes>
   );

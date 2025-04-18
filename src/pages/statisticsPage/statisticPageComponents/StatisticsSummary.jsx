@@ -1,5 +1,5 @@
 import React from "react";
-import { sensorTypes } from "./constants";
+import { sensorTypes } from "../constants";
 
 const StatisticsSummary = ({ stats, selectedSensor }) => {
   if (!stats) return null;
