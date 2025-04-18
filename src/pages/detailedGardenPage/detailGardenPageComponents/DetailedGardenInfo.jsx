@@ -415,7 +415,7 @@ export const DetailedGardenInfo = ({ deviceId }) => {
         if (file) {
           // Check file size (5MB limit)
           if (file.size > 5 * 1024 * 1024) {
-            apiResponseHandler("Ảnh vượt quá dung lượng tối đa 5MB", "error");
+            apiResponseHandler("Ảnh vượt quá dung lượng tối đa 2MB", "error");
             return;
           }
           try {
