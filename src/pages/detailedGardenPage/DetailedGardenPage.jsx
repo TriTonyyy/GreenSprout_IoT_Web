@@ -11,6 +11,7 @@ import FooterComponent from "../../components/FooterComponent/FooterComponent";
 import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar";
 import { getUserInfoAPI } from "../../api/authApi";
 import {
+  apiResponseHandler,
   areUSurePopup,
   removeDevicePopup,
   renameDevicePopup,

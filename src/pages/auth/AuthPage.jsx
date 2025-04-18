@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
-import { googleAuthAPI, loginApi } from "../../api/authApi";
+import { loginApi } from "../../api/authApi";
 import { deviceDetect } from "react-device-detect";
 import { UserCredential, tokenUser } from "../../redux/Reducers/AuthReducer";
 import { getUserCredential } from "../../redux/selectors/authSelectors";
