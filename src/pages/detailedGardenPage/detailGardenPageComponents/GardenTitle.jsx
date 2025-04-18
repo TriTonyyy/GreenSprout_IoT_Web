@@ -8,7 +8,6 @@ export const GardenTitle = ({
   isOwner,
   deviceId,
 }) => (
-  // console.log(isOwner),
 
   <div className="relative m-5 text-center p-8 bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-xl shadow-2xl">
     {/* Title */}

@@ -23,8 +23,6 @@ function HomePage() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  console.log(user, "user");
-
   const fetchUserDevices = async () => {
     try {
       await getUserInfoAPI()
