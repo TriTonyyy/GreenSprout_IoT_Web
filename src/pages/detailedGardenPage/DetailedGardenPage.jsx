@@ -173,7 +173,7 @@ function DetailedGarden() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="w-full min-h-screen flex flex-col">
       <HeaderComponent gardens={allGardens} />
       <div className="flex flex-grow">
         <SideNavigationBar />

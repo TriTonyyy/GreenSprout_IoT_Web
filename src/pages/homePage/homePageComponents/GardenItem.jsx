@@ -6,7 +6,7 @@ import { updateControlById } from "../../../api/deviceApi";
 import { apiResponseHandler } from "../../../components/Alert/alertComponent";
 import "react-loading-skeleton/dist/skeleton.css";
 
-function GardenItem({ id, name, sensors = [], controls = [] }) {
+function GardenItem({ id, name, sensors = [], controls = [], img_area }) {
   const navigate = useNavigate();
   const sensorTypes = ["temperature", "moisture"];
   const controlNames = ["water", "light", "wind"]; // Added "fan" control
@@ -64,7 +64,7 @@ function GardenItem({ id, name, sensors = [], controls = [] }) {
     <div className="w-[32%] h-1/4 rounded-2xl border-2 shadow-xl bg-white flex">
       <div className="p-3 w-1/2 bg-green-300 rounded-xl border-r-2">
         <img
-          src={require("../../../assets/images/ItemImg.png")}
+          src={img_area || require("../../../assets/images/ItemImg.png")}
           alt="Garden"
           className="w-full h-full object-cover cursor-pointer rounded-xl transition-transform hover:scale-105"
           onClick={() => handleImageGardenClick(id)}
