@@ -244,10 +244,9 @@ const Statistics = () => {
       <HeaderComponent />
       <div className="flex">
         <SideNavigationBar />
-        <main className="flex-1 p-6">
+        <main className="flex-1">
           <div className="max-w-7xl mx-auto">
             <StatisticsHeader />
-
             <StatisticsControls
               selectedGarden={selectedGarden}
               setSelectedGarden={setSelectedGarden}
@@ -264,7 +263,6 @@ const Statistics = () => {
               loadingGardens={loadingGardens}
               setUseMockData={setUseMockData}
             />
-
             <ErrorMessage
               error={error}
               useMockData={useMockData}

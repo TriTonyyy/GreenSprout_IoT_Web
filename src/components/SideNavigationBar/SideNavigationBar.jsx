@@ -46,7 +46,7 @@ const SideNavigationBar = () => {
   ];
 
   return (
-    <aside className="bg-gradient-to-b from-green-700 to-green-800 text-white w-72 min-h-screen flex flex-col shadow-xl">
+    <aside className="w-72 bg-gradient-to-b from-green-700 to-green-800 text-white min-h-screen flex flex-col shadow-xl">
       {/* Navigation Links */}
       <nav className="flex-grow px-4 pt-6">
         <div className="space-y-2">

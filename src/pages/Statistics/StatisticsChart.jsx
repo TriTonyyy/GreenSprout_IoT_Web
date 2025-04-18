@@ -6,7 +6,7 @@ const StatisticsChart = ({ sensorData, selectedSensor }) => {
   if (!sensorData) return null;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
+    <div className="bg-white rounded-xl shadow-sm ">
       <SensorChart
         data={sensorData}
         title={`${sensorTypes[selectedSensor].label} theo thời gian`}
