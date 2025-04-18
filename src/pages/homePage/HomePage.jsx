@@ -76,7 +76,7 @@ function HomePage() {
             {/* Sidebar */}
             <SideNavigationBar />
             {/* Main Content Area */}
-            <div className="flex-grow mb-10 min-h-screen">
+            <div className="w-full flex-grow min-h-screen">
               <div className="flex justify-between items-center px-10 py-10">
                 <h1 className="text-4xl font-bold">
                   <span className="text-green-500">
@@ -119,6 +119,7 @@ function HomePage() {
                       name={device.name_area}
                       sensors={device.sensors}
                       controls={device.controls}
+                      img_area={device.img_area}
                     />
                   ))
                 ) : (

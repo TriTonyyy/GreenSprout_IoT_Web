@@ -39,7 +39,7 @@ export const updateControlById = async (params) => {
 };
 
 export const getMemberByIdDevice = async (id) => {
-  const response = await axiosClient.get(`/api/device/membersDetail/${id}`);
+  const response = await axiosClient.get(`/api/device/membersBy/${id}`);
   return response.data; // Return the data from the API response
 };
 
@@ -56,5 +56,14 @@ export const renameDeviceByIdDevice = async (id_esp, params) => {
     `/api/device/updateName/${id_esp}`,
     params
   );
+  return response.data;
+};
+
+export const uploadImage = async (id, image) => {
+  const response = await axiosClient.put(`/api/device/upload-img/${id}`, image, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
