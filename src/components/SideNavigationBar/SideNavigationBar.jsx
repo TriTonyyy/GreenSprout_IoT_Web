@@ -18,21 +18,13 @@ const SideNavigationBar = () => {
             navigate("/login")
           })
           .catch((err)=>{
-            apiResponseHandler(err)
+            apiResponseHandler(err);
           })
       })
       .catch((err)=>{
-        apiResponseHandler(err)
+        // apiResponseHandler(err)
       })
-    await logOutAPI()
-      .then((res) => {
-        removeToken();
-        console.log(res, "res");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    navigate("/login");
+    
   };
 
   const navItems = [

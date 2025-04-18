@@ -28,7 +28,7 @@ export default function AccountPage() {
   const navigate = useNavigate();
 
   const saveUpdateUserInfo = () => {
-    updateProfileApi({ name, email, avatar })
+    updateProfileApi({ name, email })
       .then((res) => {
         console.log(res, "res");
         setUserInfo(res.data);
@@ -36,15 +36,17 @@ export default function AccountPage() {
         window.location.reload();
       })
       .catch((err) => {
-        apiResponseHandler(err.response.data.message);
+        apiResponseHandler(err);
       });
     updateAvatarAPI(fileUpload)
-      .then((res) => {
-        console.log(res, "res");
+      .then((res)=>{
+        apiResponseHandler(res.message)
       })
-      .catch((err) => {
+      .catch((err)=>{
         console.log(err);
-      });
+        apiResponseHandler(err.response.data.message, "error");
+
+      })
   };
 
   const changeLanguage = async (language) => {
@@ -60,32 +62,42 @@ export default function AccountPage() {
   };
 
   const changePassword = async () => {
-    await changePasswordPopUp().then((res) => {
+    await changePasswordPopUp().then((popupres) => {
+      console.log(popupres,"popupres");
+      
       changePasswordAPI({
-        currentPassword: res.oldPassword,
-        newPassword: res.password,
+        currentPassword: popupres.oldPassword,
+        newPassword: popupres.password,
       })
         .then((res) => {
+          console.log(res,'success');
+          
           apiResponseHandler(res.message);
         })
         .catch((err) => {
-          apiResponseHandler(err.message);
+          console.log(err);
+          apiResponseHandler(err?.response?.data?.message, 'error');
         });
     });
   };
 
   const handleImgUpload = async (e) => {
     const file = e.target.files[0];
-    console.log(file, "file");
-
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        apiResponseHandler("Ảnh vượt quá dung lượng tối đa 2MB", "error");
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const base64 = e.target.result;
         setAvatar(base64);
-        setFileUpload(base64.split(",")[1]);
       };
       reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append('avatar', file);
+      setFileUpload(formData);
     }
   };
 
@@ -93,6 +105,7 @@ export default function AccountPage() {
     getUserInfoAPI()
       .then((res) => {
         setUserInfo(res.data);
+        setAvatar(res.data.avatar)
       })
       .catch((err) => {
         console.log(err);
@@ -126,7 +139,7 @@ export default function AccountPage() {
               {avatar === "" ? (
                 <h2 className="text-2xl p-4">
                   Ảnh cá nhân <br />
-                  PNG, JPEG dưới 5MB <br />
+                  PNG, JPEG dưới 2MB <br />
                 </h2>
               ) : (
                 <></>

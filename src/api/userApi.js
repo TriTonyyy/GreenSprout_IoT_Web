@@ -25,6 +25,10 @@ export const updateProfileApi = async (payload) => {
 };
 
 export const updateAvatarAPI = async (payload) => {
-    const response = await axiosClient.put(`/api/user/avatar`, payload);
+    const response = await axiosClient.put(`/api/user/avatar`, payload, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+    });
     return response.data;  // Return the data from the API response
 };
