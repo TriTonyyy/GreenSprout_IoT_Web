@@ -21,7 +21,7 @@ function HeaderComponent({ gardens }) {
         console.log(err);
       });
   }, []);
-
+  
 
   return (
     <header className="w-full bg-white border-b border-gray-200">

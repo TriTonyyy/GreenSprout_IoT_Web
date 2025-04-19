@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import HeaderComponent from "../../components/Header/HeaderComponent.jsx";
 import FooterComponent from "../../components/FooterComponent/FooterComponent.jsx";
-import { useNavigate } from "react-router";
 import {
   GardenItem,
   GardenItemSkeleton,
@@ -21,7 +20,6 @@ import i18n from "../../i18n";
 function HomePage() {
   const [deviceData, setDeviceData] = useState(null);
   const [user, setUser] = useState(null);
-  const navigate = useNavigate();
 
   const fetchUserDevices = async () => {
     try {

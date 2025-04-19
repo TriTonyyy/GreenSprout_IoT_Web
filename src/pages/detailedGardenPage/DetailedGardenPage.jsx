@@ -12,8 +12,6 @@ import SideNavigationBar from "../../components/SideNavigationBar/SideNavigation
 import { getUserInfoAPI } from "../../api/authApi";
 import {
   apiResponseHandler,
-  areUSurePopup,
-  removeDevicePopup,
   renameDevicePopup,
   selectNewOwnerPopup,
 } from "../../components/Alert/alertComponent";
