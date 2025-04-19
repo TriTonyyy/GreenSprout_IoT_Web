@@ -18,7 +18,7 @@ import {
   updateControlById,
   removeMemberByIdDevice,
   uploadImage,
-  addMemberByIdDevice,
+  updateMemberRole,
 } from "../../../api/deviceApi";
 import {
   apiResponseHandler,
@@ -142,7 +142,7 @@ const ModeSelector = ({ currentMode, onChange }) => {
   );
 };
 
-export const DetailedGardenInfo = ({ deviceId,isOwner }) => {
+export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
   const [loading, setLoading] = useState(true);
   const [gardenData, setGardenData] = useState(null);
   const [sensorsMap, setSensorsMap] = useState({});
@@ -152,9 +152,7 @@ export const DetailedGardenInfo = ({ deviceId,isOwner }) => {
   // const [windOn, setWindOn] = useState(false);
   const [controlModes, setControlModes] = useState({});
   const [controlStatuses, setControlStatuses] = useState({});
-  const [error, setError] = useState(null);
   const [isPolling, setIsPolling] = useState(true);
-  
 
   // Define all possible sensor types
   const allSensorTypes = [
@@ -164,7 +162,6 @@ export const DetailedGardenInfo = ({ deviceId,isOwner }) => {
     "stream",
     "luminosity",
   ];
-
   // Define all possible control names
   const allControlNames = ["water", "light", "wind"];
 
@@ -258,11 +255,8 @@ export const DetailedGardenInfo = ({ deviceId,isOwner }) => {
         // setWindOn(windControl.status);
         setControlStatuses((prev) => ({ ...prev, wind: windControl.status }));
       }
-
-      setError(null);
     } catch (error) {
       console.error("Error fetching garden data:", error);
-      setError("Failed to load device data");
     } finally {
       setLoading(false);
     }
@@ -380,7 +374,6 @@ export const DetailedGardenInfo = ({ deviceId,isOwner }) => {
       apiResponseHandler("Không thể xác định thành viên cần xóa", "error");
       return;
     }
-
     try {
       const isCurrentUserOwner = gardenData.members.some(
         (m) => m.role === "owner" && m.userId === member.userId
@@ -392,13 +385,8 @@ export const DetailedGardenInfo = ({ deviceId,isOwner }) => {
         try {
           // First, select new owner
           const newOwner = await selectNewOwnerPopup(gardenData.members);
-
           // Update the new owner's role first
-          await addMemberByIdDevice(deviceId, {
-            userId: newOwner.userId,
-            role: "owner",
-          });
-
+          await updateMemberRole(deviceId, newOwner.userId);
           // Then proceed with removing the current owner
           await areUSurePopup(`Bạn có chắc chắn muốn rời khỏi khu vườn?`);
         } catch (error) {
@@ -411,10 +399,9 @@ export const DetailedGardenInfo = ({ deviceId,isOwner }) => {
         await areUSurePopup(
           `Bạn có chắc chắn muốn ${
             isCurrentUserOwner ? "rời khỏi" : "xóa thành viên khỏi"
-          } khu vườn?`
+          } khu vườn ?`
         );
       }
-
       const response = await removeMemberByIdDevice(deviceId, member.userId);
       if (response.success) {
         apiResponseHandler(
@@ -430,12 +417,14 @@ export const DetailedGardenInfo = ({ deviceId,isOwner }) => {
           response.message || "Không thể xóa thành viên",
           "error"
         );
+        fetchGardenData();
       }
     } catch (error) {
       if (error === "cancelled") {
         return;
       }
-      console.error("Error removing member:", error);
+      // console.error("Error removing member:", error);
+      fetchGardenData();
       apiResponseHandler("Không thể xóa thành viên", "error");
     }
   };
@@ -497,7 +486,6 @@ export const DetailedGardenInfo = ({ deviceId,isOwner }) => {
 
   const imageUrl =
     gardenData.img_area || require("../../../assets/images/ItemImg.png");
-
 
   // Display all sensors, even if missing
   const displayedSensors = allSensorTypes.map((type) => {

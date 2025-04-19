@@ -67,3 +67,8 @@ export const uploadImage = async (id, image) => {
   });
   return response.data;
 };
+
+export const updateMemberRole = async (id_esp, id_member) => {
+  const response = await axiosClient.put(`/api/device/updateMember/${id_esp}/${id_member}`);
+  return response.data;
+};

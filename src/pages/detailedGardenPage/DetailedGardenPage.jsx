@@ -12,12 +12,16 @@ import SideNavigationBar from "../../components/SideNavigationBar/SideNavigation
 import { getUserInfoAPI } from "../../api/authApi";
 import {
   apiResponseHandler,
-  areUSurePopup,
-  removeDevicePopup,
   renameDevicePopup,
   selectNewOwnerPopup,
 } from "../../components/Alert/alertComponent";
-import { getGardenby, getGardenByDevice, getMemberByIdDevice, removeMemberByIdDevice, addMemberByIdDevice } from "../../api/deviceApi";
+import {
+  getGardenby,
+  getGardenByDevice,
+  getMemberByIdDevice,
+  removeMemberByIdDevice,
+  updateMemberRole,
+} from "../../api/deviceApi";
 
 function DetailedGarden() {
   const { gardenId } = useParams();
@@ -65,11 +69,10 @@ function DetailedGarden() {
         setUser(response.data);
         setError(null);
       } else {
-        setUser(null)
+        setUser(null);
         throw new Error("Invalid response format");
       }
     } catch (error) {
-
       console.error("Error fetching user:", error);
       setError("Failed to load user data");
     }
@@ -82,7 +85,7 @@ function DetailedGarden() {
 
       const gardensPromises = deviceIds.map(async (deviceId) => {
         try {
-          const res = await getGardenByDevice(deviceId);           
+          const res = await getGardenByDevice(deviceId);
           return res?.data || null;
         } catch (err) {
           console.error(`Failed to fetch garden ${deviceId}:`, err);
@@ -113,32 +116,24 @@ function DetailedGarden() {
 
   const handleDelete = async () => {
     try {
-      const isOwner = data.members?.some(m => m.role === "owner");
+      const isOwner = data.members?.some(
+        (m) => m.userId === user._id && m.role === "owner"
+      );
       const totalMembers = data.members?.length || 0;
 
-      // If owner is leaving and there are other members
       if (isOwner && totalMembers > 1) {
         try {
-          // First, select new owner
           const newOwner = await selectNewOwnerPopup(data.members);
-          
-          // Update the new owner's role first
-          await addMemberByIdDevice(gardenId, {
-            userId: newOwner.userId,
-            role: "owner"
-          });
-
-          // Then remove the current owner
-          await removeMemberByIdDevice(gardenId, data.members.find(m => m.role === "owner").userId);
+          await removeMemberByIdDevice(gardenId, user._id);
+          await updateMemberRole(gardenId, newOwner.userId);
           apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
           navigate("/home");
         } catch (error) {
-          if (error === 'cancelled') return;
+          if (error === "cancelled") return;
           apiResponseHandler("Không thể thay đổi chủ vườn", "error");
         }
       } else {
-        // For non-owners or owner leaving empty garden
-        await removeMemberByIdDevice(gardenId, data.members.find(m => m.role === "owner").userId);
+        await removeMemberByIdDevice(gardenId, user._id);
         apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
         navigate("/home");
       }
@@ -156,7 +151,7 @@ function DetailedGarden() {
     }
 
     let pollInterval;
-    
+
     const loadData = async () => {
       setLoading(true);
       setError(null);
@@ -182,34 +177,35 @@ function DetailedGarden() {
       }
     };
   }, [gardenId, fetchUser, fetchGardenData, fetchAllGardens, navigate]);
-  
-  useEffect(()=>{
-    const interval = setInterval(()=>{
-      getMemberByIdDevice(gardenId)
-      .then((res)=>{
-        const allMems = res.members;
-        let isHas = false
-        allMems.map((item)=>{
-          if(item.userId === user._id){
-            isHas = true
-          }
-        }) 
-        if(isHas === false){
-          apiResponseHandler("Bạn không có quyền truy cập khu vườn này !", "error")
-          navigate('/home')
-        }
-      })
-      .catch((err)=>{
-        console.log(err);
-        
-      })
 
-    }, 5000)
-    return ()=>clearInterval(interval)
-  },[user])
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getMemberByIdDevice(gardenId)
+        .then((res) => {
+          const allMems = res.members;
+          let isHas = false;
+          allMems.map((item) => {
+            if (item.userId === user._id) {
+              isHas = true;
+            }
+          });
+          if (isHas === false) {
+            apiResponseHandler(
+              "Bạn không có quyền truy cập khu vườn này !",
+              "error"
+            );
+            navigate("/home");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const isOwner = data?.members?.some(
-    (member) => member.userId === user?._id && member.role === "owner"  
+    (member) => member.userId === user?._id && member.role === "owner"
   );
 
   if (error) {
