@@ -7,75 +7,106 @@ import {
   StatisticItem,
   StatisticItemSkeleton,
 } from "./statisticPageComponents/StatisticsItem";
+import { getReportByDevice } from "../../api/reportApi"; // Make sure this exists
+import i18n from "../../i18n";
 
 const StatisticsPage = () => {
-  const [userDevice, setUserDevice] = useState([]);
   const [allGardens, setAllGardens] = useState([]);
-  const [error, setError] = useState([]);
+  const [allReports, setAllReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchAllGardens = useCallback(async () => {
     try {
       const response = await getGardenby();
       const deviceIds = response?.data || [];
+      // Fetch gardens
       const gardensPromises = deviceIds.map(async (deviceId) => {
         try {
           const res = await getGardenByDevice(deviceId);
-          return res?.data || null;
+          return res?.data ? { ...res.data, deviceId } : null;
         } catch (err) {
           console.error(`Failed to fetch garden ${deviceId}:`, err);
           return null;
         }
       });
-      const gardens = await Promise.all(gardensPromises);
-      setAllGardens(gardens.filter((garden) => garden !== null));
-      setError(null);
-    } catch (error) {
-      console.error("Failed to fetch gardens:", error);
-      setError("Failed to load gardens list");
+      const gardens = (await Promise.all(gardensPromises)).filter(Boolean);
+      setAllGardens(gardens);
+      // Fetch reports
+      const reportPromises = deviceIds.map(async (deviceId) => {
+        try {
+          const res = await getReportByDevice(deviceId); // returns array of reports
+          const latestReport = res.reduce((latest, current) => {
+            return new Date(current.time_created) >
+              new Date(latest.time_created)
+              ? current
+              : latest;
+          }, res[0]);
+
+          return latestReport; // ✅ only return the latest report
+        } catch (err) {
+          console.error(`Failed to fetch report for device ${deviceId}`, err);
+          return null; // Return null if failed
+        }
+      });
+      const reports = await Promise.all(reportPromises);
+      console.log(reports);
+
+      setAllReports(reports); // Save them
+    } catch (err) {
+      console.error("Failed to fetch gardens or reports:", err);
+      setError("Failed to load gardens or reports");
       setAllGardens([]);
+      setAllReports([]);
     }
   }, []);
-
-  const fetchUserDevices = async () => {
-    try {
-      const deviceResponse = await getGardenby();
-      const deviceIds = deviceResponse.data || [];
-      if (deviceIds.length === 0) {
-        setUserDevice([]); // No devices found
-        return;
-      }
-    } catch (error) {
-      console.error(error);
-      setUserDevice([]);
-    }
-  };
 
   useEffect(() => {
-    fetchUserDevices();
-    fetchAllGardens();
-    console.log(allGardens);
-  }, []);
+    const fetchData = async () => {
+      setLoading(true);
+      await fetchAllGardens(); // already uses deviceIds internally
+      setLoading(false);
+    };
+    fetchData();
+  }, [fetchAllGardens]);
 
   return (
-    <div className="w-full min-h-screen flex flex-col">
+    <div>
       <HeaderComponent gardens={allGardens} />
-      <div className="flex flex-grow">
+      <div className="flex">
+        {/* Sidebar */}
         <SideNavigationBar />
-        <div className="flex-grow p-4">
-          <div className="flex flex-wrap gap-4">
-            {allGardens === null ? (
+        {/* Main Content Area */}
+        <div className="w-full flex-grow min-h-screen">
+          {/* Page Heading */}
+          <div className="flex justify-between items-center px-10 py-10">
+            <h1 className="text-4xl font-bold">
+              <span className="text-green-500">
+                Thống kê gần nhất của các khu vườn
+              </span>
+            </h1>
+          </div>
+          {/* Garden Statistic Cards */}
+          <div className="flex flex-wrap gap-4 justify-center">
+            {loading ? (
               <StatisticItemSkeleton />
             ) : allGardens.length === 0 ? (
               <p>No gardens found.</p>
             ) : (
-              allGardens.map((garden, index) => (
-                <StatisticItem
-                  key={garden.deviceId || index}
-                  id={garden.deviceId}
-                  name={garden.name_area}
-                  img_area={garden.img_area}
-                />
-              ))
+              allGardens.map((garden, index) => {
+                const reportData = allReports.find(
+                  (r) => r.deviceId === garden.deviceId
+                );
+                return (
+                  <StatisticItem
+                    key={garden.deviceId || index}
+                    id={garden.deviceId}
+                    name={garden.name_area}
+                    img_area={garden.img_area}
+                    report={reportData}
+                  />
+                );
+              })
             )}
           </div>
         </div>

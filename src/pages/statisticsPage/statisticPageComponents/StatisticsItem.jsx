@@ -3,11 +3,12 @@ import Skeleton from "react-loading-skeleton";
 import { useNavigate } from "react-router";
 import "react-loading-skeleton/dist/skeleton.css";
 
-function StatisticItem({ id, name, img_area }) {
+function StatisticItem({ id, name, img_area, report }) {
   const navigate = useNavigate();
+  console.log(report);
 
   const handleImageGardenClick = (deviceId) => {
-    navigate(`/garden/${deviceId}`);
+    navigate(`/statistics/${deviceId}`);
   };
 
   return (
@@ -32,12 +33,65 @@ function StatisticItem({ id, name, img_area }) {
           />
         </div>
         <hr className="my-1 border-t-1 border-gray-300" />
-        <div className="m-1 text-gray-700">
-          
-        </div>
-        <hr className="my-1 border-t-1 border-gray-300" />
-        <div className="text-gray-700">
-          
+
+        {/* 🌿 Moisture, Luminosity, Temperature, Water Usage, Humidity, Stream combined */}
+        <div className="my-1 text-gray-700 space-y-1">
+          {/* Moisture, Luminosity, Temperature */}
+          <div className="my-1 flex justify-between">
+            <span>💧 Độ ẩm trung bình:</span>
+            <span className="font-semibold">
+              {report?.moisture_avg?.length
+                ? (
+                    report.moisture_avg.reduce((a, b) => a + b, 0) /
+                    report.moisture_avg.length
+                  ).toFixed(2)
+                : "N/A"}{" "}
+              %
+            </span>
+          </div>
+          <div className="my-1 flex justify-between">
+            <span>🌡️ Nhiệt độ trung bình:</span>
+            <span className="font-semibold">
+              {report?.tempurature_avg?.length
+                ? (
+                    report.tempurature_avg.reduce((a, b) => a + b, 0) /
+                    report.tempurature_avg.length
+                  ).toFixed(2)
+                : "N/A"}{" "}
+              °C
+            </span>
+          </div>
+          <div className="my-1 flex justify-between">
+            <span>🔆 Ánh sáng trung bình:</span>
+            <span className="font-semibold">
+              {report?.luminosity_avg?.length
+                ? (
+                    report.luminosity_avg.reduce((a, b) => a + b, 0) /
+                    report.luminosity_avg.length
+                  ).toFixed(2)
+                : "N/A"}{" "}
+              lux
+            </span>
+          </div>
+
+          {/* Water Usage, Humidity, Stream */}
+          <div className="my-1 flex justify-between">
+            <span>🌊 Dòng chảy trung bình:</span>
+            <span className="font-semibold">
+              {report?.stream_avg?.length
+                ? (
+                    report.stream_avg.reduce((a, b) => a + b, 0) /
+                    report.stream_avg.length
+                  ).toFixed(2)
+                : "N/A"}
+            </span>
+          </div>
+          <div className="my-1 flex justify-between">
+            <span>🚿 Lượng nước sử dụng:</span>
+            <span className="font-semibold">
+              {report?.water_usage ?? "N/A"} L
+            </span>
+          </div>
         </div>
       </div>
     </div>
