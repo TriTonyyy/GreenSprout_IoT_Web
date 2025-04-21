@@ -16,7 +16,7 @@ import { useParams } from "react-router";
 
 const StatisticsDashboard = () => {
   const { deviceId } = useParams();
-  console.log(deviceId);
+  // console.log(deviceId);
 
   const [timeRange, setTimeRange] = useState(timeRanges.WEEK);
   const [startDate, setStartDate] = useState(subDays(new Date(), 7));

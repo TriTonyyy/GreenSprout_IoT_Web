@@ -95,7 +95,6 @@ function GardenItem({ id, name, sensors = [], controls = [], img_area }) {
                   <span className="mr-2">{sensorIcons[sensor.type]}</span>
                   {sensor.type === "temperature" ? "Nhiệt độ" : "Độ ẩm đất"}:
                 </h2>
-
                 <div className="w-1/5 flex justify-end items-center">
                   <h2 className="text-xl font-semibold text-green-600">
                     {sensor?.value}
@@ -129,7 +128,7 @@ function GardenItem({ id, name, sensors = [], controls = [], img_area }) {
                     {controlName === "water"
                       ? "🚿"
                       : controlName === "light"
-                      ? "🌞"
+                      ? "🔆"
                       : "🌬️"}
                   </span>
                   {controlName === "water"
