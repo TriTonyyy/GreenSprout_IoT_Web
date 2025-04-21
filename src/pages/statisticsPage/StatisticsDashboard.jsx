@@ -48,7 +48,8 @@ const StatisticsDashboard = () => {
         unit: sensorTypes[selectedSensor].unit,
       });
     }
-
+    console.log(mockReadings);
+    
     return mockReadings;
   };
 

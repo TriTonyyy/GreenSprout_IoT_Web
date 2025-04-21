@@ -12,6 +12,7 @@ import SideNavigationBar from "../../components/SideNavigationBar/SideNavigation
 import { getUserInfoAPI } from "../../api/authApi";
 import {
   apiResponseHandler,
+  areUSurePopup,
   renameDevicePopup,
   selectNewOwnerPopup,
 } from "../../components/Alert/alertComponent";
@@ -116,6 +117,8 @@ function DetailedGarden() {
 
   const handleDelete = async () => {
     try {
+      // Show confirmation popup first
+      await areUSurePopup("Bạn có chắc chắn muốn rời khỏi khu vườn này?");
       const isOwner = data.members?.some(
         (m) => m.userId === user._id && m.role === "owner"
       );
@@ -138,6 +141,7 @@ function DetailedGarden() {
         navigate("/home");
       }
     } catch (error) {
+      if (error === "cancelled") return; // user cancelled confirmation
       console.error("Error leaving garden:", error);
       apiResponseHandler("Không thể rời khỏi khu vườn", "error");
     }
