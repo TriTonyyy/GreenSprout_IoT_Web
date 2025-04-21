@@ -34,7 +34,6 @@ function StatisticItem({ id, name, img_area, report }) {
         </div>
         <hr className="my-1 border-t-1 border-gray-300" />
 
-        {/* 🌿 Moisture, Luminosity, Temperature, Water Usage, Humidity, Stream combined */}
         <div className="my-1 text-gray-700 space-y-1">
           {/* Moisture, Luminosity, Temperature */}
           <div className="my-1 flex justify-between">
@@ -73,7 +72,6 @@ function StatisticItem({ id, name, img_area, report }) {
               lux
             </span>
           </div>
-
           {/* Water Usage, Humidity, Stream */}
           <div className="my-1 flex justify-between">
             <span>🌊 Dòng chảy trung bình:</span>
@@ -89,7 +87,7 @@ function StatisticItem({ id, name, img_area, report }) {
           <div className="my-1 flex justify-between">
             <span>🚿 Lượng nước sử dụng:</span>
             <span className="font-semibold">
-              {report?.water_usage ?? "N/A"} L
+            {report?.water_usage != null ? `${report.water_usage.toFixed(2)} L` : "N/A"}
             </span>
           </div>
         </div>

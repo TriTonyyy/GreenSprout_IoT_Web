@@ -50,6 +50,9 @@ export const apiResponseHandler = (message, type) => {
   Swal.fire({
     icon: type || "success",
     text: message || "Something went wrong!",
+    timer: 2000, // auto close after 2 seconds
+    showConfirmButton: false, // hide the OK button
+    timerProgressBar: true, // optional: shows a progress bar
   });
 };
 
@@ -140,6 +143,7 @@ export const areUSurePopup = (message) => {
     });
   });
 };
+
 export const changePasswordPopUp = (message) => {
   return new Promise((resolve, reject) => {
     Swal.fire({
