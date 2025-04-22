@@ -1,16 +1,16 @@
-import React from 'react';
-import { sensorLabels, colors } from '../constants';
+import React from "react";
+import { sensorLabels, colors } from "../constants";
 
 const StatisticsItem = ({ label, value, type }) => {
-  const unit = label.match(/\((.*?)\)/)?.[1] || '';
+  const unit = label.match(/\((.*?)\)/)?.[1] || "";
   return (
-    <div 
-      className="px-4 py-5 shadow rounded-lg overflow-hidden sm:p-6"
-      style={{ backgroundColor: colors[type]?.cardBg || 'white' }}
+    <div
+      className="px-4 py-5 shadow rounded-lg overflow-hidden sm:p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+      style={{ backgroundColor: colors[type]?.cardBg || "white" }}
     >
       <dt className="text-sm font-medium text-gray-600 truncate">{label}</dt>
       <dd className="mt-1 text-3xl font-semibold text-gray-900">
-        {value !== null ? `${value.toFixed(1)} ${unit}` : 'N/A'}
+        {value !== null ? `${value.toFixed(1)} ${unit}` : "N/A"}
       </dd>
     </div>
   );
@@ -21,9 +21,9 @@ const StatisticsSummary = ({ reportData }) => {
 
   const calculateTotalAverage = (array) => {
     console.log(array);
-    
+
     if (!Array.isArray(array) || array.length === 0) return null;
-    const validValues = array.filter(val => val !== null && !isNaN(val));
+    const validValues = array.filter((val) => val !== null && !isNaN(val));
     if (validValues.length === 0) return null;
     const sum = validValues.reduce((acc, val) => acc + val, 0);
     return sum / validValues.length;
@@ -33,33 +33,33 @@ const StatisticsSummary = ({ reportData }) => {
     {
       label: sensorLabels.water_usage,
       value: reportData.water_usage || null,
-      type: 'water_usage'
+      type: "water_usage",
     },
     {
       label: sensorLabels.tempurature_avg,
       value: calculateTotalAverage(reportData.tempurature_avg),
-      type: 'tempurature_avg'
+      type: "tempurature_avg",
     },
     {
       label: sensorLabels.humidity_avg,
       value: calculateTotalAverage(reportData.humidity_avg),
-      type: 'humidity_avg'
+      type: "humidity_avg",
     },
     {
       label: sensorLabels.soil_moisture_avg,
       value: calculateTotalAverage(reportData.moisture_avg),
-      type: 'soil_moisture_avg'
+      type: "soil_moisture_avg",
     },
     {
       label: sensorLabels.luminosity_avg,
       value: calculateTotalAverage(reportData.luminosity_avg),
-      type: 'luminosity_avg'
+      type: "luminosity_avg",
     },
     {
       label: sensorLabels.stream_avg,
       value: calculateTotalAverage(reportData.stream_avg),
-      type: 'stream_avg'
-    }
+      type: "stream_avg",
+    },
   ];
 
   return (

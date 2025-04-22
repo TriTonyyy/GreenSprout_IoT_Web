@@ -130,7 +130,7 @@ const SensorChart = React.memo(({ data, title }) => {
     maintainAspectRatio: false,
   };
   return (
-    <div className="px-5">
+    <div className="px-6">
       <div style={{ height: '500px' }}>
         <Line id="sensor-chart" options={options} data={data} />
       </div>
