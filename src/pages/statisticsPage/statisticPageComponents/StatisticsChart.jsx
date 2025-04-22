@@ -7,7 +7,7 @@ const StatisticsChart = ({ sensorData, reportData }) => {
   const chartDataObj = typeof sensorData === 'function' ? sensorData(reportData) : sensorData;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm">
+    <div className="bg-white rounded-xl shadow-md bg-red py-4 my-8">
       <SensorChart
         data={chartDataObj}
         title="Dữ liệu cảm các biến theo thời gian"
