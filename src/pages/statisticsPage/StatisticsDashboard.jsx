@@ -1,62 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { format, subDays, subWeeks, subMonths } from "date-fns";
+import { endOfDay, startOfDay } from "date-fns";
 import HeaderComponent from "../../components/Header/HeaderComponent";
 import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar";
 import FooterComponent from "../../components/FooterComponent/FooterComponent";
-import SensorChart from "../../components/Charts/SensorChart";
 import { getGardenByDevice, getGardenby } from "../../api/deviceApi";
-
+import { sensorLabels, colors } from "./constants";
 import StatisticsHeader from "./statisticPageComponents/StatisticsHeader";
-import StatisticsControls from "./statisticPageComponents/StatisticsControls";
 import StatisticsSummary from "./statisticPageComponents/StatisticsSummary";
 import StatisticsChart from "./statisticPageComponents/StatisticsChart";
 import ErrorMessage from "./statisticPageComponents/ErrorMessage";
-import { timeRanges, sensorTypes } from "./constants";
 import { useParams } from "react-router";
+import { getReportByDevice } from "../../api/reportApi";
 
 const StatisticsDashboard = () => {
   const { deviceId } = useParams();
-  // console.log(deviceId);
-
-  const [timeRange, setTimeRange] = useState(timeRanges.WEEK);
-  const [startDate, setStartDate] = useState(subDays(new Date(), 7));
-  const [endDate, setEndDate] = useState(new Date());
-  const [selectedSensor, setSelectedSensor] = useState("TEMPERATURE");
-  const [selectedGarden, setSelectedGarden] = useState(null);
+  const [selectedGarden, setSelectedGarden] = useState(deviceId || null);
   const [gardens, setGardens] = useState([]);
-  const [gardenDevices, setGardenDevices] = useState({});
   const [sensorData, setSensorData] = useState(null);
-  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [useMockData, setUseMockData] = useState(false);
   const [loadingGardens, setLoadingGardens] = useState(true);
-  
-
-  // Generate mock data for testing
-  const generateMockData = () => {
-    const now = new Date();
-    const mockReadings = [];
-
-    for (let i = 0; i < 20; i++) {
-      const timestamp = new Date(now);
-      timestamp.setHours(now.getHours() - i * 8);
-      mockReadings.push({
-        timestamp: timestamp.toISOString(),
-        type: selectedSensor.toLowerCase(),
-        value: Math.random() * 100,
-        unit: sensorTypes[selectedSensor].unit,
-      });
-    }
-    console.log(mockReadings);
-    
-    return mockReadings;
-  };
-
-  const fetchReport = async () => {
-    // const response = await getReport(selectedGarden);
-    // return response.data;
-  };
+  const [reportData, setReportData] = useState(null);
 
   // Fetch available gardens
   useEffect(() => {
@@ -69,10 +33,7 @@ const StatisticsDashboard = () => {
         const gardensPromises = deviceIds.map(async (deviceId) => {
           try {
             const res = await getGardenByDevice(deviceId);
-            return {
-              ...res?.data,
-              id: deviceId,
-            };
+            return { ...res?.data, id: deviceId };
           } catch (err) {
             console.error(`Failed to fetch garden ${deviceId}:`, err);
             return null;
@@ -83,171 +44,137 @@ const StatisticsDashboard = () => {
         const validGardens = gardens.filter((garden) => garden !== null);
 
         setGardens(validGardens);
-        if (validGardens.length > 0) {
-          const firstGarden = validGardens[0];
-          const firstGardenId = firstGarden.id_esp;
-          setSelectedGarden(firstGardenId);
+    
+        if (!selectedGarden && validGardens.length > 0) {
+          setSelectedGarden(validGardens[0].id_esp);
         }
       } catch (err) {
-        console.error("Error fetching gardens:", err);
         setError(`Failed to fetch gardens: ${err.message}`);
       } finally {
         setLoadingGardens(false);
       }
     };
     fetchGardens();
-    fetchReport();
   }, []);
 
-  // Fetch garden device data when garden selection changes
-  useEffect(() => {
-    const fetchGardenDevice = async () => {
-      if (!selectedGarden) return;
-
-      setLoading(true);
-      try {
-        const response = await getGardenByDevice(selectedGarden);
-        if (!response.data) {
-          throw new Error("No data received from the server");
-        }
-
-        setGardenDevices((prev) => ({
-          ...prev,
-          [selectedGarden]: response.data,
-        }));
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching garden device data:", err);
-        setError(
-          `Failed to fetch garden device data: Request failed with status code 404`
-        );
-        setGardenDevices((prev) => {
-          const newDevices = { ...prev };
-          delete newDevices[selectedGarden];
-          return newDevices;
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (selectedGarden && !gardenDevices[selectedGarden]) {
-      fetchGardenDevice();
+  const fetchReport = async () => {
+    if (!selectedGarden) return;
+    
+    setLoading(true);
+    try {
+      const now = new Date();
+      const response = await getReportByDevice(
+        selectedGarden, 
+        startOfDay(now), 
+        endOfDay(now)
+      );
+      
+      if (!response) throw new Error("No data received from API");
+      
+      const reports = Array.isArray(response) ? response : 
+                     Array.isArray(response?.data) ? response.data : [];
+                     
+      const sortedReports = reports.sort((a, b) => 
+        new Date(b.time_created) - new Date(a.time_created)
+      );
+      
+      setReportData(sortedReports[0]);
+      setError(null);
+    } catch (err) {
+      setError(`Failed to fetch sensor data: ${err.message}`);
+      setReportData(null);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchReport();
+    const interval = setInterval(fetchReport, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [selectedGarden]);
 
-  // Process sensor data
   useEffect(() => {
-    const processSensorData = () => {
-      if (!selectedGarden && !useMockData) return;
+    if (!reportData) return;
 
-      setLoading(true);
-      try {
-        let sensorDataArray;
+    const timeLabels = Array.from({ length: 12 }, (_, i) => 
+      `${(i * 2).toString().padStart(2, '0')}:00`
+    );
 
-        if (useMockData) {
-          sensorDataArray = generateMockData();
-        } else {
-          const deviceData = gardenDevices[selectedGarden];
-          if (!deviceData?.sensorData) {
-            sensorDataArray = generateMockData();
-            setUseMockData(true);
-          } else {
-            sensorDataArray = deviceData.sensorData;
+    const normalizeDataArray = (dataArray, sensorType) => {
+      if (!Array.isArray(dataArray)) return Array(12).fill(null);
+      const normalized = Array(12).fill(null);
+      dataArray.forEach((value, index) => {
+        if (index < 12 && value !== null) {
+          switch (sensorType) {
+            case 'luminosity_avg':
+              normalized[index] = Math.min(100, (value / 10)); // Scale down luminosity by factor of 10
+              break;
+            case 'tempurature_avg':
+              normalized[index] = Math.min(100, (value * 2)); // Scale temperature for better visualization
+              break;
+            case 'stream_avg':
+              normalized[index] = Math.min(100, (value * 20)); // Scale stream data
+              break;
+            default:
+              normalized[index] = Math.min(100, value); // Other sensors are already in percentage
           }
         }
-
-        const typeToSearch = selectedSensor.toLowerCase();
-        const filteredData = sensorDataArray.filter((reading) => {
-          if (!reading.timestamp || reading.value === undefined) return false;
-
-          if (useMockData) {
-            const readingDate = new Date(reading.timestamp);
-            return readingDate >= startDate && readingDate <= endDate;
-          }
-
-          const readingType =
-            reading.type || reading.sensorType || reading.name || "";
-          const readingDate = new Date(reading.timestamp);
-          return (
-            readingType.toLowerCase() === typeToSearch &&
-            readingDate >= startDate &&
-            readingDate <= endDate
-          );
-        });
-
-        if (filteredData.length === 0) {
-          setError(
-            "Không có dữ liệu cảm biến cho khoảng thời gian và loại cảm biến đã chọn"
-          );
-          setSensorData(null);
-          setStats(null);
-          return;
-        }
-
-        const values = filteredData.map((d) => d.value);
-        setStats({
-          min: Math.min(...values).toFixed(2),
-          max: Math.max(...values).toFixed(2),
-          avg: (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2),
-          current: values[values.length - 1].toFixed(2),
-        });
-
-        setSensorData({
-          labels: filteredData.map((d) =>
-            format(new Date(d.timestamp), "MM/dd HH:mm")
-          ),
-          datasets: [
-            {
-              label: `${sensorTypes[selectedSensor].label} (${sensorTypes[selectedSensor].unit})`,
-              data: filteredData.map((d) => d.value),
-              borderColor: sensorTypes[selectedSensor].color,
-              backgroundColor: sensorTypes[selectedSensor].backgroundColor,
-              borderWidth: 2,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-              tension: 0.3,
-              fill: true,
-            },
-          ],
-        });
-        setError(null);
-      } catch (err) {
-        console.error("Error processing sensor data:", err);
-        setError(`Failed to process sensor data: ${err.message}`);
-      } finally {
-        setLoading(false);
-      }
+      });
+      return normalized;
     };
 
-    processSensorData();
-  }, [
-    selectedGarden,
-    selectedSensor,
-    startDate,
-    endDate,
-    gardenDevices,
-    useMockData,
-  ]);
-
-  const handleTimeRangeChange = (range) => {
-    setTimeRange(range);
-    const now = new Date();
-    switch (range) {
-      case timeRanges.WEEK:
-        setStartDate(subWeeks(now, 1));
-        break;
-      case timeRanges.TWO_WEEKS:
-        setStartDate(subWeeks(now, 2));
-        break;
-      case timeRanges.MONTH:
-        setStartDate(subMonths(now, 1));
-        break;
-      default:
-        break;
-    }
-    setEndDate(now);
-  };
+    setSensorData({
+      labels: timeLabels,
+      datasets: [
+        {
+          label: sensorLabels['humidity_avg'],
+          data: normalizeDataArray(reportData.humidity_avg, 'humidity_avg'),
+          borderColor: colors['humidity_avg'].border,
+          backgroundColor: colors['humidity_avg'].background,
+          fill: true,
+          spanGaps: true,
+          borderWidth: 2
+        },
+        {
+          label: sensorLabels['tempurature_avg'],
+          data: normalizeDataArray(reportData.tempurature_avg, 'tempurature_avg'),
+          borderColor: colors['tempurature_avg'].border,
+          backgroundColor: colors['tempurature_avg'].background,
+          fill: true,
+          spanGaps: true,
+          borderWidth: 2
+        },
+        {
+          label: sensorLabels['luminosity_avg'],
+          data: normalizeDataArray(reportData.luminosity_avg, 'luminosity_avg'),
+          borderColor: colors['luminosity_avg'].border,
+          backgroundColor: colors['luminosity_avg'].background,
+          fill: true,
+          spanGaps: true,
+          borderWidth: 2
+        },
+        {
+          label: sensorLabels['soil_moisture_avg'],
+          data: normalizeDataArray(reportData.moisture_avg, 'soil_moisture_avg'),
+          borderColor: colors['soil_moisture_avg'].border,
+          backgroundColor: colors['soil_moisture_avg'].background,
+          fill: true,
+          spanGaps: true,
+          borderWidth: 2
+        },
+        {
+          label: sensorLabels['stream_avg'],
+          data: normalizeDataArray(reportData.stream_avg, 'stream_avg'),
+          borderColor: colors['stream_avg'].border,
+          backgroundColor: colors['stream_avg'].background,
+          fill: true,
+          spanGaps: true,
+          borderWidth: 2
+        }
+      ]
+    });
+  }, [reportData]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -257,29 +184,8 @@ const StatisticsDashboard = () => {
         <main className="flex-1">
           <div className="max-w-7xl mx-auto">
             <StatisticsHeader />
-            <StatisticsControls
-              selectedGarden={selectedGarden}
-              setSelectedGarden={setSelectedGarden}
-              selectedSensor={selectedSensor}
-              setSelectedSensor={setSelectedSensor}
-              timeRange={timeRange}
-              handleTimeRangeChange={handleTimeRangeChange}
-              startDate={startDate}
-              setStartDate={setStartDate}
-              endDate={endDate}
-              setEndDate={setEndDate}
-              gardens={gardens}
-              loading={loading}
-              loadingGardens={loadingGardens}
-              setUseMockData={setUseMockData}
-            />
-            <ErrorMessage
-              error={error}
-              useMockData={useMockData}
-              selectedGarden={selectedGarden}
-              gardenDevices={gardenDevices}
-            />
-
+            {!loading && reportData && <StatisticsSummary reportData={reportData} />}
+            <ErrorMessage error={error} selectedGarden={selectedGarden} />
             {loading ? (
               <div className="bg-white rounded-xl shadow-sm p-8">
                 <div className="flex flex-col items-center justify-center space-y-4">
@@ -288,16 +194,7 @@ const StatisticsDashboard = () => {
                 </div>
               </div>
             ) : (
-              <>
-                <StatisticsSummary
-                  stats={stats}
-                  selectedSensor={selectedSensor}
-                />
-                <StatisticsChart
-                  sensorData={sensorData}
-                  selectedSensor={selectedSensor}
-                />
-              </>
+              <StatisticsChart sensorData={sensorData} reportData={reportData} />
             )}
           </div>
         </main>
