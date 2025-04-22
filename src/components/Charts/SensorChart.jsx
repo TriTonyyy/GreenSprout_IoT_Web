@@ -69,29 +69,51 @@ const SensorChart = React.memo(({ data, title }) => {
     },
     scales: {
       x: {
-        grid: { display: false },
+        grid: {
+          display: false,
+          drawBorder: false
+        },
         ticks: {
           maxRotation: 45,
           minRotation: 45,
           autoSkip: false,
+          color: '#6B7280',
+          font: {
+            size: 11
+          }
         },
+        border: {
+          display: false
+        }
       },
       y: {
         type: "linear",
         display: true,
         position: "left",
         grid: {
-          color: "rgba(0, 0, 0, 0.1)",
+          display: true,
+          color: "rgba(107, 114, 128, 0.1)",
+          drawBorder: false,
+          lineWidth: 1,
+          drawTicks: true
         },
-        beginAtZero: true,
-        min: 0,
-        max: 100,
+        border: {
+          display: false
+        },
         ticks: {
-          stepSize: 10,
-          callback: function (value) {
-            return value;
+          color: '#6B7280',
+          padding: 10,
+          stepSize: 20,
+          display: true,
+          font: {
+            size: 11
           },
+          callback: function(value) {
+            return value.toFixed(0);
+          }
         },
+        min: 0,
+        suggestedMax: 100
       },
     },
     interaction: {
@@ -108,8 +130,8 @@ const SensorChart = React.memo(({ data, title }) => {
     maintainAspectRatio: false,
   };
   return (
-    <div className="p-6">
-      <div style={{ height: "500px" }}>
+    <div className="px-5">
+      <div style={{ height: '500px' }}>
         <Line id="sensor-chart" options={options} data={data} />
       </div>
     </div>

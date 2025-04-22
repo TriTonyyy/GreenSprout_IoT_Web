@@ -8,12 +8,14 @@ import { sensorLabels, colors } from "./constants";
 import StatisticsHeader from "./statisticPageComponents/StatisticsHeader";
 import StatisticsSummary from "./statisticPageComponents/StatisticsSummary";
 import StatisticsChart from "./statisticPageComponents/StatisticsChart";
+import StatisticsControls from "./statisticPageComponents/StatisticsControls";
 import ErrorMessage from "./statisticPageComponents/ErrorMessage";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { getReportByDevice } from "../../api/reportApi";
 
 const StatisticsDashboard = () => {
   const { deviceId } = useParams();
+  const navigate = useNavigate();
   const [selectedGarden, setSelectedGarden] = useState(deviceId || null);
   const [gardens, setGardens] = useState([]);
   const [sensorData, setSensorData] = useState(null);
@@ -44,9 +46,9 @@ const StatisticsDashboard = () => {
         const validGardens = gardens.filter((garden) => garden !== null);
 
         setGardens(validGardens);
-    
+
         if (!selectedGarden && validGardens.length > 0) {
-          setSelectedGarden(validGardens[0].id_esp);
+          handleGardenChange(validGardens[0].id_esp);
         }
       } catch (err) {
         setError(`Failed to fetch gardens: ${err.message}`);
@@ -55,29 +57,32 @@ const StatisticsDashboard = () => {
       }
     };
     fetchGardens();
-  }, []);
+  }, [selectedGarden]);
 
   const fetchReport = async () => {
     if (!selectedGarden) return;
-    
+
     setLoading(true);
     try {
       const now = new Date();
       const response = await getReportByDevice(
-        selectedGarden, 
-        startOfDay(now), 
+        selectedGarden,
+        startOfDay(now),
         endOfDay(now)
       );
-      
+
       if (!response) throw new Error("No data received from API");
-      
-      const reports = Array.isArray(response) ? response : 
-                     Array.isArray(response?.data) ? response.data : [];
-                     
-      const sortedReports = reports.sort((a, b) => 
-        new Date(b.time_created) - new Date(a.time_created)
+
+      const reports = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.data)
+        ? response.data
+        : [];
+
+      const sortedReports = reports.sort(
+        (a, b) => new Date(b.time_created) - new Date(a.time_created)
       );
-      
+
       setReportData(sortedReports[0]);
       setError(null);
     } catch (err) {
@@ -86,6 +91,15 @@ const StatisticsDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = () => {
+    fetchReport();
+  };
+
+  const handleGardenChange = (gardenId) => {
+    setSelectedGarden(gardenId);
+    navigate(`/statistics/${gardenId}`);
   };
 
   useEffect(() => {
@@ -97,94 +111,83 @@ const StatisticsDashboard = () => {
   useEffect(() => {
     if (!reportData) return;
 
-    const timeLabels = Array.from({ length: 12 }, (_, i) => 
-      `${(i * 2).toString().padStart(2, '0')}:00`
+    const timeLabels = Array.from(
+      { length: 12 },
+      (_, i) => `${(i * 2).toString().padStart(2, "0")}:00`
     );
-
-    const normalizeDataArray = (dataArray, sensorType) => {
-      if (!Array.isArray(dataArray)) return Array(12).fill(null);
-      const normalized = Array(12).fill(null);
-      dataArray.forEach((value, index) => {
-        if (index < 12 && value !== null) {
-          switch (sensorType) {
-            case 'luminosity_avg':
-              normalized[index] = Math.min(100, (value / 10)); // Scale down luminosity by factor of 10
-              break;
-            case 'tempurature_avg':
-              normalized[index] = Math.min(100, (value * 2)); // Scale temperature for better visualization
-              break;
-            case 'stream_avg':
-              normalized[index] = Math.min(100, (value * 20)); // Scale stream data
-              break;
-            default:
-              normalized[index] = Math.min(100, value); // Other sensors are already in percentage
-          }
-        }
-      });
-      return normalized;
-    };
 
     setSensorData({
       labels: timeLabels,
       datasets: [
         {
-          label: sensorLabels['humidity_avg'],
-          data: normalizeDataArray(reportData.humidity_avg, 'humidity_avg'),
-          borderColor: colors['humidity_avg'].border,
-          backgroundColor: colors['humidity_avg'].background,
+          label: sensorLabels["humidity_avg"],
+          data: reportData.humidity_avg,
+          borderColor: colors["humidity_avg"].border,
+          backgroundColor: colors["humidity_avg"].background,
           fill: true,
           spanGaps: true,
-          borderWidth: 2
+          borderWidth: 2,
         },
         {
-          label: sensorLabels['tempurature_avg'],
-          data: normalizeDataArray(reportData.tempurature_avg, 'tempurature_avg'),
-          borderColor: colors['tempurature_avg'].border,
-          backgroundColor: colors['tempurature_avg'].background,
+          label: sensorLabels["tempurature_avg"],
+          data: reportData.tempurature_avg,
+          borderColor: colors["tempurature_avg"].border,
+          backgroundColor: colors["tempurature_avg"].background,
           fill: true,
           spanGaps: true,
-          borderWidth: 2
+          borderWidth: 2,
         },
         {
-          label: sensorLabels['luminosity_avg'],
-          data: normalizeDataArray(reportData.luminosity_avg, 'luminosity_avg'),
-          borderColor: colors['luminosity_avg'].border,
-          backgroundColor: colors['luminosity_avg'].background,
+          label: sensorLabels["luminosity_avg"],
+          data: reportData.luminosity_avg,
+          borderColor: colors["luminosity_avg"].border,
+          backgroundColor: colors["luminosity_avg"].background,
           fill: true,
           spanGaps: true,
-          borderWidth: 2
+          borderWidth: 2,
         },
         {
-          label: sensorLabels['soil_moisture_avg'],
-          data: normalizeDataArray(reportData.moisture_avg, 'soil_moisture_avg'),
-          borderColor: colors['soil_moisture_avg'].border,
-          backgroundColor: colors['soil_moisture_avg'].background,
+          label: sensorLabels["soil_moisture_avg"],
+          data: reportData.moisture_avg,
+          borderColor: colors["soil_moisture_avg"].border,
+          backgroundColor: colors["soil_moisture_avg"].background,
           fill: true,
           spanGaps: true,
-          borderWidth: 2
+          borderWidth: 2,
         },
         {
-          label: sensorLabels['stream_avg'],
-          data: normalizeDataArray(reportData.stream_avg, 'stream_avg'),
-          borderColor: colors['stream_avg'].border,
-          backgroundColor: colors['stream_avg'].background,
+          label: sensorLabels["stream_avg"],
+          data: reportData.stream_avg,
+          borderColor: colors["stream_avg"].border,
+          backgroundColor: colors["stream_avg"].background,
           fill: true,
           spanGaps: true,
-          borderWidth: 2
-        }
-      ]
+          borderWidth: 2,
+        },
+      ],
     });
   }, [reportData]);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <HeaderComponent />
+      <HeaderComponent gardens={gardens} />
       <div className="flex">
         <SideNavigationBar />
         <main className="flex-1">
           <div className="max-w-7xl mx-auto">
             <StatisticsHeader />
-            {!loading && reportData && <StatisticsSummary reportData={reportData} />}
+            <div className="px-4 sm:px-6">
+              <StatisticsControls
+                onRefresh={handleRefresh}
+                gardens={gardens}
+                selectedGarden={selectedGarden}
+                onGardenChange={handleGardenChange}
+                loadingGardens={loadingGardens}
+              />
+            </div>
+            {!loading && reportData && (
+              <StatisticsSummary reportData={reportData} />
+            )}
             <ErrorMessage error={error} selectedGarden={selectedGarden} />
             {loading ? (
               <div className="bg-white rounded-xl shadow-sm p-8">
@@ -194,7 +197,10 @@ const StatisticsDashboard = () => {
                 </div>
               </div>
             ) : (
-              <StatisticsChart sensorData={sensorData} reportData={reportData} />
+              <StatisticsChart
+                sensorData={sensorData}
+                reportData={reportData}
+              />
             )}
           </div>
         </main>

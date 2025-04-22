@@ -14,7 +14,7 @@ export const sensorLabels = {
   tempurature_avg: 'Nhiệt độ (°C)',
   luminosity_avg: 'Ánh sáng (lux)',
   soil_moisture_avg: 'Độ ẩm đất (%)',
-  stream_avg: 'Lưu lượng (L/s)',
+  stream_avg: 'Lưu lượng (L/min)',
   water_usage: 'Lượng nước đã dùng (L)'
 };
 

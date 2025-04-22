@@ -19,11 +19,14 @@ const StatisticsItem = ({ label, value, type }) => {
 const StatisticsSummary = ({ reportData }) => {
   if (!reportData) return null;
 
-  const calculateAverage = (array) => {
+  const calculateTotalAverage = (array) => {
+    console.log(array);
+    
     if (!Array.isArray(array) || array.length === 0) return null;
     const validValues = array.filter(val => val !== null && !isNaN(val));
     if (validValues.length === 0) return null;
-    return validValues.reduce((sum, val) => sum + val, 0) / validValues.length;
+    const sum = validValues.reduce((acc, val) => acc + val, 0);
+    return sum / validValues.length;
   };
 
   const stats = [
@@ -34,27 +37,27 @@ const StatisticsSummary = ({ reportData }) => {
     },
     {
       label: sensorLabels.tempurature_avg,
-      value: calculateAverage(reportData.tempurature_avg),
+      value: calculateTotalAverage(reportData.tempurature_avg),
       type: 'tempurature_avg'
     },
     {
       label: sensorLabels.humidity_avg,
-      value: calculateAverage(reportData.humidity_avg),
+      value: calculateTotalAverage(reportData.humidity_avg),
       type: 'humidity_avg'
     },
     {
       label: sensorLabels.soil_moisture_avg,
-      value: calculateAverage(reportData.moisture_avg),
+      value: calculateTotalAverage(reportData.moisture_avg),
       type: 'soil_moisture_avg'
     },
     {
       label: sensorLabels.luminosity_avg,
-      value: calculateAverage(reportData.luminosity_avg),
+      value: calculateTotalAverage(reportData.luminosity_avg),
       type: 'luminosity_avg'
     },
     {
       label: sensorLabels.stream_avg,
-      value: calculateAverage(reportData.stream_avg),
+      value: calculateTotalAverage(reportData.stream_avg),
       type: 'stream_avg'
     }
   ];
