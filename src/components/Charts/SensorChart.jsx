@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,7 +12,6 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
-// Register the required chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -21,17 +20,14 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler // Register the Filler plugin for area charts
+  Filler
 );
 
-const SensorChart = ({ data, title, yAxisLabel }) => {
-  console.log("SensorChart rendering with data:", data); // Debug log
-
-  if (!data || !data.datasets || !data.labels) {
-    console.error("Invalid chart data format:", data); // Debug errors
+const SensorChart = React.memo(({ data, title }) => {
+  if (!data?.datasets?.length) {
     return (
-      <div className="bg-white p-4 rounded-lg shadow-md text-center text-red-500">
-        Error: Invalid chart data format
+      <div className="p-6 text-center text-gray-500">
+        No data available to display
       </div>
     );
   }
@@ -41,46 +37,85 @@ const SensorChart = ({ data, title, yAxisLabel }) => {
     plugins: {
       legend: {
         position: "top",
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          font: { size: 12 },
+        },
       },
       title: {
         display: true,
-        text: title,
+        text: title || "Dữ liệu cảm biến",
+        font: {
+          size: 16,
+          weight: "bold",
+        },
+        padding: { top: 20, bottom: 20 },
+      },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+        callbacks: {
+          label: (context) => {
+            const value = context.raw;
+            const label = context.dataset.label;
+            const unit = label.match(/\((.*?)\)/)?.[1] || "";
+            return value === null
+              ? `${label}: No data`
+              : `${label}: ${value?.toFixed(1)}${unit ? ` ${unit}` : ""}`;
+          },
+        },
       },
     },
     scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: yAxisLabel,
+      x: {
+        grid: { display: false },
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+          autoSkip: false,
         },
       },
-      x: {
-        title: {
-          display: true,
-          text: "Time",
+      y: {
+        type: "linear",
+        display: true,
+        position: "left",
+        grid: {
+          color: "rgba(0, 0, 0, 0.1)",
+        },
+        beginAtZero: true,
+        min: 0,
+        max: 100,
+        ticks: {
+          stepSize: 10,
+          callback: function (value) {
+            return value;
+          },
         },
       },
     },
     interaction: {
-      mode: "index",
       intersect: false,
+      mode: "index",
     },
     elements: {
-      line: {
-        tension: 0.4, // Makes the line smoother
-      },
+      line: { tension: 0.4 },
       point: {
-        radius: 2, // Smaller points for better performance with large datasets
+        radius: (context) => (context.raw === null ? 0 : 3),
+        hoverRadius: (context) => (context.raw === null ? 0 : 5),
       },
     },
+    maintainAspectRatio: false,
   };
-
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md">
-      <Line data={data} options={options} />
+    <div className="p-6">
+      <div style={{ height: "500px" }}>
+        <Line id="sensor-chart" options={options} data={data} />
+      </div>
     </div>
   );
-};
+});
+
+SensorChart.displayName = "SensorChart";
 
 export default SensorChart;

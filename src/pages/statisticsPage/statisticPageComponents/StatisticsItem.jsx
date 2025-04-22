@@ -11,7 +11,9 @@ function StatisticItem({ id, name, img_area, report }) {
     navigate(`/statistics/${deviceId}`);
   };
   const getLastValue = (arr) =>
-    Array.isArray(arr) && arr.length > 0 ? arr[arr.length - 1] : "N/A";
+    Array.isArray(arr) && arr.length > 0
+      ? Number(arr[arr.length - 1]).toFixed(2)
+      : "N/A";
 
   return (
     <div className="w-[32%] h-1/4 rounded-2xl border-2 shadow-xl bg-white flex">

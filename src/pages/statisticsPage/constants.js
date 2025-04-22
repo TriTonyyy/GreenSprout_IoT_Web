@@ -1,39 +1,52 @@
 export const timeRanges = {
-  WEEK: "1 Tuần",
-  TWO_WEEKS: "2 Tuần",
-  MONTH: "1 Tháng",
-  CUSTOM: "Tùy chỉnh",
+  DAY: 'day',
 };
 
 export const sensorTypes = {
-  TEMPERATURE: {
-    label: "Nhiệt độ",
-    unit: "°C",
-    color: "rgb(255, 99, 132)",
-    backgroundColor: "rgba(255, 99, 132, 0.1)",
+  TEMPERATURE: "tempurature_avg",
+  HUMIDITY: "humidity_avg",
+  SOIL_MOISTURE: "soil_moisture_avg",
+  LUMINOSITY: "luminosity_avg"
+};
+
+export const sensorLabels = {
+  humidity_avg: 'Độ ẩm không khí (%)',
+  tempurature_avg: 'Nhiệt độ (°C)',
+  luminosity_avg: 'Ánh sáng (lux)',
+  soil_moisture_avg: 'Độ ẩm đất (%)',
+  stream_avg: 'Lưu lượng (L/s)',
+  water_usage: 'Lượng nước đã dùng (L)'
+};
+
+export const colors = {
+  humidity_avg: {
+    border: 'rgba(54, 162, 235, 1)',
+    background: 'rgba(54, 162, 235, 0.2)',
+    cardBg: '#EBF8FF'
   },
-  HUMIDITY: {
-    label: "Độ ẩm không khí",
-    unit: "%",
-    color: "rgb(54, 162, 235)",
-    backgroundColor: "rgba(54, 162, 235, 0.1)",
+  tempurature_avg: {
+    border: 'rgba(255, 99, 132, 1)',
+    background: 'rgba(255, 99, 132, 0.2)',
+    cardBg: '#FFF5F5'
   },
-  SOIL_MOISTURE: {
-    label: "Độ ẩm đất",
-    unit: "%",
-    color: "rgb(75, 192, 192)",
-    backgroundColor: "rgba(75, 192, 192, 0.1)",
+  luminosity_avg: {
+    border: 'rgba(255, 206, 86, 1)',
+    background: 'rgba(255, 206, 86, 0.2)',
+    cardBg: '#FFFFF0'
   },
-  LIGHT_INTENSITY: {
-    label: "Cường độ ánh sáng",
-    unit: "lux",
-    color: "rgb(255, 206, 86)",
-    backgroundColor: "rgba(255, 206, 86, 0.1)",
+  soil_moisture_avg: {
+    border: 'rgba(75, 192, 192, 1)',
+    background: 'rgba(75, 192, 192, 0.2)',
+    cardBg: '#E6FFFA'
   },
-  WATER_LEVEL: {
-    label: "Lưu lượng nước",
-    unit: "m3/s",
-    color: "rgb(153, 102, 255)",
-    backgroundColor: "rgba(153, 102, 255, 0.1)",
+  stream_avg: {
+    border: 'rgba(153, 102, 255, 1)',
+    background: 'rgba(153, 102, 255, 0.2)',
+    cardBg: '#FAF5FF'
   },
+  water_usage: {
+    border: 'rgba(116, 66, 16, 1)',
+    background: 'rgba(116, 66, 16, 0.2)',
+    cardBg: '#FFFAF0'
+  }
 };

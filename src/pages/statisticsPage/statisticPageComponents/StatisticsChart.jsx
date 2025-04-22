@@ -1,16 +1,16 @@
 import React from "react";
-import { sensorTypes } from "../constants";
 import SensorChart from "../../../components/Charts/SensorChart";
 
-const StatisticsChart = ({ sensorData, selectedSensor }) => {
-  if (!sensorData) return null;
+const StatisticsChart = ({ sensorData, reportData }) => {
+  if (!sensorData || !reportData) return null;
+
+  const chartDataObj = typeof sensorData === 'function' ? sensorData(reportData) : sensorData;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm ">
+    <div className="bg-white rounded-xl shadow-sm">
       <SensorChart
-        data={sensorData}
-        title={`${sensorTypes[selectedSensor].label} theo thời gian`}
-        yAxisLabel={`${sensorTypes[selectedSensor].label} (${sensorTypes[selectedSensor].unit})`}
+        data={chartDataObj}
+        title="Dữ liệu cảm các biến theo thời gian"
       />
     </div>
   );
