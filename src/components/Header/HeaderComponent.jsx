@@ -3,6 +3,7 @@ import { User } from "lucide-react";
 import { useNavigate } from "react-router";
 import { getUserInfoAPI } from "../../api/authApi";
 import { SearchBarComponent } from "./SearchBarComponent";
+import { getRole } from "../../helper/tokenHelper";
 
 
 function HeaderComponent({ gardens }) {
@@ -10,6 +11,7 @@ function HeaderComponent({ gardens }) {
   const [userName, setUserName] = useState("");
   const [avatar, setAvatar] = useState("");
   const navigate = useNavigate();
+  const role = getRole();
 
   useEffect(() => {
     getUserInfoAPI()
@@ -21,6 +23,14 @@ function HeaderComponent({ gardens }) {
         console.log(err);
       });
   }, []);
+
+  const handleIconClick = ()=>{
+    if(role ==='admin'){
+      navigate("/admin/home")
+    } else {
+      navigate("/home")
+    }
+  }
   
 
   return (
@@ -30,7 +40,7 @@ function HeaderComponent({ gardens }) {
           {/* Left side - Logo and Brand */}
           <div
             className="flex items-center gap-2 cursor-pointer"
-            onClick={() => navigate("/home")}
+            onClick={handleIconClick}
           >
             <img
               src={require("../../assets/images/TreePlanting.png")}
@@ -45,7 +55,6 @@ function HeaderComponent({ gardens }) {
           {/* Right side - Search and Profile */}
           <div className="flex items-center gap-8">
             <SearchBarComponent gardens={gardens} />
-
             <div
               className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors duration-200"
               onClick={() => navigate("/account")}

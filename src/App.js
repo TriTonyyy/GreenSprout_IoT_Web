@@ -5,15 +5,16 @@ import AuthPage from "./pages/auth/AuthPage";
 import DetailedGardenPage from "./pages/detailedGardenPage/DetailedGardenPage";
 import AuthEmail from "./pages/auth/AuthEmail";
 import AccountPage from "./pages/account/AccountPage";
-import { getToken } from "./helper/tokenHelper";
+import { getRole, getToken } from "./helper/tokenHelper";
 import { useEffect, useState } from "react";
 import StatisticsPage from "./pages/statisticsPage/StatisticPage";
 import StatisticsDashboard from "./pages/statisticsPage/StatisticsDashboard";
+import AdminHomePage from "./pages/admin/AdminHomePage";
+import AdminMangeUser from "./pages/admin/AdminMangeUser";
 
 
 function ProtectedRoute() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading, true = authenticated, false = unauthenticated
-
   useEffect(() => {
     const checkToken = async () => {
       try {
@@ -42,21 +43,38 @@ function ProtectedRoute() {
   return <Outlet />;
 }
 
-function App() {
-  // return(
-  //   <Routes>
-  //     <Route path="/" element={<Navigate to="/login" />} />
-  //     <Route path="login" element={<AuthPage isLogin={true} />} />
-  //     <Route path="register" element={<AuthPage isLogin={false} />} />
-  //     <Route path="otp" element={<AuthEmail isTypeOTP={true} />} />
-  //     <Route path="register-email" element={<AuthEmail isTypeOTP={false} />} />
+function AdminRoute(){
+  const [isAdmin, setIsAdmin] = useState(null);
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const role = await getRole();
+        if(role === 'admin'){
+          setIsAdmin(true);
+        } else{
+          setIsAdmin(false)
+        }
+      } catch (error) {
+        console.error("Error checking token:", error);
+        setIsAdmin(false);
+      }
+    };
 
-  //     <Route path="home" element={<HomePage />} />
-  //     <Route path="/garden/:gardenId" element={<DetailedGardenPage />}/>
-  //     <Route path="/schedule" element={<SchedulePage />}/>
-  //     <Route path="/account" element={<AccountPage />} />
-  //   </Routes>
-  // )
+    checkAdmin();
+  }, []);
+
+  if (isAdmin === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/home" replace />;
+  }
+
+  return <Outlet />;
+}
+
+function App() {
 
   return (
     <Routes>
@@ -75,7 +93,13 @@ function App() {
         <Route path="/account" element={<AccountPage />} />
         <Route path="/statistics" element={<StatisticsPage/>}/>
         <Route path="/statistics/:deviceId" element={<StatisticsDashboard/>} />
+        <Route element={<AdminRoute/>}>
+          <Route path="/admin/home" element={<AdminHomePage/>}/>
+          <Route path="/admin/manage-user" element={<AdminMangeUser/>}/>
+        </Route>
       </Route>
+
+      
     </Routes>
   );
 }
