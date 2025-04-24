@@ -189,7 +189,7 @@ function DetailedGarden() {
           const allMems = res.members;
           let isHas = false;
           allMems.map((item) => {
-            if (item.userId === user._id) {
+            if (item.userId === user._id || user.role === "admin") {
               isHas = true;
             }
           });

@@ -1,14 +1,15 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router";
-import { Home, BarChart2, Settings, LogOut } from "lucide-react";
+import { Home, BarChart2, Settings, LogOut, User } from "lucide-react";
 import { logOutAPI } from "../../api/authApi";
 import { apiResponseHandler, areUSurePopup } from "../Alert/alertComponent";
-import { removeToken } from "../../helper/tokenHelper";
+import { removeToken, getRole } from "../../helper/tokenHelper";
 import i18n from "../../i18n";
 
 const SideNavigationBar = () => {
   const navigate = useNavigate();
-
+  const userRole = getRole();
+  
   const handleLogout = async () => {
     areUSurePopup(i18n.t("logout-confirm"))
       .then(async(res)=>{
@@ -27,15 +28,42 @@ const SideNavigationBar = () => {
     
   };
 
-  const navItems = [
-    { path: "/home", icon: <Home size={20} />, label: "Trang chủ" },
-    {
-      path: "/statistics",
-      icon: <BarChart2 size={20} />,
-      label: "Phân tích dữ liệu",
-    },
-    { path: "/account", icon: <Settings size={20} />, label: "Cài đặt" },
-  ];
+  const roleBasedItems = {
+    admin: [
+      { path: "/admin/home", icon: <Home size={20} />, label: "Trang chủ" },
+      {
+        path: "/statistics",
+        icon: <BarChart2 size={20} />,
+        label: "Phân tích dữ liệu",
+      },
+      { path: "/admin/manage-user", icon: <User size={20} />, label: "Users" },
+    ],
+    user: [
+      { path: "/home", icon: <Home size={20} />, label: "Trang chủ" },
+      {
+        path: "/statistics",
+        icon: <BarChart2 size={20} />,
+        label: "Phân tích dữ liệu",
+      },
+      { path: "/account", icon: <Settings size={20} />, label: "Cài đặt" },
+    ],
+    guest: [],
+  };
+  const navItems = [ ...(roleBasedItems[userRole] || [])];
+  console.log(userRole);
+  
+  console.log(navItems);
+  
+
+  // const navItems = [
+  //   { path: "/home", icon: <Home size={20} />, label: "Trang chủ" },
+  //   {
+  //     path: "/statistics",
+  //     icon: <BarChart2 size={20} />,
+  //     label: "Phân tích dữ liệu",
+  //   },
+  //   { path: "/account", icon: <Settings size={20} />, label: "Cài đặt" },
+  // ];
 
   return (
     <aside className="w-72 bg-gradient-to-b from-green-700 to-green-800 text-white min-h-screen flex flex-col shadow-xl">

@@ -5,7 +5,7 @@ import { loginApi } from "../../api/authApi";
 import { deviceDetect } from "react-device-detect";
 import { UserCredential, tokenUser } from "../../redux/Reducers/AuthReducer";
 import { getUserCredential } from "../../redux/selectors/authSelectors";
-import { setToken } from "../../helper/tokenHelper";
+import { setRole, setToken } from "../../helper/tokenHelper";
 import { apiResponseHandler } from "../../components/Alert/alertComponent";
 import i18n from "../../i18n";
 
@@ -23,8 +23,14 @@ function AuthPage({ isLogin }) {
     loginApi({ email, password, deviceID: deviceInfo.userAgent })
       .then((res) => {
         setToken(res.data);
+        setRole(res.role);
+
         dispatch(tokenUser(res.data.data));
-        navigate("/home");
+        if(res.role === 'admin'){
+          navigate("/admin/home");
+        } else{
+          navigate("/home");
+        }
       })
       .catch((err) => {
         apiResponseHandler(err.response.data.message,"error");
@@ -52,7 +58,7 @@ function AuthPage({ isLogin }) {
     //     console.log(err);
         
     //   })
-    window.location.href = "https://capstone-project-iot-1.onrender.com/api/user/google";
+    // window.location.href = "https://capstone-project-iot-1.onrender.com/api/user/google";
   }
 
   return (
