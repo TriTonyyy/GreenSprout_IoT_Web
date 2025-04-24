@@ -7,7 +7,7 @@ const StatisticsHeader = () => {
         Thống kê dữ liệu cảm biến
       </h2>
       <p className="mt-1 text-sm text-gray-600">
-        Biểu đồ theo dõi dữ liệu của các cảm biến theo thời gian thực
+        Theo dõi dữ liệu của khu vườn bạn gần đây nhất.
       </p>
     </div>
   );
