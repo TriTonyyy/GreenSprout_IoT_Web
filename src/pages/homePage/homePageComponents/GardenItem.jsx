@@ -43,7 +43,10 @@ function GardenItem({ id, name, sensors = [], controls = [], img_area }) {
       await updateControlById({
         id_esp: id,
         controlId: controlId,
-        data: { status: newStatus },
+        data: {
+          status: newStatus,
+          mode: "manual",
+        },
       });
     } catch (error) {
       // If an error occurs, revert the control status to its previous state
