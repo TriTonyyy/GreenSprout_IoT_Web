@@ -40,7 +40,8 @@ const StatisticsPage = () => {
           if (!res || res.length === 0) return null;
 
           const latestReport = res.reduce((latest, current) => {
-            return new Date(current.time_created) > new Date(latest.time_created)
+            return new Date(current.time_created) >
+              new Date(latest.time_created)
               ? current
               : latest;
           }, res[0]);
@@ -90,7 +91,11 @@ const StatisticsPage = () => {
           </div>
           <div className="flex flex-wrap gap-4 justify-start p-3">
             {loading ? (
-              <StatisticItemSkeleton />
+              <>
+                <StatisticItemSkeleton />
+                <StatisticItemSkeleton />
+                <StatisticItemSkeleton />
+              </>
             ) : allGardens.length === 0 ? (
               <p>No gardens found.</p>
             ) : (

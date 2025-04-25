@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { endOfDay, startOfDay } from "date-fns";
 import HeaderComponent from "../../components/Header/HeaderComponent";
 import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar";
 import FooterComponent from "../../components/FooterComponent/FooterComponent";
@@ -11,9 +10,9 @@ import StatisticsChart from "./statisticPageComponents/StatisticsChart";
 import StatisticsControls from "./statisticPageComponents/StatisticsControls";
 import ErrorMessage from "./statisticPageComponents/ErrorMessage";
 import { useParams, useNavigate } from "react-router";
-import { getReportByDevice } from "../../api/reportApi";
+import { getReportOfDeviceByDate } from "../../api/reportApi";
 
-const StatisticsDashboard = () => {
+function StatisticsDashboard() {
   const { deviceId } = useParams();
   const navigate = useNavigate();
   const [selectedGarden, setSelectedGarden] = useState(deviceId || null);
@@ -23,6 +22,10 @@ const StatisticsDashboard = () => {
   const [error, setError] = useState(null);
   const [loadingGardens, setLoadingGardens] = useState(true);
   const [reportData, setReportData] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(
+    () => new Date().toISOString().split("T")[0]
+  );
+  const [selectedMode, setSelectedMode] = useState("day");
 
   // Fetch available gardens
   useEffect(() => {
@@ -59,19 +62,16 @@ const StatisticsDashboard = () => {
     fetchGardens();
   }, [selectedGarden]);
 
-  const fetchReport = async () => {
+  const fetchReport = async (mode, time) => {
     if (!selectedGarden) return;
 
     setLoading(true);
     try {
-      const now = new Date();
-      const response = await getReportByDevice(
-        selectedGarden,
-        startOfDay(now),
-        endOfDay(now)
-      );
-
-      if (!response) throw new Error("No data received from API");
+      console.log(mode);
+      console.log(time);
+      const response = await getReportOfDeviceByDate(selectedGarden, {
+        date: time,
+      });
 
       const reports = Array.isArray(response)
         ? response
@@ -82,31 +82,44 @@ const StatisticsDashboard = () => {
       const sortedReports = reports.sort(
         (a, b) => new Date(b.time_created) - new Date(a.time_created)
       );
-
-      setReportData(sortedReports[0]);
+      checkReportData(sortedReports); // Handles both real and null data
       setError(null);
     } catch (err) {
       setError(`Failed to fetch sensor data: ${err.message}`);
-      setReportData(null);
     } finally {
       setLoading(false);
     }
   };
 
+  const checkReportData = (reportData) => {
+    console.log(reportData);
+    if (reportData.length !== 0) {
+      setReportData(reportData[0]);
+    } else {
+      setReportData({
+        humidity_avg: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        luminosity_avg: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        moisture_avg: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        stream_avg: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        tempurature_avg: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        water_usage: 0.0,
+      });
+    }
+  };
   const handleRefresh = () => {
-    fetchReport();
+    const defaultDate = new Date().toISOString().split("T")[0];
+    const defaultMode = "day";
+
+    setSelectedDate(defaultDate);
+    setSelectedMode(defaultMode);
+
+    fetchReport(defaultDate, defaultMode);
   };
 
   const handleGardenChange = (gardenId) => {
     setSelectedGarden(gardenId);
     navigate(`/statistics/${gardenId}`);
   };
-
-  useEffect(() => {
-    fetchReport();
-    const interval = setInterval(fetchReport, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [selectedGarden]);
 
   useEffect(() => {
     if (!reportData) return;
@@ -168,23 +181,37 @@ const StatisticsDashboard = () => {
     });
   }, [reportData]);
 
+  const handleModeChange = (newMode) => {
+    setSelectedMode(newMode);
+  };
+
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+    console.log(reportData);
+    console.log(sensorData);
+  };
+
+  useEffect(() => {
+    fetchReport(selectedMode, selectedDate);
+  }, [selectedMode, selectedDate, selectedGarden]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <HeaderComponent gardens={gardens} />
       <div className="flex">
         <SideNavigationBar />
         <main className="flex-1">
-          <div className="max-w-7xl mx-auto">
+          <div className="m-10">
             <StatisticsHeader />
-            <div className="px-4 sm:px-6">
-              <StatisticsControls
-                onRefresh={handleRefresh}
-                gardens={gardens}
-                selectedGarden={selectedGarden}
-                onGardenChange={handleGardenChange}
-                loadingGardens={loadingGardens}
-              />
-            </div>
+            <StatisticsControls
+              onRefresh={handleRefresh}
+              gardens={gardens}
+              selectedGarden={selectedGarden}
+              onGardenChange={handleGardenChange}
+              loadingGardens={loadingGardens}
+              onDateChange={handleDateChange}
+              onModeChange={handleModeChange}
+            />
             {!loading && reportData && (
               <StatisticsSummary reportData={reportData} />
             )}
@@ -208,6 +235,6 @@ const StatisticsDashboard = () => {
       <FooterComponent />
     </div>
   );
-};
+}
 
 export default StatisticsDashboard;
