@@ -50,9 +50,9 @@ const SideNavigationBar = () => {
     guest: [],
   };
   const navItems = [ ...(roleBasedItems[userRole] || [])];
-  console.log(userRole);
+  // console.log(userRole);
   
-  console.log(navItems);
+  // console.log(navItems);
   
 
   // const navItems = [
