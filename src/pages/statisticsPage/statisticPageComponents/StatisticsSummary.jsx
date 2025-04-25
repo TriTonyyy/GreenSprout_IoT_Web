@@ -10,7 +10,7 @@ const StatisticsItem = ({ label, value, type }) => {
     >
       <dt className="text-sm font-medium text-gray-600 truncate">{label}</dt>
       <dd className="mt-1 text-3xl font-semibold text-gray-900">
-        {value !== null ? `${value.toFixed(1)} ${unit}` : "N/A"}
+        {value !== null ? `${value.toFixed(2)} ${unit}` : "N/A"}
       </dd>
     </div>
   );
@@ -20,7 +20,9 @@ const StatisticsSummary = ({ reportData }) => {
   if (!reportData) return null;
 
   const calculateTotalAverage = (array) => {
-    console.log(array);
+    // console.log(array);
+    // console.log(reportData);
+    
 
     if (!Array.isArray(array) || array.length === 0) return null;
     const validValues = array.filter((val) => val !== null && !isNaN(val));
