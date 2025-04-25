@@ -3,7 +3,8 @@ import SensorChart from "../../../components/Charts/SensorChart";
 
 const StatisticsChart = ({ sensorData, reportData }) => {
   if (!sensorData || !reportData) return null;
-
+  // console.log(reportData);
+  
   const chartDataObj =
     typeof sensorData === "function" ? sensorData(reportData) : sensorData;
 

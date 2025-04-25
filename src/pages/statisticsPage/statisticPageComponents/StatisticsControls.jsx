@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { RefreshCcw } from "lucide-react";
 
 const StatisticsControls = ({
   onRefresh,
@@ -19,29 +20,25 @@ const StatisticsControls = ({
     (garden) => garden.id_esp === selectedGarden
   );
 
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
-    if (onDateChange) onDateChange(e.target.value);
-  };
-
-  const handleModeChange = (e) => {
-    const newMode = e.target.value;
+  const handleModeChange = (newMode) => {
     setMode(newMode);
     if (onModeChange) onModeChange(newMode);
 
-    // Reset date value on mode change
     const today = new Date();
+    let formattedDate = "";
+
     if (newMode === "day") {
-      setSelectedDate(today.toISOString().split("T")[0]);
+      formattedDate = today.toISOString().split("T")[0];
     } else if (newMode === "week") {
-      const weekStr = `${today.getFullYear()}-W${String(
+      formattedDate = `${today.getFullYear()}-W${String(
         getWeekNumber(today)
       ).padStart(2, "0")}`;
-      setSelectedDate(weekStr);
     } else {
-      const monthStr = today.toISOString().slice(0, 7);
-      setSelectedDate(monthStr);
+      formattedDate = today.toISOString().slice(0, 7);
     }
+
+    setSelectedDate(formattedDate);
+    if (onDateChange) onDateChange(formattedDate); // Also send new date to parent
   };
 
   const getWeekNumber = (date) => {
@@ -54,11 +51,16 @@ const StatisticsControls = ({
     return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
   };
 
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+    if (onDateChange) onDateChange(e.target.value); // ✅ Triggers parent callback
+  };
+
   return (
-    <div className="mb-6">
-      <div className="flex flex-col md:flex-row gap-4 items-center mb-4">
+    <div className="my-5">
+      <div className="my-3 flex flex-col md:flex-row items-center justify-between w-full">
         {/* Garden Selector */}
-        <div className="flex-1 relative">
+        <div className="relative w-full md:w-1/3 lg:w-1/4">
           <button
             onClick={() => setIsOpen(!isOpen)}
             disabled={loadingGardens}
@@ -103,7 +105,7 @@ const StatisticsControls = ({
 
           {/* Dropdown Menu */}
           {isOpen && (
-            <div className="w-2/5 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute z-10 w-full top-full left-0 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
               {gardens.length === 0 ? (
                 <div className="px-4 py-2 text-gray-500">Không có vườn nào</div>
               ) : (
@@ -136,40 +138,47 @@ const StatisticsControls = ({
           )}
         </div>
 
-        {/* Mode Selector */}
-        <div className="flex gap-2 w-1/5">
-          {["day", "week", "month"].map((m) => (
+        {/* Right-side controls */}
+        <div className="md:mt-0 flex gap-4 items-center w-full md:w-auto justify-end">
+          {/* Mode Selector */}
+          <div className="flex gap-2">
+            {["day", "week", "month"].map((m) => (
+              <button
+                key={m}
+                onClick={() => handleModeChange(m)}
+                className={`px-4 py-2 rounded-lg border ${
+                  mode === m
+                    ? "bg-green-500 text-white"
+                    : "bg-white text-gray-700 border-gray-300"
+                } hover:bg-green-100 transition-colors`}
+              >
+                {m === "day" ? "Ngày" : m === "week" ? "Tuần" : "Tháng"}
+              </button>
+            ))}
+          </div>
+
+          {/* Date/Week/Month Picker */}
+          <div>
+            <input
+              type={
+                mode === "day" ? "date" : mode === "week" ? "week" : "month"
+              }
+              value={selectedDate}
+              onChange={handleDateChange}
+              className="px-4 py-2 w-[170px] rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+
+          {/* Refresh Button */}
+          <div>
             <button
-              key={m}
-              onClick={() => handleModeChange({ target: { value: m } })}
-              className={`px-4 py-2 rounded-lg border ${
-                mode === m
-                  ? "bg-green-500 text-white"
-                  : "bg-white text-gray-700 border-gray-300"
-              } hover:bg-green-100 transition-colors`}
+              className="bg-green-600 text-white rounded-2xl p-2"
+              onClick={() => onRefresh(selectedDate, mode)}
             >
-              {m === "day" ? "Ngày" : m === "week" ? "Tuần" : "Tháng"}
+              <RefreshCcw size={24} />
             </button>
-          ))}
+          </div>
         </div>
-
-        {/* Date/Week/Month Picker */}
-        <div className="w-1/5">
-          <input
-            type={mode === "day" ? "date" : mode === "week" ? "week" : "month"}
-            value={selectedDate}
-            onChange={handleDateChange}
-            className="px-4 py-2 w-100 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-
-        {/* Refresh Button */}
-        {/* <button
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          onClick={onRefresh}
-        >
-          Làm mới
-        </button> */}
       </div>
     </div>
   );

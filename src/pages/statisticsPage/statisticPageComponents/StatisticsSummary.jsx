@@ -3,12 +3,14 @@ import { sensorLabels, colors } from "../constants";
 
 const StatisticsItem = ({ label, value, type }) => {
   const unit = label.match(/\((.*?)\)/)?.[1] || "";
+  // console.log(value);
+
   return (
     <div
       className="px-4 py-5 shadow rounded-lg overflow-hidden sm:p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
       style={{ backgroundColor: colors[type]?.cardBg || "white" }}
     >
-      <dt className="text-sm font-medium text-gray-600 truncate">{label}</dt>
+      <dt className="text-sm font-medium text-gray-600 truncate">{label === "Lượng nước đã dùng (L)"? `${label}`: `${label}`+ " Trung bình"}</dt>
       <dd className="mt-1 text-3xl font-semibold text-gray-900">
         {value !== null ? `${value.toFixed(2)} ${unit}` : "N/A"}
       </dd>
@@ -18,12 +20,10 @@ const StatisticsItem = ({ label, value, type }) => {
 
 const StatisticsSummary = ({ reportData }) => {
   if (!reportData) return null;
-
+  console.log(reportData);
   const calculateTotalAverage = (array) => {
     // console.log(array);
     // console.log(reportData);
-    
-
     if (!Array.isArray(array) || array.length === 0) return null;
     const validValues = array.filter((val) => val !== null && !isNaN(val));
     if (validValues.length === 0) return null;
@@ -34,7 +34,7 @@ const StatisticsSummary = ({ reportData }) => {
   const stats = [
     {
       label: sensorLabels.water_usage,
-      value: reportData.water_usage || null,
+      value: reportData.water_usage || 0,
       type: "water_usage",
     },
     {
