@@ -7,22 +7,19 @@ const StatisticsControls = ({
   selectedGarden,
   onGardenChange,
   loadingGardens,
+  mode,
+  selectedDate,
   onDateChange, // optional
   onModeChange, // optional
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [mode, setMode] = useState("day");
-  const [selectedDate, setSelectedDate] = useState(
-    () => new Date().toISOString().split("T")[0]
-  );
 
   const currentGarden = gardens.find(
     (garden) => garden.id_esp === selectedGarden
   );
 
   const handleModeChange = (newMode) => {
-    setMode(newMode);
-    if (onModeChange) onModeChange(newMode);
+    if (onModeChange) onModeChange(newMode); // Call parent callback to update mode
 
     const today = new Date();
     let formattedDate = "";
@@ -37,8 +34,13 @@ const StatisticsControls = ({
       formattedDate = today.toISOString().slice(0, 7);
     }
 
-    setSelectedDate(formattedDate);
-    if (onDateChange) onDateChange(formattedDate); // Also send new date to parent
+    // Update the date using the parent callback
+    if (onDateChange) onDateChange(formattedDate);
+  };
+
+  const handleDateChange = (e) => {
+    const newDate = e.target.value;
+    if (onDateChange) onDateChange(newDate); // Triggers parent callback
   };
 
   const getWeekNumber = (date) => {
@@ -49,11 +51,6 @@ const StatisticsControls = ({
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-  };
-
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
-    if (onDateChange) onDateChange(e.target.value); // ✅ Triggers parent callback
   };
 
   return (
@@ -163,7 +160,7 @@ const StatisticsControls = ({
               type={
                 mode === "day" ? "date" : mode === "week" ? "week" : "month"
               }
-              value={selectedDate}
+              value={selectedDate} // bind selectedDate
               onChange={handleDateChange}
               className="px-4 py-2 w-[170px] rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
@@ -173,7 +170,7 @@ const StatisticsControls = ({
           <div>
             <button
               className="bg-green-600 text-white rounded-2xl p-2"
-              onClick={() => onRefresh(selectedDate, mode)}
+              onClick={onRefresh}
             >
               <RefreshCcw size={24} />
             </button>

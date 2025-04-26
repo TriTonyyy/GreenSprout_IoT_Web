@@ -20,7 +20,7 @@ const StatisticsItem = ({ label, value, type }) => {
 
 const StatisticsSummary = ({ reportData }) => {
   if (!reportData) return null;
-  console.log(reportData);
+  // console.log(reportData);
   const calculateTotalAverage = (array) => {
     // console.log(array);
     // console.log(reportData);

@@ -63,18 +63,20 @@ const GardenImage = ({ src, onImageClick }) => (
 );
 
 const SensorReading = ({ label, value, unit, icon }) => (
-  <div className="mx-2 my-3 flex justify-between items-center">
-    <div className="flex items-center space-x-2 min-w-[140px]">
-      <span className="text-xl">{icon}</span>
-      <p className="font-semibold text-gray-600 truncate">{label}:</p>
+  (
+    <div className="mx-2 my-3 flex justify-between items-center">
+      <div className="flex items-center space-x-2 min-w-[140px]">
+        <span className="text-xl">{icon}</span>
+        <p className="font-semibold text-gray-600 truncate">{label}:</p>
+      </div>
+      <div className="flex items-center space-x-1">
+        <p className="text-gray-800 font-medium min-w-[50px] text-right">
+          {value ?? "---"}
+        </p>
+        <p className="text-gray-500 text-sm">{unit}</p>
+      </div>
     </div>
-    <div className="flex items-center space-x-1">
-      <p className="text-gray-800 font-medium min-w-[50px] text-right">
-        {value ?? "---"}
-      </p>
-      <p className="text-gray-500 text-sm">{unit}</p>
-    </div>
-  </div>
+  )
 );
 
 const MemberList = ({ members, onEdit, isOwner }) => (
@@ -207,7 +209,8 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       const result = await getMemberByIdDevice(deviceId);
       device.members = result.members || [];
       setGardenData(device);
-
+      // console.log(device);
+  
       // Map sensors by type for easy access
       const tempSensorsMap = {};
       device.sensors?.forEach((sensor) => {
