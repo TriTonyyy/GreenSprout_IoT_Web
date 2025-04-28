@@ -44,7 +44,10 @@ const ScheduleList = ({
 
   const handleScheduleChange = (scheduleId, field, value) => {
     if (!isOwner) {
-      apiResponseHandler("Chỉ chủ sở hữu mới có thể thay đổi lịch tưới", "error");
+      apiResponseHandler(
+        "Chỉ chủ sở hữu mới có thể thay đổi lịch tưới",
+        "error"
+      );
       return;
     }
     console.log("Changing schedule:", { scheduleId, field, value });
@@ -54,26 +57,25 @@ const ScheduleList = ({
   return (
     <div className="flex flex-wrap gap-5">
       {schedules.map((schedule) => (
-        <div key={schedule._id}>
-          <ScheduleCard
-            schedule={schedule}
-            isSelected={selectedSchedule === schedule._id}
-            onSelect={handleScheduleSelect}
-            onDelete={handleScheduleDelete}
-            onToggleStatus={onScheduleToggleStatus}
-            isOwner={isOwner}
-          >
-            {selectedSchedule === schedule._id && (
-              <ScheduleEditor
-                schedule={schedule}
-                onChange={handleScheduleChange}
-                onSave={onScheduleSave}
-                onCancel={onScheduleCancel}
-                isOwner={isOwner}
-              />
-            )}
-          </ScheduleCard>
-        </div>
+        <ScheduleCard
+          key={schedule._id}
+          schedule={schedule}
+          isSelected={selectedSchedule === schedule._id}
+          onSelect={handleScheduleSelect}
+          onDelete={handleScheduleDelete}
+          onToggleStatus={onScheduleToggleStatus}
+          isOwner={isOwner}
+        >
+          {selectedSchedule === schedule._id && (
+            <ScheduleEditor
+              schedule={schedule}
+              onChange={handleScheduleChange}
+              onSave={onScheduleSave}
+              onCancel={onScheduleCancel}
+              isOwner={isOwner}
+            />
+          )}
+        </ScheduleCard>
       ))}
       {isOwner && schedules.length < 5 && (
         <div

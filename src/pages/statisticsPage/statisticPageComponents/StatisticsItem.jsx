@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Skeleton from "react-loading-skeleton";
 import { useNavigate } from "react-router";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -13,7 +13,7 @@ function StatisticItem({ id, name, img_area, report }) {
   const getLastValue = (arr) =>
     Array.isArray(arr) && arr.length > 0
       ? Number(arr[arr.length - 1]).toFixed(2)
-      : "N/A";
+      : "0.0";
 
   return (
     <div className="w-[32%] h-1/4 rounded-2xl border-2 shadow-xl bg-white flex">
@@ -106,7 +106,12 @@ function StatisticItem({ id, name, img_area, report }) {
                   </h2>
                 </>
               ) : (
-                <h2 className="text-gray-400 font-normal text-xl">N/A</h2>
+                <>
+                  <h2 className="text-xl font-semibold text-green-600">0.0</h2>
+                  <h2 className="text-xl font-semibold w-1/4 text-center text-green-600 ml-2">
+                    L
+                  </h2>
+                </>
               )}
             </div>
           </div>
