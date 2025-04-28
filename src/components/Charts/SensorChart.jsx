@@ -24,14 +24,6 @@ ChartJS.register(
 );
 
 const SensorChart = React.memo(({ data, title }) => {
-  if (!data?.datasets?.length) {
-    return (
-      <div className="p-6 text-center text-gray-500">
-        No data available to display
-      </div>
-    );
-  }
-
   const options = {
     responsive: true,
     plugins: {
@@ -71,20 +63,20 @@ const SensorChart = React.memo(({ data, title }) => {
       x: {
         grid: {
           display: false,
-          drawBorder: false
+          drawBorder: false,
         },
         ticks: {
           maxRotation: 45,
           minRotation: 45,
           autoSkip: false,
-          color: '#6B7280',
+          color: "#6B7280",
           font: {
-            size: 11
-          }
+            size: 11,
+          },
         },
         border: {
-          display: false
-        }
+          display: false,
+        },
       },
       y: {
         type: "linear",
@@ -95,25 +87,25 @@ const SensorChart = React.memo(({ data, title }) => {
           color: "rgba(107, 114, 128, 0.1)",
           drawBorder: false,
           lineWidth: 1,
-          drawTicks: true
+          drawTicks: true,
         },
         border: {
-          display: false
+          display: false,
         },
         ticks: {
-          color: '#6B7280',
+          color: "#6B7280",
           padding: 10,
           stepSize: 20,
           display: true,
           font: {
-            size: 11
+            size: 11,
           },
-          callback: function(value) {
+          callback: function (value) {
             return value.toFixed(0);
-          }
+          },
         },
         min: 0,
-        suggestedMax: 100
+        suggestedMax: 100,
       },
     },
     interaction: {
@@ -131,7 +123,7 @@ const SensorChart = React.memo(({ data, title }) => {
   };
   return (
     <div className="px-6">
-      <div style={{ height: '500px' }}>
+      <div style={{ height: "500px" }}>
         <Line id="sensor-chart" options={options} data={data} />
       </div>
     </div>
