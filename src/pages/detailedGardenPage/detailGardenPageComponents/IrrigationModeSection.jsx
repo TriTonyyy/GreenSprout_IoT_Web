@@ -280,30 +280,37 @@ export default function IrrigationModeSection({ deviceId }) {
     };
 
     try {
+      // Step 1: Create schedule in the database
       const response = await createSchedule({
         id_esp: deviceId,
         name: deviceType,
         data: newSchedule,
       });
-      
+
       const createdSchedule = response.data;
-      // Ensure duration is set to a number
+      console.log(createdSchedule);
+
+      // Step 2: Ensure the duration is set to a number
       createdSchedule.duration = parseInt(createdSchedule.duration) || 60;
-      
-      // Process the new schedule for UI
+
+      // Step 3: Process the new schedule for UI (map repeat days)
       if (createdSchedule.repeat && Array.isArray(createdSchedule.repeat)) {
         createdSchedule.repeat = createdSchedule.repeat.map(
           (day) => weekdayMap[day] || day
         );
       }
-      
-      // Update local state
-      setSchedules(prev => [...prev, createdSchedule]);
-      
-      // Select the new schedule
-      setSelectedSchedule(createdSchedule._id);
-      setOriginalSchedule({ ...createdSchedule });
-      
+
+      // Step 4: Fetch the updated schedule list from the backend
+      const refreshedSchedules = await fetchScheduleById(deviceId); // Re-fetch schedules to ensure UI consistency
+
+      // Step 5: Select the last schedule (the newly added one) from the list
+      const lastSchedule = refreshedSchedules[refreshedSchedules.length - 1]; // Get the last schedule in the updated list
+      setSelectedSchedule(lastSchedule._id); // Automatically select the last schedule
+      setOriginalSchedule({ ...lastSchedule });
+
+      // Step 6: Optionally, update the schedule list state
+      setSchedules(refreshedSchedules);
+
       apiResponseHandler("Tạo lịch tưới mới thành công", "success");
     } catch (error) {
       console.error("Failed to create schedule:", error);
@@ -460,20 +467,20 @@ export default function IrrigationModeSection({ deviceId }) {
 
     try {
       await areUSurePopup("Bạn có chắc chắn muốn xóa lịch tưới này?");
-      
+
       // If we get here, user confirmed
       const response = await deleteSchedule(deviceId, id);
-      
+
       if (response) {
         // Update local state
-        setSchedules(prev => prev.filter(s => s._id !== id));
-        
+        setSchedules((prev) => prev.filter((s) => s._id !== id));
+
         // Reset selection if the deleted one was selected
         if (selectedSchedule === id) {
           setSelectedSchedule(null);
           setOriginalSchedule(null);
         }
-        
+
         apiResponseHandler("Xóa lịch tưới thành công", "success");
       }
     } catch (error) {
