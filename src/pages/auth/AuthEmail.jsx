@@ -5,9 +5,10 @@ import{ useSelector } from 'react-redux';
 import { getUserCredential } from '../../redux/selectors/authSelectors';
 
 function AuthEmail({isTypeOTP}) {
-const userCre = useSelector(getUserCredential);
+    const userCre = useSelector(getUserCredential);
   const [email, setEmail] = useState(userCre?.email ? userCre.email : '') 
   const [otp, setOtp] = useState('')
+    // console.log(userCre, "usercre");
     
   const navigate = useNavigate();
 
@@ -31,16 +32,14 @@ const userCre = useSelector(getUserCredential);
     setSeconds(120)
     await sendCodeApi(email)
         .then((res)=>{
-            alert(res.message);
             console.log(res, "send code");
+            alert(res.message);
             navigate('/otp')
         })
         .catch((err)=>{
             console.log(err);
             alert(err.response.data.message);
         })
-
-    
   }
 
   const verifyOTP = async ()=>{
@@ -57,7 +56,7 @@ const userCre = useSelector(getUserCredential);
         })
 
     await registerApi({
-        name:userCre.userName,
+        name:userCre.name,
         email:userCre.email,
         password:userCre.password
     })

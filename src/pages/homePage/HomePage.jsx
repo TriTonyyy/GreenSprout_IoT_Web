@@ -110,12 +110,12 @@ function HomePage() {
                 ) : deviceData.length > 0 ? (
                   deviceData.map((device) => (
                     <GardenItem
-                      key={device._id}
-                      id={device.id_esp}
-                      name={device.name_area}
-                      sensors={device.sensors}
-                      controls={device.controls}
-                      img_area={device.img_area}
+                      key={device?._id}
+                      id={device?.id_esp}
+                      name={device?.name_area}
+                      sensors={device?.sensors}
+                      controls={device?.controls}
+                      img_area={device?.img_area}
                     />
                   ))
                 ) : (

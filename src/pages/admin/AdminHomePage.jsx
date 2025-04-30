@@ -66,11 +66,12 @@ export default function AdminHomePage() {
             <SideNavigationBar />
             {/* Main Content Area */}
             <div className="w-full flex-grow min-h-screen">
-              <div className="flex justify-between items-center px-10 py-10">
-                <h1 className="text-4xl font-bold">
+              <h1 className='text-3xl font-bold px-10 text-center text-green-500 mt-5'>Manage Devices</h1>
+              <div className="flex justify-between items-center px-10 py-5">
+                <h1 className="text-3xl">
                   <span className="text-green-500">
                     {/* {i18n.t("garden_of_account", { accountName: user?.name })} */}
-                    {"Trang " + currentPage + " of " + totalPage }
+                    {currentPage + " of " + totalPage }
                   </span>
                 </h1>
                 <div className="flex items-center gap-4">
