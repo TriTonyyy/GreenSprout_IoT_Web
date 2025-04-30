@@ -18,81 +18,69 @@ import { getLang } from "../../redux/selectors/langSelectors";
 export default function AccountPage() {
   const dispatch = useDispatch();
   const lang = useSelector(getLang);
-  const [name, setName] = useState("");
   const [avatar, setAvatar] = useState("");
   const [fileUpload, setFileUpload] = useState("");
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [userInfo, setUserInfo] = useState({});
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [gender, setGender] = useState("");
+  const [phone, setPhone] = useState("");
+  const [status, setStatus] = useState("");
+  const [numOfGarden, setNumOfGarden] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const saveUpdateUserInfo = () => {
-    updateProfileApi({ name, email })
-      .then((res) => {
-        setUserInfo(res.data);
-        alert(res.message);
-        window.location.reload();
-      })
-      .catch((err) => {
-        apiResponseHandler(err);
-      });
-    updateAvatarAPI(fileUpload)
-      .then((res)=>{
-        apiResponseHandler(res.message)
-      })
-      .catch((err)=>{
-        console.log(err);
-        apiResponseHandler(err.response.data.message, "error");
-
-      })
+  const saveUpdateUserInfo = async () => {
+    setIsLoading(true);
+    try {
+      const profileRes = await updateProfileApi({ name, email });
+      setUserInfo(profileRes.data);
+      await updateAvatarAPI(fileUpload);
+      apiResponseHandler(profileRes.message);
+      window.location.reload();
+    } catch (err) {
+      apiResponseHandler(err?.response?.data?.message || "Error updating profile", "error");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const changeLanguage = async (language) => {
-    areUSurePopup(i18n.t("change-lang-mess"))
-      .then((res) => {
-        i18n.changeLanguage(language).then((t) => {
-          t("key");
-          dispatch(setLanguage(language));
-        });
-      })
-      .catch(() => {});
-  };
-
-  const changePassword = async () => {
-    await changePasswordPopUp().then((popupres) => {
-      
-      changePasswordAPI({
-        currentPassword: popupres.oldPassword,
-        newPassword: popupres.password,
-      })
-        .then((res) => {
-          
-          apiResponseHandler(res.message);
-        })
-        .catch((err) => {
-          console.log(err);
-          apiResponseHandler(err?.response?.data?.message, 'error');
-        });
+    areUSurePopup(i18n.t("change-lang-mess")).then((res) => {
+      i18n.changeLanguage(language).then((t) => {
+        t("key");
+        dispatch(setLanguage(language));
+      });
     });
   };
 
-  const handleImgUpload = async (e) => {
+  const changePassword = async () => {
+    try {
+      const popupRes = await changePasswordPopUp();
+      await changePasswordAPI({
+        currentPassword: popupRes.oldPassword,
+        newPassword: popupRes.password,
+      });
+      apiResponseHandler("Password changed successfully");
+    } catch (err) {
+      apiResponseHandler(err?.response?.data?.message || "Error changing password", "error");
+    }
+  };
+
+  const handleImgUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        apiResponseHandler("Ảnh vượt quá dung lượng tối đa 2MB", "error");
+        apiResponseHandler("Image exceeds 5MB limit", "error");
         return;
       }
-
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64 = e.target.result;
-        setAvatar(base64);
-      };
+      reader.onload = (e) => setAvatar(e.target.result);
       reader.readAsDataURL(file);
       const formData = new FormData();
-      formData.append('avatar', file);
+      formData.append("avatar", file);
       setFileUpload(formData);
     }
   };
@@ -101,132 +89,171 @@ export default function AccountPage() {
     getUserInfoAPI()
       .then((res) => {
         setUserInfo(res.data);
-        setAvatar(res.data.avatar)
+        setAvatar(res.data.avatar || "");
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   }, []);
+
   useEffect(() => {
-    setEmail(userInfo?.email ? userInfo.email : "");
-    setName(userInfo?.name ? userInfo.name : "");
+    setEmail(userInfo?.email || "");
+    setName(userInfo?.name || "");
+    setAddress(userInfo?.address || "Not updated");
+    setGender(userInfo?.gender || "Not updated");
+    setPhone(userInfo?.phone || "Not updated");
+    setStatus(userInfo?.status || "Active");
+    setNumOfGarden(userInfo?.gardenId?.length || 0);
   }, [userInfo]);
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-200">
       <HeaderComponent />
-      <div className="flex">
+      <div className="flex flex-1">
         <SideNavigationBar />
-        <div className="mx-10 my-5 justify-between flex-col w-full">
-          <h1 className="text-3xl">
-            <strong>{i18n.t("account")}</strong>
+        <div className="flex-1 p-8 lg:p-12 w-full max-w-7xl mx-auto">
+          <h1 className="text-4xl lg:text-5xl font-bold mb-8 text-gray-800">
+            {i18n.t("account")}
           </h1>
-          <div className="flex pt-5  justify-between items-center ">
-            <div className="flex">
+
+          {/* Avatar Section */}
+          <div className="bg-white p-8 rounded-xl shadow-lg mb-8">
+            <h2 className="text-2xl lg:text-3xl font-semibold mb-6 text-gray-700">
+              Profile Picture
+            </h2>
+            <div className="flex items-center space-x-8">
               <img
-                src={
-                  avatar !== ""
-                    ? avatar
-                    : require("../../assets/images/AvatarDefault.png")
-                }
-                className="py-5 max-w-lg"
-                alt="avatar"
+                src={avatar || require("../../assets/images/AvatarDefault.png")}
+                alt="Avatar"
+                className="w-32 h-32 lg:w-40 lg:h-40 rounded-full object-cover border-4 border-gray-200"
               />
-              {avatar === "" ? (
-                <h2 className="text-2xl p-4">
-                  Ảnh cá nhân <br />
-                  PNG, JPEG dưới 2MB <br />
-                </h2>
-              ) : (
-                <></>
-              )}
+              <div>
+                <label className="block text-lg font-medium text-gray-700 mb-3">
+                  Upload PNG/JPEG (Max 5MB)
+                </label>
+                <input
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  onChange={handleImgUpload}
+                  className="block w-full text-lg text-gray-500 file:mr-6 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-lg file:font-semibold file:bg-blue-100 file:text-blue-800 hover:file:bg-blue-200 transition"
+                />
+              </div>
             </div>
-            {/* <button className='bg-gray-300 p-5 rounded-2xl text-xl border-2 border-gray-500 hover:bg-gray-400'>
-                        Tải hình ảnh lên
-                    </button> */}
-
-            <input type="file" onChange={(e) => handleImgUpload(e)} />
           </div>
 
-          <div className="pt-5  justify-between items-center border-b-2 pb-4 ">
-            <h2 className="text-2xl ">
-              <strong>{i18n.t("fullname")}</strong>
+          {/* User Info Form */}
+          <div className="bg-white p-8 rounded-xl shadow-lg">
+            <h2 className="text-2xl lg:text-3xl font-semibold mb-6 text-gray-700">
+              Personal Information
             </h2>
-            <input
-              type="text"
-              className="border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full"
-              placeholder="Nhập họ và tên"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <label className="block text-lg font-medium text-gray-700">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your name"
+                  className="mt-2 block w-full p-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+              <div>
+                <label className="block text-lg font-medium text-gray-700">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  readOnly
+                  className="mt-2 block w-full p-4 text-lg border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="block text-lg font-medium text-gray-700">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Enter your address"
+                  className="mt-2 block w-full p-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+              <div>
+                <label className="block text-lg font-medium text-gray-700">
+                  Gender
+                </label>
+                <input
+                  type="text"
+                  value={gender}
+                  readOnly
+                  className="mt-2 block w-full p-4 text-lg border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="block text-lg font-medium text-gray-700">
+                  Phone
+                </label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Enter your phone number"
+                  className="mt-2 block w-full p-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+              <div>
+                <label className="block text-lg font-medium text-gray-700">
+                  Number of Gardens
+                </label>
+                <input
+                  type="number"
+                  value={numOfGarden}
+                  readOnly
+                  className="mt-2 block w-full p-4 text-lg border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+                />
+              </div>
+            </div>
 
-          <div className="pt-5  justify-between items-center border-b-2 pb-4 ">
-            <h2 className="text-2xl">
-              <strong>Email</strong>
-            </h2>
-            <input
-              readOnly
-              type="email"
-              className="border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+            {/* Password and Language */}
+            <div className="mt-8">
+              <h2 className="text-2xl lg:text-3xl font-semibold mb-6 text-gray-700">
+                Settings
+              </h2>
+              <div className="flex flex-col space-y-6">
+                <button
+                  onClick={changePassword}
+                  className="w-full lg:w-1/2 bg-green-600 text-white py-4 text-lg rounded-lg hover:bg-green-700 transition disabled:bg-green-400"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Processing..." : i18n.t("change-password")}
+                </button>
+                <div>
+                  <label className="block text-lg font-medium text-gray-700">
+                    Language
+                  </label>
+                  <select
+                    value={lang}
+                    onChange={(e) => changeLanguage(e.target.value)}
+                    className="mt-2 block w-full lg:w-1/2 p-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  >
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="en">English</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
-          <div className="pt-5  justify-between items-center border-b-2 pb-4 ">
-            <h2 className="text-2xl ">
-              <strong>{i18n.t("password")}</strong>
-            </h2>
-            <input
-              readOnly
-              type="password"
-              className="border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full"
-              placeholder="Mật Khẩu"
-              value={"abcdefgh"}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            {/* Save Button */}
             <button
-              className="p-4 rounded bg-green-600 mt-4"
-              onClick={changePassword}
+              onClick={saveUpdateUserInfo}
+              className="mt-8 w-full bg-blue-600 text-white py-4 text-lg rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400"
+              disabled={isLoading}
             >
-              <p className="text-white text-2xl">{i18n.t("change-password")}</p>
+              {isLoading ? "Saving..." : i18n.t("save")}
             </button>
           </div>
-
-          <div className="pt-5  justify-between items-center border-b-2 pb-4 ">
-            <h2 className="text-2xl ">
-              <strong>{i18n.t("lang")}</strong>
-            </h2>
-            <select
-              className="border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full"
-              onChange={(e) => changeLanguage(e.target.value)}
-            >
-              {lang === "vi" ? (
-                <div>
-                  <option selected value="vi">
-                    Tiếng Việt
-                  </option>
-                  <option value="en">English</option>
-                </div>
-              ) : (
-                <div>
-                  <option value="vi">Tiếng Việt</option>
-                  <option selected value="en">
-                    English
-                  </option>
-                </div>
-              )}
-            </select>
-          </div>
-
-          <button
-            className="w-full p-4 rounded bg-blue-400"
-            onClick={saveUpdateUserInfo}
-          >
-            <p className="text-white text-2xl">{i18n.t("save")}</p>
-          </button>
         </div>
       </div>
       <FooterComponent />
