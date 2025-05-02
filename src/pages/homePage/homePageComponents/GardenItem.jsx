@@ -55,7 +55,10 @@ function GardenItem({ id, name, sensors = [], controls = [], img_area }) {
         [controlName]: currentStatus,
       }));
 
-      apiResponseHandler("Failed to update control status. Please try again.");
+      apiResponseHandler(
+        "Failed to update control status. Please try again.",
+        "error"
+      );
     }
   };
 

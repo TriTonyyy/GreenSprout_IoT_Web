@@ -63,20 +63,18 @@ const GardenImage = ({ src, onImageClick }) => (
 );
 
 const SensorReading = ({ label, value, unit, icon }) => (
-  (
-    <div className="mx-2 my-3 flex justify-between items-center">
-      <div className="flex items-center space-x-2 min-w-[140px]">
-        <span className="text-xl">{icon}</span>
-        <p className="font-semibold text-gray-600 truncate">{label}:</p>
-      </div>
-      <div className="flex items-center space-x-1">
-        <p className="text-gray-800 font-medium min-w-[50px] text-right">
-          {value ?? "---"}
-        </p>
-        <p className="text-gray-500 text-sm">{unit}</p>
-      </div>
+  <div className="mx-2 my-3 flex justify-between items-center">
+    <div className="flex items-center space-x-2 min-w-[140px]">
+      <span className="text-xl">{icon}</span>
+      <p className="font-semibold text-gray-600 truncate">{label}:</p>
     </div>
-  )
+    <div className="flex items-center space-x-1">
+      <p className="text-gray-800 font-medium min-w-[50px] text-right">
+        {value ?? "---"}
+      </p>
+      <p className="text-gray-500 text-sm">{unit}</p>
+    </div>
+  </div>
 );
 
 const MemberList = ({ members, onEdit, isOwner }) => (
@@ -89,12 +87,20 @@ const MemberList = ({ members, onEdit, isOwner }) => (
       >
         <div className="flex items-center space-x-2">
           <span className="text-lg text-sky-500">
-            <User size={20} />
+            {member.img ? (
+              <img
+                src={member.img}
+                alt="User"
+                className="w-5 h-5 inline-block"
+              />
+            ) : (
+              <User size={20} className="text-sky-500" />
+            )}
           </span>
           <div className="flex flex-col leading-tight">
             <div className="flex items-center">
               <span className="font-medium text-gray-800">
-                {member.name ?? "Unknown"}
+                {member.isMe ? "You" : member.name ?? "Unknown"}
               </span>
             </div>
             <span className="text-sm text-gray-500">
@@ -152,6 +158,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
   // const [waterOn, setWaterOn] = useState(false);
   // const [lightOn, setLightOn] = useState(false);
   // const [windOn, setWindOn] = useState(false);
+  const allControlNames = ["water", "light", "wind"];
   const [controlModes, setControlModes] = useState({});
   const [controlStatuses, setControlStatuses] = useState({});
   const [isPolling, setIsPolling] = useState(true);
@@ -165,7 +172,6 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
     "luminosity",
   ];
   // Define all possible control names
-  const allControlNames = ["water", "light", "wind"];
 
   const translateSensorType = (sensorType) => {
     const translationMap = {
@@ -210,7 +216,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       device.members = result.members || [];
       setGardenData(device);
       // console.log(device);
-  
+
       // Map sensors by type for easy access
       const tempSensorsMap = {};
       device.sensors?.forEach((sensor) => {
@@ -228,6 +234,14 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
         initialModes[control.name] = control.mode || "manual";
         initialStatuses[control.name] = control.status || false;
       });
+
+      const updatedStatuses = {};
+      allControlNames.forEach((name) => {
+        const control = device.controls.find((c) => c.name === name);
+        updatedStatuses[name] = control?.status ?? false;
+      });
+
+      setControlStatuses(updatedStatuses);
 
       // Update states with new data
       setControlsMap(tempControlsMap);
@@ -268,10 +282,8 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
   useEffect(() => {
     // Initial fetch
     fetchGardenData();
-
     // Set up polling
-    const intervalId = setInterval(fetchGardenData, 1000); // Fetch every 1 second
-
+    const intervalId = setInterval(fetchGardenData, 2000); // Fetch every 1 second
     // Cleanup
     return () => {
       clearInterval(intervalId);
@@ -284,20 +296,18 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
     const currentStatus = controlStatuses[controlName];
     const newStatus = !currentStatus;
 
-    // Optimistically update the UI
+    // Optimistically update the status in the UI
     setControlStatuses((prev) => ({
       ...prev,
       [controlName]: newStatus,
     }));
-
-    // Switch mode to manual when toggling status
     setControlModes((prev) => ({
       ...prev,
       [controlName]: "manual",
     }));
 
     try {
-      // Update both status and mode in one API call
+      // Send the request to the backend to update control status
       await updateControlById({
         id_esp: deviceId,
         controlId: controlId,
@@ -307,11 +317,12 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
         },
       });
     } catch (error) {
-      // Revert on error
+      // If an error occurs, revert the control status to its previous state
       setControlStatuses((prev) => ({
         ...prev,
         [controlName]: currentStatus,
       }));
+
       apiResponseHandler(
         "Failed to update control status. Please try again.",
         "error"
