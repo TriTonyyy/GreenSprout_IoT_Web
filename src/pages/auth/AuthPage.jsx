@@ -17,7 +17,8 @@ function AuthPage({ isLogin }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const deviceInfo = deviceDetect();
-
+  console.log(userCre);
+  
   const signIn = () => {
     dispatch(UserCredential({ email, password, name }));
     loginApi({ email, password, deviceID: deviceInfo.userAgent })
@@ -38,13 +39,21 @@ function AuthPage({ isLogin }) {
   };
 
   const register = () => {
-    dispatch(UserCredential({ email, password, name }));
-    navigate("/register-email");
+    if (password.length < 8) {
+      alert("Password must be at least 8 characters long.");
+    } else {
+      dispatch(UserCredential({ email, password, name }));
+      navigate("/register-email");
+    }
   };
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
-      isLogin ? signIn() : register();
+      if (password.length < 8) {
+        alert("Password must be at least 8 characters long.");
+      } else {
+        isLogin ? signIn() : register();
+      }
     }
   };
 

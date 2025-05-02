@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , me, memo} from "react";
 import Skeleton from "react-loading-skeleton";
 import { useNavigate } from "react-router";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
@@ -6,7 +6,7 @@ import { updateControlById } from "../../../api/deviceApi";
 import { apiResponseHandler } from "../../../components/Alert/alertComponent";
 import "react-loading-skeleton/dist/skeleton.css";
 
-function GardenItem({ id, name, sensors = [], controls = [], img_area }) {
+const GardenItem = memo(function GardenItem({ id, name, sensors = [], controls = [], img_area }) {
   const navigate = useNavigate();
   const sensorTypes = ["temperature", "moisture"];
   const controlNames = ["water", "light", "wind"]; // Added "fan" control
@@ -65,12 +65,12 @@ function GardenItem({ id, name, sensors = [], controls = [], img_area }) {
   const handleImageGardenClick = (deviceId) => {
     navigate(`/garden/${deviceId}`);
   };
-
+  
   return (
     <div className="w-[32%] h-1/4 rounded-2xl border-2 shadow-xl bg-white flex">
       <div className="w-1/2 rounded-xl border-r-2 transition-transform hover:scale-105">
         <img
-          src={img_area || require("../../../assets/images/ItemImg.png")}
+          src={img_area !== "" ? img_area : require("../../../assets/images/ItemImg.png")}
           alt="Garden"
           className="w-full h-full object-cover cursor-pointer rounded-xl "
           onClick={() => handleImageGardenClick(id)}
@@ -167,9 +167,9 @@ function GardenItem({ id, name, sensors = [], controls = [], img_area }) {
       </div>
     </div>
   );
-}
+});
 
-function GardenItemSkeleton() {
+const GardenItemSkeleton =memo(function GardenItemSkeleton() {
   return (
     <div className="w-[32%] h-1/2 rounded-xl border-2 shadow-lg bg-white flex overflow-hidden">
       <div className="p-2 w-2/5 bg-gray-200 rounded-xl border-r-2">
@@ -205,6 +205,6 @@ function GardenItemSkeleton() {
       </div>
     </div>
   );
-}
+})
 
 export { GardenItem, GardenItemSkeleton };
