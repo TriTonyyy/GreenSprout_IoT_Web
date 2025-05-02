@@ -5,7 +5,6 @@ import { getUserInfoAPI } from "../../api/authApi";
 import { SearchBarComponent } from "./SearchBarComponent";
 import { getRole } from "../../helper/tokenHelper";
 
-
 function HeaderComponent({ gardens }) {
   const headerFont = "Kodchasan";
   const [userName, setUserName] = useState("");
@@ -24,18 +23,17 @@ function HeaderComponent({ gardens }) {
       });
   }, []);
 
-  const handleIconClick = ()=>{
-    if(role ==='admin'){
-      navigate("/admin/home")
+  const handleIconClick = () => {
+    if (role === "admin") {
+      navigate("/admin/home");
     } else {
-      navigate("/home")
+      navigate("/home");
     }
-  }
-  
+  };
 
   return (
-    <header className="w-full bg-white border-b border-gray-200">
-      <div className="h-16 px-6">
+    <header className="sticky top-0 bg-white border-b border-gray-200 shadow-sm z-40">
+      <div className="h-24 px-6">
         <div className="flex h-full items-center justify-between">
           {/* Left side - Logo and Brand */}
           <div
@@ -44,10 +42,10 @@ function HeaderComponent({ gardens }) {
           >
             <img
               src={require("../../assets/images/TreePlanting.png")}
-              className="h-12 w-12 object-contain"
+              className="h-14 w-14 object-contain"
               alt="logo"
             />
-            <h1 className="text-2xl font-semibold text-green-600">
+            <h1 className="text-3xl font-semibold text-green-600">
               GreenSprout
             </h1>
           </div>
@@ -68,11 +66,11 @@ function HeaderComponent({ gardens }) {
                 {avatar ? (
                   <img
                     src={avatar}
-                    className="h-9 w-9 rounded-full border border-gray-200"
+                    className="h-10 w-10 rounded-full border border-gray-200"
                     alt="avatar"
                   />
                 ) : (
-                  <div className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+                  <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
                     <User size={20} className="text-gray-400" />
                   </div>
                 )}

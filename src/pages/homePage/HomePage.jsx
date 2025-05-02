@@ -27,9 +27,9 @@ function HomePage() {
         .then((res) => {
           setUser(res.data);
         })
-        .catch((err)=>{
+        .catch((err) => {
           console.log(err);
-        })
+        });
 
       const deviceResponse = await getGardenby();
       const deviceIds = deviceResponse.data || [];
@@ -72,8 +72,8 @@ function HomePage() {
             {/* Sidebar */}
             <SideNavigationBar />
             {/* Main Content Area */}
-            <div className="w-full flex-grow min-h-screen">
-              <div className="flex justify-between items-center px-10 py-10">
+            <div className="w-[80%] h-[80%] flex-grow min-h-screen">
+              <div className="flex justify-between items-center p-10">
                 <h1 className="text-4xl font-bold">
                   <span className="text-green-500">
                     {i18n.t("garden_of_account", { accountName: user.name })}
@@ -86,9 +86,9 @@ function HomePage() {
                   >
                     <RefreshCcw size={24} />
                   </button>
-                  <button className="bg-green-700 text-white rounded-2xl p-2">
-                    <Plus
-                      size={24}
+                  {deviceData && deviceData.length < 9 && (
+                    <button
+                      className="bg-green-700 text-white rounded-2xl p-2"
                       onClick={() =>
                         user &&
                         addDevicePopup(
@@ -96,8 +96,10 @@ function HomePage() {
                           fetchUserDevices
                         )
                       }
-                    />
-                  </button>
+                    >
+                      <Plus size={24} />
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-10 mx-2">
@@ -118,17 +120,17 @@ function HomePage() {
                       img_area={device?.img_area}
                     />
                   ))
-                ) : (
+                ) : deviceData && deviceData.length <= 9 ? (
                   <AddDeviceButton
                     onClick={() =>
                       user &&
                       addDevicePopup(
                         { userId: user._id, role: "member" },
-                        fetchUserDevices // Callback to refresh device list after adding
+                        fetchUserDevices
                       )
                     }
                   />
-                )}
+                ) : null}
               </div>
             </div>
           </div>

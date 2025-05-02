@@ -118,12 +118,10 @@ function DetailedGarden() {
   const handleDelete = async () => {
     try {
       // Show confirmation popup first
+      // console.log(isOwner);
+      
       await areUSurePopup("Bạn có chắc chắn muốn rời khỏi khu vườn này?");
-      const isOwner = data.members?.some(
-        (m) => m.userId === user._id && m.role === "owner"
-      );
       const totalMembers = data.members?.length || 0;
-
       if (isOwner && totalMembers > 1) {
         try {
           const newOwner = await selectNewOwnerPopup(data.members);
