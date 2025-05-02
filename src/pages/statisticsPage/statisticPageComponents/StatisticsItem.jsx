@@ -15,11 +15,11 @@ function StatisticItem({ id, name, img_area, report }) {
 
   return (
     <div className="w-[32%] h-1/4 rounded-2xl border-2 shadow-xl bg-white flex">
-      <div className="p-3 w-1/2 bg-green-300 rounded-xl border-r-2">
-        <img
+      <div className="w-1/2 rounded-xl border-r-2 transition-transform hover:scale-105">
+      <img
           src={img_area || require("../../../assets/images/ItemImg.png")}
           alt="Garden"
-          className="w-full h-full object-cover cursor-pointer rounded-xl transition-transform hover:scale-105"
+          className="w-full h-full object-cover cursor-pointer rounded-xl "
           onClick={() => handleImageGardenClick(id)}
         />
       </div>
