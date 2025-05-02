@@ -1,10 +1,12 @@
 import React from 'react'
+import { useNavigate } from 'react-router';
 
 export default function UserCardComponent({user}) {
   const numOfDevices = user.gardenId
+  const navigate = useNavigate();
   const handleClick = ()=>{
     console.log(user._id);
-    
+    navigate(`/admin/detailUser/${user._id}`)
   }
   
     return (

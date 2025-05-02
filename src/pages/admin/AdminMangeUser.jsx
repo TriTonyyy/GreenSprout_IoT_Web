@@ -32,7 +32,6 @@ export default function AdminMangeUser() {
   useEffect(()=>{
     getData()
   }, [])
-  
   return (
     <div>
         <HeaderComponent/>

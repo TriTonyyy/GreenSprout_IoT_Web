@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import HeaderComponent from "../../components/Header/HeaderComponent";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { changePasswordAPI, getUserInfoAPI } from "../../api/authApi";
 import { updateAvatarAPI, updateProfileApi } from "../../api/userApi";
 import {
@@ -14,6 +14,8 @@ import FooterComponent from "../../components/FooterComponent/FooterComponent";
 import i18n from "../../i18n";
 import { setLanguage } from "../../redux/Reducers/langReducer";
 import { getLang } from "../../redux/selectors/langSelectors";
+import { banUserAPI, getDetailUserById } from "../../api/adminApi";
+import { getRole } from "../../helper/tokenHelper";
 
 export default function AccountPage() {
   const dispatch = useDispatch();
@@ -29,9 +31,11 @@ export default function AccountPage() {
   const [status, setStatus] = useState("");
   const [numOfGarden, setNumOfGarden] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-
   const navigate = useNavigate();
 
+  const {id} = useParams();
+  const role = getRole();
+  const isDisable = role ==='admin' ? true :false;
   const saveUpdateUserInfo = async () => {
     setIsLoading(true);
     try {
@@ -86,12 +90,21 @@ export default function AccountPage() {
   };
 
   useEffect(() => {
-    getUserInfoAPI()
+    if(id !== undefined){
+      getDetailUserById(id)
       .then((res) => {
         setUserInfo(res.data);
         setAvatar(res.data.avatar || "");
       })
       .catch((err) => console.log(err));
+    } else {
+      getUserInfoAPI()
+        .then((res) => {
+          setUserInfo(res.data);
+          setAvatar(res.data.avatar || "");
+        })
+        .catch((err) => console.log(err));
+    }
   }, []);
 
   useEffect(() => {
@@ -104,6 +117,16 @@ export default function AccountPage() {
     setNumOfGarden(userInfo?.gardenId?.length || 0);
   }, [userInfo]);
 
+  const banUser = ()=>{
+    banUserAPI({id:id})
+    .then((res)=>{
+      console.log(res);
+      apiResponseHandler(res.message, 'success')
+    })
+    .catch((err)=>{
+      apiResponseHandler(err.response.data.message, 'error')
+    })
+  }
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-200">
       <HeaderComponent />
@@ -150,6 +173,7 @@ export default function AccountPage() {
                   Full Name
                 </label>
                 <input
+                  disabled={isDisable}
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -162,6 +186,7 @@ export default function AccountPage() {
                   Email
                 </label>
                 <input
+                  disabled={isDisable}
                   type="email"
                   value={email}
                   readOnly
@@ -173,6 +198,7 @@ export default function AccountPage() {
                   Address
                 </label>
                 <input
+                  disabled={isDisable}
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -196,6 +222,7 @@ export default function AccountPage() {
                   Phone
                 </label>
                 <input
+                  disabled={isDisable}
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -217,6 +244,8 @@ export default function AccountPage() {
             </div>
 
             {/* Password and Language */}
+            {role !== 'admin' && (
+
             <div className="mt-8">
               <h2 className="text-2xl lg:text-3xl font-semibold mb-6 text-gray-700">
                 Settings
@@ -244,15 +273,27 @@ export default function AccountPage() {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Save Button */}
-            <button
-              onClick={saveUpdateUserInfo}
-              className="mt-8 w-full bg-blue-600 text-white py-4 text-lg rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400"
-              disabled={isLoading}
-            >
-              {isLoading ? "Saving..." : i18n.t("save")}
-            </button>
+            {role !== 'admin' ? (
+              <button
+                onClick={saveUpdateUserInfo}
+                className="mt-8 w-full bg-blue-600 text-white py-4 text-lg rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400"
+                disabled={isLoading}
+              >
+                {isLoading ? "Saving..." : i18n.t("save")}
+              </button>
+            ) : (
+              <button
+                onClick={banUser}
+                className="mt-8 w-full bg-red text-white py-4 text-lg rounded-lg hover:bg-red-700 transition"
+                disabled={isLoading}
+              >
+                {isLoading ? "Saving..." : "Ban"}
+              </button>
+            )}
+            
           </div>
         </div>
       </div>

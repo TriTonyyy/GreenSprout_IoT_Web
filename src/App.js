@@ -11,6 +11,7 @@ import StatisticsPage from "./pages/statisticsPage/StatisticPage";
 import StatisticsDashboard from "./pages/statisticsPage/StatisticsDashboard";
 import AdminHomePage from "./pages/admin/AdminHomePage";
 import AdminMangeUser from "./pages/admin/AdminMangeUser";
+import AdminStatisticPage from "./pages/admin/AdminStatisticPage";
 
 
 function ProtectedRoute() {
@@ -96,6 +97,9 @@ function App() {
         <Route element={<AdminRoute/>}>
           <Route path="/admin/home" element={<AdminHomePage/>}/>
           <Route path="/admin/manage-user" element={<AdminMangeUser/>}/>
+          <Route path="/admin/statistics" element={<AdminStatisticPage/>}/>
+          <Route path="/admin/detailUser/:id" element={<AccountPage/>}/>
+
         </Route>
       </Route>
 
