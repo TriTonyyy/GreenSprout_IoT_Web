@@ -55,7 +55,10 @@ const GardenItem = memo(function GardenItem({ id, name, sensors = [], controls =
         [controlName]: currentStatus,
       }));
 
-      apiResponseHandler("Failed to update control status. Please try again.");
+      apiResponseHandler(
+        "Failed to update control status. Please try again.",
+        "error"
+      );
     }
   };
 
