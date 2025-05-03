@@ -71,13 +71,17 @@ function AuthPage({ isLogin }) {
   }
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-bgPurple ">
-      <div className="bg-white p-10 rounded-2xl shadow-lg">
+    <div className="flex flex-col justify-center items-center min-h-screen bg-green-600">
+      <div className="bg-green-50 p-10 rounded-2xl shadow-lg">
+        <div className="flex justify-center cursor-pointer">
+          <img src={require("../../assets/images/TreePlanting.png")} className="h-50 w-50 object-contain" alt="logo"/>
+        </div>
         <div className="p-10">
           <h1 className="text-5xl font-bold">
             {isLogin ? `${i18n.t("login")}` : `${i18n.t("register")}`}
           </h1>
         </div>
+        
         <div className="input-box flex flex-col">
           <input
             value={email}
@@ -106,26 +110,26 @@ function AuthPage({ isLogin }) {
             className="border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full"
           />
           {isLogin && (
-            <a href="/" className="p-1 m-1">
+            <a href="/forget-password" className="p-1 m-1">
               {i18n.t("forgot-pass")}
             </a>
           )}
           <button
-            className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-purple"
+            className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700"
             onClick={isLogin ? signIn : register}
           >
             {isLogin ? `${i18n.t("login")}` : `${i18n.t("register")}`}
           </button>
           <div className="flex justify-center items-center">
-            <div className="w-5/12 h-px bg-slate-400"></div>
+            {/* <div className="w-5/12 h-px bg-slate-400"></div>
             <p className="w-full text-center text-slate-400">
               {i18n.t("or-auth-with")}
             </p>
-            <div className="w-5/12 h-px bg-slate-400"></div>
+            <div className="w-5/12 h-px bg-slate-400"></div> */}
           </div>
-          <button className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-red" onClick={googleHandle}>
+          {/* <button className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-red" onClick={googleHandle}>
             Google
-          </button>
+          </button> */}
           {isLogin ? (
             <h2 className="p-1 m-1">
               {i18n.t("did-not-have-account")}{" "}

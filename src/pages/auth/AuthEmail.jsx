@@ -1,14 +1,17 @@
 import React, {useState, useEffect} from 'react'
 import {useNavigate } from "react-router";
 import { registerApi, sendCodeApi, verifyOtpApi } from '../../api/authApi';
-import{ useSelector } from 'react-redux';
+import{ useDispatch, useSelector } from 'react-redux';
 import { getUserCredential } from '../../redux/selectors/authSelectors';
+import { UserCredential } from "../../redux/Reducers/AuthReducer";
 
-function AuthEmail({isTypeOTP}) {
+
+function AuthEmail({isTypeOTP, isForgetPassword}) {
+    const dispatch = useDispatch();
     const userCre = useSelector(getUserCredential);
   const [email, setEmail] = useState(userCre?.email ? userCre.email : '') 
   const [otp, setOtp] = useState('')
-    // console.log(userCre, "usercre");
+    console.log(email, "authEmail");
     
   const navigate = useNavigate();
 
@@ -30,11 +33,16 @@ function AuthEmail({isTypeOTP}) {
 
   const sendOTP = async ()=>{
     setSeconds(120)
+    dispatch(UserCredential({email}));
     await sendCodeApi(email)
         .then((res)=>{
             console.log(res, "send code");
             alert(res.message);
-            navigate('/otp')
+            if(isForgetPassword){
+                navigate('/otp-forget-pass')
+            } else {
+                navigate('/otp')
+            }
         })
         .catch((err)=>{
             console.log(err);
@@ -43,9 +51,20 @@ function AuthEmail({isTypeOTP}) {
   }
 
   const verifyOTP = async ()=>{
-    console.log(email, otp);
-    
-    await verifyOtpApi({email, code:otp})
+    console.log(isForgetPassword, otp);
+    if(isForgetPassword){
+        await verifyOtpApi({email, code:otp})
+        .then((res)=>{
+            setOtp('');
+            alert(res.message);
+            navigate('/new-password')
+        })
+        .catch((err)=>{
+            console.log(err);
+            alert(err);
+        })  
+    } else {
+        await verifyOtpApi({email, code:otp})
         .then((res)=>{
             setOtp('');
             alert(res.message);
@@ -54,12 +73,12 @@ function AuthEmail({isTypeOTP}) {
             console.log(err);
             alert(err);
         })
-
-    await registerApi({
-        name:userCre.name,
-        email:userCre.email,
-        password:userCre.password
-    })
+    
+        await registerApi({
+            name:userCre.name,
+            email:userCre.email,
+            password:userCre.password
+        })
         .then((res)=>{
             navigate('/login')
 
@@ -68,12 +87,19 @@ function AuthEmail({isTypeOTP}) {
             console.log(err);
             alert(err.response.data.message);
         })
+    }
   }
   return (  
-    <div class='flex flex-col justify-center items-center min-h-screen bg-bgPurple '>
-        <div class='bg-white p-10 rounded-2xl shadow-lg'>
+    <div class='flex flex-col justify-center items-center min-h-screen  bg-green-600'>
+        <div class='bg-green-50 p-10 rounded-2xl shadow-lg'>
+            <div className="flex justify-center cursor-pointer">
+                <img src={require("../../assets/images/TreePlanting.png")} className="h-50 w-50 object-contain" alt="logo"/>
+            </div>
             <div className='p-10'>
-                <h1 className='text-5xl font-bold'>{ isTypeOTP ? "Nhập OTP" : "Đăng ký"}</h1>
+                <h1 className='text-5xl font-bold'>
+                    { isTypeOTP ? "Nhập OTP" 
+                    : isForgetPassword ? "Quên mật khẩu" : "Đăng ký"}
+                </h1>
             </div>
             <div className='input-box flex flex-col'>
                 {isTypeOTP ?(
@@ -101,7 +127,7 @@ function AuthEmail({isTypeOTP}) {
                             className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
                         /> 
                         
-                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-purple' onClick={isTypeOTP ? verifyOTP :sendOTP}>Gửi OTP</button>
+                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700' onClick={isTypeOTP ? verifyOTP :sendOTP}>Gửi OTP</button>
                     </>
                 ):(
                     <>
@@ -111,13 +137,15 @@ function AuthEmail({isTypeOTP}) {
                             placeholder='Nhập email' 
                             className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
                         /> 
-                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-purple' onClick={sendOTP}>Đăng ký</button>
-                        <div className='flex justify-center items-center'>
+                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700' onClick={sendOTP}>
+                            {isForgetPassword ? "Quên mật khẩu" : "Đăng ký"}
+                        </button>
+                        {/* <div className='flex justify-center items-center'>
                             <div className='w-5/12 h-px bg-slate-400'></div>
                                 <p className='w-full text-center text-slate-400'>Hoặc đăng ký với</p>
                             <div className='w-5/12 h-px bg-slate-400'></div>
                         </div>
-                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-red'>Google</button>
+                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-red'>Google</button> */}
                         {isTypeOTP ? (
                         <h2 className='p-1 m-1'>Bạn chưa có tài khoản? <a href='/register' className='text-stone-950 font-bold'>Đăng ký</a></h2>
                         ): (
