@@ -81,8 +81,8 @@ const StatisticsPage = () => {
       <HeaderComponent gardens={allGardens} />
       <div className="flex">
         <SideNavigationBar />
-        <div className="w-full flex-grow min-h-screen">
-          <div className="flex justify-between items-center px-10 py-10">
+        <div className="w-[80%] h-[80%]  flex-grow min-h-screen">
+          <div className="flex justify-between items-center p-10">
             <h1 className="text-4xl font-bold">
               <span className="text-green-500">
                 Thống kê gần nhất của các khu vườn

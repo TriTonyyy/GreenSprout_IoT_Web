@@ -9,23 +9,22 @@ import i18n from "../../i18n";
 const SideNavigationBar = () => {
   const navigate = useNavigate();
   const userRole = getRole();
-  
+
   const handleLogout = async () => {
     areUSurePopup(i18n.t("logout-confirm"))
-      .then(async(res)=>{
+      .then(async (res) => {
         await logOutAPI()
-          .then((res)=>{
+          .then((res) => {
             removeToken();
-            navigate("/login")
+            navigate("/login");
           })
-          .catch((err)=>{
+          .catch((err) => {
             apiResponseHandler(err);
-          })
+          });
       })
-      .catch((err)=>{
+      .catch((err) => {
         // apiResponseHandler(err)
-      })
-    
+      });
   };
 
   const roleBasedItems = {
@@ -49,11 +48,10 @@ const SideNavigationBar = () => {
     ],
     guest: [],
   };
-  const navItems = [ ...(roleBasedItems[userRole] || [])];
+  const navItems = [...(roleBasedItems[userRole] || [])];
   // console.log(userRole);
-  
+
   // console.log(navItems);
-  
 
   // const navItems = [
   //   { path: "/home", icon: <Home size={20} />, label: "Trang chủ" },
@@ -66,7 +64,7 @@ const SideNavigationBar = () => {
   // ];
 
   return (
-    <aside className="w-72 bg-gradient-to-b from-green-700 to-green-800 text-white min-h-screen flex flex-col shadow-xl">
+    <aside className="w-80 bg-gradient-to-b from-green-700 to-green-800 text-white min-h-screen flex flex-col shadow-xl">
       {/* Navigation Links */}
       <nav className="flex-grow px-4 pt-6">
         <div className="space-y-2">
