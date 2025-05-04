@@ -405,49 +405,50 @@ export default function IrrigationModeSection({ deviceId }) {
     );
   };
 
+  const handleCancelEdit = async () => {
+    await fetchScheduleById(deviceId); // re-fetch original list
+    setSelectedSchedule(null);
+    setOriginalSchedule(null);
+  };
+
   const handleScheduleClick = async (id) => {
-    // If clicking the same one, just close
     if (selectedSchedule === id) {
       setSelectedSchedule(null);
       setOriginalSchedule(null);
       return;
     }
-
     const current = schedules.find((s) => s._id === selectedSchedule);
 
-    // Check for unsaved changes
     if (hasUnsavedChanges(current, originalSchedule)) {
       try {
         const confirmed = await areUSurePopup(
           "Bạn có thay đổi chưa lưu. Bạn có chắc muốn hủy thay đổi?"
         );
         if (!confirmed) {
-          // ❗ Restore the old values before leaving
+          // Restore old values
+          handleCancelEdit();
+          return;
+        }
+      } catch (error) {
+        if (error === "cancelled") {
           setSchedules((prev) =>
             prev.map((s) =>
               s._id === current._id ? { ...originalSchedule } : s
             )
           );
           setSelectedSchedule(null);
-          setOriginalSchedule(null);
-          return;
-        }
-      } catch (error) {
-        if (error === "cancelled") {
-          // ❗ Restore the old values if user cancels
-          setSchedules((prev) =>
-            prev.map((s) =>
-              s._id === current._id ? { ...originalSchedule } : s
-            )
-          );
+          setTimeout(() => {
+            setSelectedSchedule(current._id);
+          }, 0);
         }
         return;
       }
     }
-    // Set new selection
+
+    // Normal selection
     setSelectedSchedule(id);
     const newSelected = schedules.find((s) => s._id === id);
-    setOriginalSchedule({ ...newSelected }); // store original state
+    setOriginalSchedule({ ...newSelected });
   };
 
   const hasUnsavedChanges = (current, original) => {
@@ -556,10 +557,7 @@ export default function IrrigationModeSection({ deviceId }) {
           onScheduleDelete={removeSchedule}
           onScheduleChange={changeSchedule}
           onScheduleSave={saveSchedule}
-          onScheduleCancel={() => {
-            setSelectedSchedule(null);
-            setOriginalSchedule(null);
-          }}
+          onScheduleCancel={handleCancelEdit}
           onScheduleToggleStatus={handleScheduleToggleStatus}
           selectedControl={selectedControl}
           onAddSchedule={handleAddSchedule}

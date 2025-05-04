@@ -49,7 +49,7 @@ const StatisticsSummary = ({ reportData }) => {
   return (
     <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 lg:grid-rows-1 gap-6">
       {/* Left Column: Sensor Stats */}
-      <div className="lg:col-span-2 bg-white py-2 flex flex-col h-full">
+      <div className="lg:col-span-2 py-2 flex flex-col h-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow">
           {stats
             .filter((item) => item.label !== sensorLabels.water_usage)
@@ -65,7 +65,7 @@ const StatisticsSummary = ({ reportData }) => {
       </div>
 
       {/* Right Column: Water Usage */}
-      <div className="bg-white py-2 h-full flex flex-col">
+      <div className=" py-2 h-full flex flex-col">
         {statOfWaterUsage.map((item) => (
           <StatisticsItem
             key={item.label}
