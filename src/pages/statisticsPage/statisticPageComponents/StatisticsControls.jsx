@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { RefreshCcw } from "lucide-react";
+import i18n from "../../../i18n";
 
 const StatisticsControls = ({
   onRefresh,
@@ -64,7 +65,7 @@ const StatisticsControls = ({
             className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-between"
           >
             {loadingGardens ? (
-              <span>Đang tải vườn...</span>
+              <span>{i18n.t("loadingGarden")}</span>
             ) : currentGarden ? (
               <div className="flex items-center gap-3">
                 <img
@@ -81,7 +82,7 @@ const StatisticsControls = ({
                 </span>
               </div>
             ) : (
-              <span>Chọn vườn</span>
+              <span>{i18n.t("selectGarden")}</span>
             )}
             <svg
               className={`w-5 h-5 transition-transform ${
@@ -104,7 +105,7 @@ const StatisticsControls = ({
           {isOpen && (
             <div className="absolute z-10 w-full top-full left-0 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
               {gardens.length === 0 ? (
-                <div className="px-4 py-2 text-gray-500">Không có vườn nào</div>
+                <div className="px-4 py-2 text-gray-500">{i18n.t("noGardens")}</div>
               ) : (
                 gardens.map((garden) => (
                   <button
@@ -149,7 +150,7 @@ const StatisticsControls = ({
                     : "bg-white text-gray-700 border-gray-300"
                 } hover:bg-green-100 transition-colors`}
               >
-                {m === "day" ? "Ngày" : m === "week" ? "Tuần" : "Tháng"}
+                {m === "day" ? i18n.t("day") : m === "week" ? i18n.t("week") : i18n.t("year")}
               </button>
             ))}
           </div>

@@ -266,8 +266,8 @@ export default function AccountPage({isDetail}) {
                     onChange={(e) => changeLanguage(e.target.value)}
                     className="mt-2 block w-full lg:w-1/2 p-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                   >
-                    <option value="vi">Tiếng Việt</option>
                     <option value="en">English</option>
+                    <option value="vi">Tiếng Việt</option>
                   </select>
                 </div>
               </div>

@@ -77,7 +77,7 @@ function AuthPage({ isLogin }) {
           <img src={require("../../assets/images/TreePlanting.png")} className="h-50 w-50 object-contain" alt="logo"/>
         </div>
         <div className="p-10">
-          <h1 className="text-5xl font-bold">
+          <h1 className="text-5xl font-bold text-center">
             {isLogin ? `${i18n.t("login")}` : `${i18n.t("register")}`}
           </h1>
         </div>

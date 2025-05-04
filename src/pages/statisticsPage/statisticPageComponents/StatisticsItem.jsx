@@ -2,6 +2,7 @@ import React from "react";
 import Skeleton from "react-loading-skeleton";
 import { useNavigate } from "react-router";
 import "react-loading-skeleton/dist/skeleton.css";
+import i18n from "../../../i18n";
 
 function StatisticItem({ id, name, img_area, report }) {
   const navigate = useNavigate();
@@ -43,25 +44,25 @@ function StatisticItem({ id, name, img_area, report }) {
           {/* Each Item */}
           {[
             {
-              label: "Độ ẩm đất",
+              label: i18n.t("soilMoisture"),
               label_icon: "💧",
               value: getLastValue(report?.humidity_avg),
               unit: "%",
             },
             {
-              label: "Độ ẩm trời",
+              label:i18n.t("skyHumidity"),
               label_icon: "🌊",
               value: getLastValue(report?.moisture_avg),
               unit: "%",
             },
             {
-              label: "Nhiệt độ",
+              label: i18n.t("temperature"),
               label_icon: "🌡️",
               value: getLastValue(report?.tempurature_avg),
               unit: "°C",
             },
             {
-              label: "Ánh sáng",
+              label: i18n.t("light"),
               label_icon: "🔆",
               value: getLastValue(report?.luminosity_avg),
               unit: "lux",
@@ -89,7 +90,7 @@ function StatisticItem({ id, name, img_area, report }) {
           <div key="waterUsage" className="flex justify-between items-center">
             <h2 className="w-3/5 font-medium text-gray-600 flex items-center">
               <span className="mr-2">🚿</span> {/* Icon */}
-              <span>Nước đã dùng:</span> {/* Label */}
+              <span>{i18n.t("water_usage")}:</span> {/* Label */}
             </h2>
 
             {/* Value and Unit */}

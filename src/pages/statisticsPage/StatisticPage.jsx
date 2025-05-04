@@ -85,7 +85,7 @@ const StatisticsPage = () => {
           <div className="flex justify-between items-center p-10">
             <h1 className="text-4xl font-bold">
               <span className="text-green-500">
-                Thống kê gần nhất của các khu vườn
+                {i18n.t("admin_statistic")}
               </span>
             </h1>
           </div>
@@ -97,7 +97,7 @@ const StatisticsPage = () => {
                 <StatisticItemSkeleton />
               </>
             ) : allGardens.length === 0 ? (
-              <p>No gardens found.</p>
+              <p>{i18n.t("garden_not_found")}</p>
             ) : (
               allGardens.map((garden, index) => {
                 const reportData = allReports[garden.deviceId];
