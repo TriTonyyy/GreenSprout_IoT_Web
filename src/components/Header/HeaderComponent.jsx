@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { getUserInfoAPI } from "../../api/authApi";
 import { SearchBarComponent } from "./SearchBarComponent";
 import { getRole } from "../../helper/tokenHelper";
+import i18n from "../../i18n";
 
 function HeaderComponent({ gardens }) {
   const headerFont = "Kodchasan";
@@ -59,7 +60,7 @@ function HeaderComponent({ gardens }) {
             >
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">{userName}</p>
-                <p className="text-xs text-gray-500">Tài khoản</p>
+                <p className="text-xs text-gray-500">{i18n.t("account")}</p>
               </div>
 
               <div className="flex-shrink-0">

@@ -4,6 +4,7 @@ import { registerApi, sendCodeApi, verifyOtpApi } from '../../api/authApi';
 import{ useDispatch, useSelector } from 'react-redux';
 import { getUserCredential } from '../../redux/selectors/authSelectors';
 import { UserCredential } from "../../redux/Reducers/AuthReducer";
+import i18n from '../../i18n';
 
 
 function AuthEmail({isTypeOTP, isForgetPassword}) {
@@ -97,8 +98,8 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
             </div>
             <div className='p-10'>
                 <h1 className='text-5xl font-bold'>
-                    { isTypeOTP ? "Nhập OTP" 
-                    : isForgetPassword ? "Quên mật khẩu" : "Đăng ký"}
+                    { isTypeOTP ? i18n.t("otp_input")
+                    : isForgetPassword ? i18n.t("forget_password") : i18n.t("register")}
                 </h1>
             </div>
             <div className='input-box flex flex-col'>
@@ -114,7 +115,7 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
                                     className="bg-purple text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                                     onClick={sendOTP}
                                 >
-                                    Send OTP
+                                    {i18n.t("send_otp")}
                                 </button>
                             </div>
                             )}
@@ -123,22 +124,22 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
                             onChange={(e)=> setOtp(e.target.value)} 
                             type='text' 
                             maxLength={4}
-                            placeholder='Nhập OTP' 
+                            placeholder={i18n.t("otp_input")}
                             className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
                         /> 
                         
-                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700' onClick={isTypeOTP ? verifyOTP :sendOTP}>Gửi OTP</button>
+                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700' onClick={isTypeOTP ? verifyOTP :sendOTP}>{i18n.t("send_otp")}</button>
                     </>
                 ):(
                     <>
                         <input value={email}
                             onChange={(e)=> setEmail(e.target.value)} 
                             type='text' 
-                            placeholder='Nhập email' 
+                            placeholder={i18n.t("email-placeholder")} 
                             className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
                         /> 
                         <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700' onClick={sendOTP}>
-                            {isForgetPassword ? "Quên mật khẩu" : "Đăng ký"}
+                            {isForgetPassword ? i18n.t("forget_password") : i18n.t("register")}
                         </button>
                         {/* <div className='flex justify-center items-center'>
                             <div className='w-5/12 h-px bg-slate-400'></div>
@@ -147,9 +148,9 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
                         </div>
                         <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-red'>Google</button> */}
                         {isTypeOTP ? (
-                        <h2 className='p-1 m-1'>Bạn chưa có tài khoản? <a href='/register' className='text-stone-950 font-bold'>Đăng ký</a></h2>
+                        <h2 className='p-1 m-1'>{i18n.t("did_not_have_account")}<a href='/register' className='text-stone-950 font-bold'>{i18n.t("register")}</a></h2>
                         ): (
-                        <h2 className='p-1 m-1'>Bạn đã có tài khoản? <a href='/login' className='text-stone-950 font-bold'>Đăng nhập</a></h2>
+                        <h2 className='p-1 m-1'>{i18n.t("have_account")}<a href='/login' className='text-stone-950 font-bold'>{i18n.t("login")}</a></h2>
 
                 )}
                     </>

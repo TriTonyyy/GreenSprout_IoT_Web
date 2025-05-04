@@ -2,6 +2,7 @@ import React from 'react';
 import { X } from "lucide-react";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import { dayDisplayMap } from "./IrrigationModeSection";
+import i18n from '../../../i18n';
 
 const ScheduleCard = ({
   schedule,
@@ -43,21 +44,21 @@ const ScheduleCard = ({
         </h2>
         <div className="space-y-3">
           <p className="text-sm text-gray-600">
-            <span className="font-medium text-green-600">Thời gian tưới:</span>{" "}
-            {Math.round(schedule.duration / 60)} phút
+            <span className="font-medium text-green-600">{i18n.t("irrigationTime")}</span>{" "}
+            {Math.round(schedule.duration / 60)} {i18n.t("minute")}
           </p>
           <p className="text-sm text-gray-600">
-            <span className="font-medium text-green-600">Lặp lại:</span>{" "}
+            <span className="font-medium text-green-600">{i18n.t("repeat")}:</span>{" "}
             {schedule.repeat && schedule.repeat.length > 0
               ? schedule.repeat
                   .map((day) => dayDisplayMap[day] || day)
                   .join(", ")
-              : "Không lặp lại"}
+              : i18n.t("no_repeat")}
           </p>
         </div>
 
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
-          <span className="font-medium text-gray-700">Bật/ Tắt:</span>
+          <span className="font-medium text-gray-700">{i18n.t("toggle")}:</span>
           <ToggleSwitch
             isOn={schedule.status}
             onToggle={() => onToggleStatus(schedule._id, !schedule.status)}

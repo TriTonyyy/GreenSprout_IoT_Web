@@ -33,5 +33,66 @@
   "soil_moisture": "Độ ẩm đất",
   "light_intensity": "Cường độ ánh sáng",
   "water_level": "Mực nước",
-  "data_analysis": "Phân tích dữ liệu"
+  "data_analysis": "Phân tích dữ liệu",
+  "otp_input":"Nhập OTP",
+  "forget_password":"Quên mật khẩu",
+  "send_otp":"Gửi OTP",
+  "did_not_have_account":"Bạn chưa có tài khoản?",
+  "have_account":"Bạn đã có tài khoản ?",
+  "enter_newpass":"Nhập mật khẩu mới",
+  "change_newpass":"Đổi mật khẩu mới",
+  "avatar":"Ảnh đại diện",
+  "avatar_des":"Tải lên PNG/JPEG (Tối đa 5MB)",
+  "personal_info":"Thông tin cá nhân",
+  "address":"Địa chỉ",
+  "phone":"Số điện thoại",
+  "gender":"Giới tính",
+  "num_garden":"Số lượng khu vườn",
+  "setting":"Cài đặt",
+  "language":"Ngôn ngữ",
+  "manage_device":"Quản lý khu vườn",
+  "admin_statistic":"Thống kê gần nhất của các khu vườn",
+  "admin_user":"Quản lý tài khoản",
+  "garden_not_found":"Không tìm thấy khu vườn nào !",
+  "data_empty":"Không có dữ liệu",
+  "search_placeholder":"Tìm kiếm...",
+  "retry":"Thử lại",
+  "garden_info":"Thông tin khu vườn",
+  "home":"Trang chủ",
+  "data_analys":"Phân tích dữ liệu",
+  "image": "Hình ảnh",
+  "sensor": "Cảm biến",
+  "control": "Điều khiển",
+  "member": "Thành viên",
+  "soilMoisture": "Độ ẩm đất",
+  "airHumidity": "Độ ẩm không khí",
+  "waterFlow": "Lưu lượng nước",
+  "lightIntensity": "Cường độ ánh sáng",
+  "water": "Nước",
+  "light": "Đèn",
+  "wind": "Gió",
+  "mode":"Chế độ",
+  "manual":"Thủ công",
+  "schedule":"Theo lịch",
+  "threshold":"Ngưỡng",
+  "irrigationSchedule": "Lịch tưới",
+  "logout":"Đăng xuất",
+  "minute":"phút",
+  "irrigationTime": "Thòi gian tưới",
+  "repeat": "Lặp lại",
+  "no_repeat": "không lặp lại",
+  "toggle": "Bật/Tắt"
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

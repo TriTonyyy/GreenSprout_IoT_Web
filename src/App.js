@@ -104,7 +104,7 @@ function App() {
           <Route path="/admin/home" element={<AdminHomePage/>}/>
           <Route path="/admin/manage-user" element={<AdminMangeUser/>}/>
           <Route path="/admin/statistics" element={<AdminStatisticPage/>}/>
-          <Route path="/admin/detailUser/:id" element={<AccountPage/>}/>
+          <Route path="/admin/detailUser/:id" element={<AccountPage isDetail={true}/>}/>
 
         </Route>
       </Route>

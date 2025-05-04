@@ -1,5 +1,6 @@
 import React from 'react';
 import { Droplets, Sun, Wind } from "lucide-react";
+import i18n from '../../../i18n';
 
 const ControlSelector = ({ selectedControl, setSelectedControl }) => {
   return (
@@ -7,17 +8,17 @@ const ControlSelector = ({ selectedControl, setSelectedControl }) => {
       {[
         {
           key: "water",
-          label: "Nước",
+          label: i18n.t("water"),
           icon: <Droplets size={18} className="mr-1" />,
         },
         {
           key: "light",
-          label: "Đèn",
+          label: i18n.t("light"),
           icon: <Sun size={18} className="mr-1" />,
         },
         {
           key: "wind",
-          label: "Quạt",
+          label: i18n.t("wind"),
           icon: <Wind size={18} className="mr-1" />,
         },
       ].map((control) => (

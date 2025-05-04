@@ -1,4 +1,5 @@
 import React from 'react';
+import i18n from '../../../i18n';
 
 const ModeSelector = ({ activeMode, setActiveMode, setSelectedSchedule, isOwner }) => {
   const handleModeChange = (modeKey) => {
@@ -9,8 +10,8 @@ const ModeSelector = ({ activeMode, setActiveMode, setSelectedSchedule, isOwner 
   return (
     <div className="flex gap-3">
       {[
-        { key: "THEO_LICH", label: "Theo lịch" },
-        { key: "CAM_BIEN", label: "Cảm biến" },
+        { key: "THEO_LICH", label: i18n.t("schedule") },
+        { key: "CAM_BIEN", label: i18n.t("sensor") },
       ].map((mode) => (
         <button
           key={mode.key}

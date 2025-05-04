@@ -10,6 +10,7 @@ import { Plus, RefreshCcw } from 'lucide-react';
 import { GardenItem, GardenItemSkeleton } from '../homePage/homePageComponents/GardenItem';
 import AddDeviceButton from '../homePage/homePageComponents/addDevice';
 import PagnipationComponent from '../../components/Pagnipation/PagnipationComponent';
+import FooterComponent from '../../components/FooterComponent/FooterComponent';
 
 export default function AdminHomePage() {
     const [deviceData, setDeviceData] = useState(null);
@@ -66,7 +67,7 @@ export default function AdminHomePage() {
             <SideNavigationBar />
             {/* Main Content Area */}
             <div className="w-full flex-grow min-h-screen">
-              <h1 className='text-3xl font-bold px-10 text-center text-green-500 mt-5'>Manage Devices</h1>
+              <h1 className='text-3xl font-bold px-10 text-center text-green-500 mt-5'>{i18n.t("manage_device")}</h1>
               <div className="flex justify-between items-center px-10 py-5">
                 <h1 className="text-3xl">
                   <span className="text-green-500">
@@ -121,6 +122,7 @@ export default function AdminHomePage() {
                 />
             </div>
           </div>
+          <FooterComponent/>
     </div>
   )
 }

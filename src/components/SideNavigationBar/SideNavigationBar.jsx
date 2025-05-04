@@ -29,22 +29,22 @@ const SideNavigationBar = () => {
 
   const roleBasedItems = {
     admin: [
-      { path: "/admin/home", icon: <Home size={20} />, label: "Trang chủ" },
+      { path: "/admin/home", icon: <Home size={20} />, label: i18n.t('home') },
       {
         path: "/admin/statistics",
         icon: <BarChart2 size={20} />,
-        label: "Phân tích dữ liệu",
+        label: i18n.t('data_analys'),
       },
-      { path: "/admin/manage-user", icon: <User size={20} />, label: "Users" },
+      { path: "/admin/manage-user", icon: <User size={20} />, label: i18n.t('admin_user') },
     ],
     user: [
-      { path: "/home", icon: <Home size={20} />, label: "Trang chủ" },
+      { path: "/home", icon: <Home size={20} />, label: i18n.t('home')},
       {
         path: "/statistics",
         icon: <BarChart2 size={20} />,
-        label: "Phân tích dữ liệu",
+        label: i18n.t('data_analys'),
       },
-      { path: "/account", icon: <Settings size={20} />, label: "Cài đặt" },
+      { path: "/account", icon: <Settings size={20} />, label: i18n.t('setting') },
     ],
     guest: [],
   };
@@ -101,7 +101,7 @@ const SideNavigationBar = () => {
           <span className="text-lg">
             <LogOut size={20} />
           </span>
-          <span className="font-medium">Đăng xuất</span>
+          <span className="font-medium">{i18n.t("logout")}</span>
         </button>
       </div>
     </aside>

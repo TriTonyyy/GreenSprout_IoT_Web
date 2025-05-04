@@ -4,6 +4,7 @@ import { registerApi, resetPasswordAPI, sendCodeApi, verifyOtpApi } from '../../
 import{ useSelector } from 'react-redux';
 import { getUserCredential } from '../../redux/selectors/authSelectors';
 import { apiResponseHandler } from '../../components/Alert/alertComponent';
+import i18n from "../../i18n"
 
 function AuthEmail({isTypeOTP, isForgetPassword}) {
     const userCre = useSelector(getUserCredential);
@@ -40,7 +41,7 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
             </div>
             <div className='p-10'>
                 <h1 className='text-5xl font-bold'>
-                    { "Nhập mật khẩu mới"}
+                    {i18n.t("enter_newpass")}
                 </h1>
             </div>
             <div className='input-box flex flex-col'>
@@ -48,11 +49,11 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
                     <input value={newPass}
                         onChange={(e)=> setNewPass(e.target.value)} 
                         type='password' 
-                        placeholder='Nhập mật khẩu mới' 
+                        placeholder={i18n.t("enter_newpass")}
                         className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
                     /> 
                     <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700' onClick={changePassWord}>
-                        Đổi mật khẩu mới
+                        {i18n.t("change_newpass")}
                     </button>
                     {/* <div className='flex justify-center items-center'>
                         <div className='w-5/12 h-px bg-slate-400'></div>
