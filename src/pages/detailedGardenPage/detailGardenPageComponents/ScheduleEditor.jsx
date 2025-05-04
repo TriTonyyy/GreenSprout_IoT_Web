@@ -1,5 +1,6 @@
 import React from 'react';
 import { dayOrder } from './IrrigationModeSection';
+import i18n from '../../../i18n';
 
 const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
   const convertTo24Hour = (time12) => {
@@ -72,7 +73,7 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
 
       <div className="mb-4">
         <label className="block text-sm font-medium mb-1">
-          Thời gian tưới (phút)
+          {i18n.t("irrigationTime")} ({i18n.t("minute")})
         </label>
         <input
           type="number"

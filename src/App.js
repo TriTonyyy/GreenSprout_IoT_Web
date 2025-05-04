@@ -12,6 +12,7 @@ import StatisticsDashboard from "./pages/statisticsPage/StatisticsDashboard";
 import AdminHomePage from "./pages/admin/AdminHomePage";
 import AdminMangeUser from "./pages/admin/AdminMangeUser";
 import AdminStatisticPage from "./pages/admin/AdminStatisticPage";
+import NewPassWordPage from "./pages/auth/NewPassWordPage";
 
 
 function ProtectedRoute() {
@@ -83,8 +84,13 @@ function App() {
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<AuthPage isLogin={true} />} />
       <Route path="/register" element={<AuthPage isLogin={false} />} />
-      <Route path="/register-email" element={<AuthEmail isTypeOTP={false} />} />
-      <Route path="/otp" element={<AuthEmail isTypeOTP={true} />} />
+      <Route path="/register-email" element={<AuthEmail isTypeOTP={false} isForgetPassword={false} />} />
+      <Route path="/forget-password" element={<AuthEmail isTypeOTP={false} isForgetPassword={true} />} />
+      <Route path="/new-password" element={<NewPassWordPage/>} />
+
+
+      <Route path="/otp-forget-pass" element={<AuthEmail isTypeOTP={true} isForgetPassword={true}/>} />
+      <Route path="/otp" element={<AuthEmail isTypeOTP={true} isForgetPassword={false}/>} />
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
@@ -98,7 +104,7 @@ function App() {
           <Route path="/admin/home" element={<AdminHomePage/>}/>
           <Route path="/admin/manage-user" element={<AdminMangeUser/>}/>
           <Route path="/admin/statistics" element={<AdminStatisticPage/>}/>
-          <Route path="/admin/detailUser/:id" element={<AccountPage/>}/>
+          <Route path="/admin/detailUser/:id" element={<AccountPage isDetail={true}/>}/>
 
         </Route>
       </Route>

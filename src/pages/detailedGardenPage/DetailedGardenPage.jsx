@@ -23,6 +23,7 @@ import {
   removeMemberByIdDevice,
   updateMemberRole,
 } from "../../api/deviceApi";
+import i18n from "../../i18n";
 
 function DetailedGarden() {
   const { gardenId } = useParams();
@@ -216,7 +217,7 @@ function DetailedGarden() {
           onClick={() => window.location.reload()}
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
-          Retry
+          {i18n.t("retry")}
         </button>
       </div>
     );
@@ -234,7 +235,7 @@ function DetailedGarden() {
             <>
               <GardenTitle
                 gardenName={data.name_area}
-                areaGardenName="Thông tin khu vườn"
+                areaGardenName={i18n.t("garden_info")}
                 onEdit={isOwner ? handleEdit : null}
                 onDelete={handleDelete}
                 isOwner={isOwner}

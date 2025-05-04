@@ -7,6 +7,8 @@ import UserCardComponent from '../../components/UserCard/UserCardComponent';
 import PagnipationComponent from '../../components/Pagnipation/PagnipationComponent';
 import { RefreshCcw } from 'lucide-react';
 import { GardenItemSkeleton } from '../homePage/homePageComponents/GardenItem';
+import i18n from '../../i18n';
+import FooterComponent from '../../components/FooterComponent/FooterComponent';
 
 export default function AdminMangeUser() {
   const [users, setUsers]= useState(null);
@@ -34,12 +36,12 @@ export default function AdminMangeUser() {
   }, [])
   return (
     <div>
-        <HeaderComponent/>
+        <HeaderComponent gardens={users || []}/>
         <div className='flex'>
             <SideNavigationBar/>
             <div className='flex flex-wrap gap-x-4 mx-4 w-full justify-center'>
               <div className='w-full mt-6'>
-                <h1 className='text-3xl font-bold text-green-500 text-center'>Manage user</h1>
+                <h1 className='text-3xl font-bold text-green-500 text-center'>{i18n.t("admin_user")}</h1>
                 <div className='flex justify-between mb-5 mx-5'>
                   <h1 className="text-3xl">
                     <span className="text-green-500">
@@ -69,7 +71,7 @@ export default function AdminMangeUser() {
               users.map((item)=>(
                 <UserCardComponent user={item}/>
               )) 
-              :<h1 className='text-4xl text-center'>Không có dữ liệu</h1>}
+              :<h1 className='text-4xl text-center'>{i18n.t("data_empty")}</h1>}
               <PagnipationComponent
                 totalPages = {totalPage}
                 currentPage = {currentPage}
@@ -77,6 +79,7 @@ export default function AdminMangeUser() {
               />
             </div>
         </div>
+        <FooterComponent/>
     </div>
   )
 }

@@ -15,6 +15,7 @@ import ModeSelector from "./ModeSelector";
 import ControlSelector from "./ControlSelector";
 import ScheduleList from "./ScheduleList";
 import SensorConfigPanel from "./SensorConfigPanel";
+import i18n from "../../../i18n";
 
 // Day mapping constants
 export const dayOrder = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
@@ -533,7 +534,7 @@ export default function IrrigationModeSection({ deviceId }) {
 
   return (
     <div className="mx-5 bg-white rounded-xl shadow-lg p-6 my-4 border border-gray-100">
-      <h2 className="text-2xl font-bold mb-6 px-2 text-gray-800">Lịch tưới</h2>
+      <h2 className="text-2xl font-bold mb-6 px-2 text-gray-800">{i18n.t("irrigationSchedule")}</h2>
       {/* Mode and Control Selection */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 mb-8 gap-4">
         <ModeSelector
