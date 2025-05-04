@@ -1,5 +1,6 @@
 import React from "react";
 import { sensorLabels, colors } from "../constants";
+import i18n from "../../../i18n";
 
 const StatisticsSummary = ({ reportData }) => {
   if (!reportData) return null;
@@ -82,8 +83,8 @@ const StatisticsSummary = ({ reportData }) => {
 const StatisticsItem = ({ label, value, type }) => {
   const unit = label.match(/\((.*?)\)/)?.[1] || "";
   const isRange = Array.isArray(value);
-  const isWaterUsage = label === "Lượng nước đã dùng (L)";
-  const displayLabel = isWaterUsage ? "Tổng lượng nước đã dùng" : label;
+  const isWaterUsage = label === i18n.t("water_usage");
+  const displayLabel = isWaterUsage ? i18n.t("totalWaterUsed") : label;
 
   return (
     <div
@@ -109,11 +110,11 @@ const StatisticsItem = ({ label, value, type }) => {
           isRange ? (
             <div className="flex justify-around gap-10 text-gray-900 text-lg font-semibold">
               <div>
-                <span className="text-sm font-medium text-blue-500">Thấp nhất:</span>{" "}
+                <span className="text-sm font-medium text-blue-500">{i18n.t('lowest')}</span>{" "}
                 {value[0]?.toFixed(2)} {unit}
               </div>
               <div>
-                <span className="text-sm font-medium text-rose-500">Cao nhất:</span>{" "}
+                <span className="text-sm font-medium text-rose-500">{i18n.t('highest')}</span>{" "}
                 {value[1]?.toFixed(2)} {unit}
               </div>
             </div>

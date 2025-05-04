@@ -1,3 +1,4 @@
+import i18n from "../../i18n";
 export const timeRanges = {
   DAY: 'day',
 };
@@ -10,12 +11,12 @@ export const sensorTypes = {
 };
 
 export const sensorLabels = {
-  humidity_avg: 'Độ ẩm không khí (%)',
-  tempurature_avg: 'Nhiệt độ (°C)',
-  luminosity_avg: 'Ánh sáng (lux)',
-  soil_moisture_avg: 'Độ ẩm đất (%)',
-  stream_avg: 'Lưu lượng (L/min)',
-  water_usage: 'Lượng nước đã dùng (L)'
+  humidity_avg: `${i18n.t("airHumidity")} (%)`,
+  tempurature_avg: `${i18n.t("temperature")} (°C)`,
+  luminosity_avg: `${i18n.t("ambientLight")}  (lux)`,
+  soil_moisture_avg: `${i18n.t("soil_moisture")} (%)`,
+  stream_avg: `${i18n.t("waterFlow")} (L/min)`,
+  water_usage: `${i18n.t("water_usage")}  (L)`
 };
 
 export const colors = {

@@ -70,6 +70,7 @@
   "lightIntensity": "Light Intensity",
   "water": "Water",
   "light": "Light",
+  "ambientLight": "Ambient Light",
   "wind": "Wind",
   "mode":"Mode",
   "manual":"Manual",
@@ -81,8 +82,25 @@
   "irrigationTime": "Irrigation Time",
   "repeat": "Repeat",
   "no_repeat": "No repeat",
-
-  "toggle": "On/Off"
+  "toggle": "On/Off",
+  "water_usage":"Water usage",
+  "skyHumidity": "Sky Humidity",
+  "loadingSensorData": "Loading sensor data...",
+  "totalWaterUsed": "Total Water Used",
+  "highest":"Highest",
+  "lowest":"Lowest",
+  "sensorDataStatistics": "Sensor Data Statistics",
+  "trackRecentGardenData": "Track Your Garden's Most Recent Data",
+  "loadingGarden": "Loading garden...",
+  "selectGarden": "Select Garden",
+  "noGardens": "No Gardens Available",
+  "day":"Day",
+  "week":"Week",
+  "year":"Year",
+  "data_sensor":"Data of sensors",
+  "in_a_day":"in a day",
+  "in_a_week":"in a week",
+  "in_a_year":"in a year"
 
 
 
