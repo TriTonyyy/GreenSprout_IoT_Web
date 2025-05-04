@@ -1,12 +1,19 @@
-import React, { useState, useEffect , me, memo} from "react";
+import React, { useState, useEffect, me, memo } from "react";
 import Skeleton from "react-loading-skeleton";
 import { useNavigate } from "react-router";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
 import { updateControlById } from "../../../api/deviceApi";
 import { apiResponseHandler } from "../../../components/Alert/alertComponent";
 import "react-loading-skeleton/dist/skeleton.css";
+import i18n from "../../../i18n";
 
-const GardenItem = memo(function GardenItem({ id, name, sensors = [], controls = [], img_area }) {
+const GardenItem = memo(function GardenItem({
+  id,
+  name,
+  sensors = [],
+  controls = [],
+  img_area,
+}) {
   const navigate = useNavigate();
   const sensorTypes = ["temperature", "moisture"];
   const controlNames = ["water", "light", "wind"]; // Added "fan" control
@@ -65,12 +72,16 @@ const GardenItem = memo(function GardenItem({ id, name, sensors = [], controls =
   const handleImageGardenClick = (deviceId) => {
     navigate(`/garden/${deviceId}`);
   };
-  
+
   return (
     <div className="w-[32%] h-1/4 rounded-2xl border-2 shadow-xl bg-white flex">
       <div className="w-1/2 rounded-xl border-r-2 transition-transform hover:scale-105">
         <img
-          src={img_area !== "" ? img_area : require("../../../assets/images/ItemImg.png")}
+          src={
+            img_area !== ""
+              ? img_area
+              : require("../../../assets/images/ItemImg.png")
+          }
           alt="Garden"
           className="w-full h-full object-cover cursor-pointer rounded-xl "
           onClick={() => handleImageGardenClick(id)}
@@ -99,7 +110,10 @@ const GardenItem = memo(function GardenItem({ id, name, sensors = [], controls =
               <div key={index} className="flex justify-between">
                 <h2 className="w-4/5 font-medium text-gray-600 flex items-center">
                   <span className="mr-2">{sensorIcons[sensor.type]}</span>
-                  {sensor.type === "temperature" ? "Nhiệt độ" : "Độ ẩm đất"}:
+                  {sensor.type === "temperature"
+                    ? i18n.t("temperature")
+                    : i18n.t("soil_moisture")}
+                  :
                 </h2>
                 <div className="w-1/5 flex justify-end items-center">
                   <h2 className="text-xl font-semibold text-green-600">
@@ -138,10 +152,10 @@ const GardenItem = memo(function GardenItem({ id, name, sensors = [], controls =
                       : "🌬️"}
                   </span>
                   {controlName === "water"
-                    ? "Tưới"
+                    ? i18n.t("watering")
                     : controlName === "light"
-                    ? "Ánh sáng"
-                    : "Quạt"}
+                    ? i18n.t("lighting")
+                    : i18n.t("fan")}
                   :
                 </span>
                 {/* Updated control label color */}
@@ -169,7 +183,7 @@ const GardenItem = memo(function GardenItem({ id, name, sensors = [], controls =
   );
 });
 
-const GardenItemSkeleton =memo(function GardenItemSkeleton() {
+const GardenItemSkeleton = memo(function GardenItemSkeleton() {
   return (
     <div className="w-[32%] h-1/2 rounded-xl border-2 shadow-lg bg-white flex overflow-hidden">
       <div className="p-2 w-2/5 bg-gray-200 rounded-xl border-r-2">
@@ -205,6 +219,6 @@ const GardenItemSkeleton =memo(function GardenItemSkeleton() {
       </div>
     </div>
   );
-})
+});
 
 export { GardenItem, GardenItemSkeleton };
