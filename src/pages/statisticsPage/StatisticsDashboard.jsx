@@ -458,7 +458,7 @@ function StatisticsDashboard() {
   }, [selectedMode, selectedDate, selectedGarden]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-green-50">
       <HeaderComponent gardens={gardens} />
       <div className="flex">
         <SideNavigationBar />

@@ -72,7 +72,7 @@ function HomePage() {
             {/* Sidebar */}
             <SideNavigationBar />
             {/* Main Content Area */}
-            <div className="w-[80%] h-[80%] flex-grow min-h-screen">
+            <div className="w-[80%] h-[80%] flex-grow min-h-screen bg-green-50">
               <div className="flex justify-between items-center p-10">
                 <h1 className="text-4xl font-bold">
                   <span className="text-green-500">
