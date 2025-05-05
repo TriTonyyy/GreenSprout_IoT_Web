@@ -17,7 +17,6 @@ function AuthPage({ isLogin }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const deviceInfo = deviceDetect();
-  console.log(userCre);
   
   const signIn = () => {
     dispatch(UserCredential({ email, password, name }));

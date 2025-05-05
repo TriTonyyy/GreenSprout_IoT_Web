@@ -34,7 +34,7 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
 
   const sendOTP = async ()=>{
     setSeconds(120)
-    dispatch(UserCredential({email}));
+    dispatch(UserCredential({...userCre,email}));
     await sendCodeApi(email)
         .then((res)=>{
             console.log(res, "send code");
