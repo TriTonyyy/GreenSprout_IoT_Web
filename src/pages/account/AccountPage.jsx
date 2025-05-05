@@ -52,12 +52,16 @@ export default function AccountPage({isDetail}) {
   };
 
   const changeLanguage = async (language) => {
-    areUSurePopup(i18n.t("change-lang-mess")).then((res) => {
+    areUSurePopup(i18n.t("change-lang-mess"))
+    .then((res) => {
       i18n.changeLanguage(language).then((t) => {
         t("key");
         dispatch(setLanguage(language));
       });
-    });
+    })
+    .catch((err)=>{
+      
+    })
   };
 
   const changePassword = async () => {

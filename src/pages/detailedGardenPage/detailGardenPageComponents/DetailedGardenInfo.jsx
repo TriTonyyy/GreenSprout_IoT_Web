@@ -128,13 +128,16 @@ const MemberList = ({ members, onEdit, isOwner }) => (
 );
 
 const ModeSelector = ({ currentMode, onChange }) => {
+  // const modes = [i18n.t("manual"), i18n.t("schedule"), i18n.t("threshold")];
   const modes = [i18n.t("manual"), i18n.t("schedule"), i18n.t("threshold")];
+
   const modeMap = {
     "Thủ công": "manual",
     "Theo lịch": "schedule",
     "Ngưỡng": "threshold",
   };
-
+  console.log();
+  
   return (
     <div className="flex space-x-1 text-xs">
       {modes.map((mode) => (
@@ -322,6 +325,9 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
           mode: "manual",
         },
       });
+
+      console.log(controlId, newStatus);
+      
     } catch (error) {
       // If an error occurs, revert the control status to its previous state
       setControlStatuses((prev) => ({
