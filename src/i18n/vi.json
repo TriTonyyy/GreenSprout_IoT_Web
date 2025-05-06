@@ -34,7 +34,87 @@
   "light_intensity": "Cường độ ánh sáng",
   "water_level": "Mực nước",
   "data_analysis": "Phân tích dữ liệu",
-  "watering": "Tưới",
-  "lighting": "Ánh sáng",
-  "fan":"Fan"
+  "otp_input":"Nhập OTP",
+  "forget_password":"Quên mật khẩu",
+  "send_otp":"Gửi OTP",
+  "did_not_have_account":"Bạn chưa có tài khoản?",
+  "have_account":"Bạn đã có tài khoản ?",
+  "enter_newpass":"Nhập mật khẩu mới",
+  "change_newpass":"Đổi mật khẩu mới",
+  "avatar":"Ảnh đại diện",
+  "avatar_des":"Tải lên PNG/JPEG (Tối đa 5MB)",
+  "personal_info":"Thông tin cá nhân",
+  "address":"Địa chỉ",
+  "phone":"Số điện thoại",
+  "gender":"Giới tính",
+  "num_garden":"Số lượng khu vườn",
+  "setting":"Cài đặt",
+  "language":"Ngôn ngữ",
+  "manage_device":"Quản lý khu vườn",
+  "admin_statistic":"Thống kê gần nhất của các khu vườn",
+  "admin_user":"Quản lý tài khoản",
+  "garden_not_found":"Không tìm thấy khu vườn nào !",
+  "data_empty":"Không có dữ liệu",
+  "search_placeholder":"Tìm kiếm...",
+  "retry":"Thử lại",
+  "garden_info":"Thông tin khu vườn",
+  "home":"Trang chủ",
+  "data_analys":"Phân tích dữ liệu",
+  "image": "Hình ảnh",
+  "sensor": "Cảm biến",
+  "control": "Điều khiển",
+  "member": "Thành viên",
+  "soilMoisture": "Độ ẩm đất",
+  "airHumidity": "Độ ẩm không khí",
+  "waterFlow": "Lưu lượng nước",
+  "lightIntensity": "Cường độ ánh sáng",
+  "water": "Nước",
+  "light": "Đèn",
+  "ambientLight": "Ánh sáng",
+  "wind": "Gió",
+  "mode":"Chế độ",
+  "manual":"Thủ công",
+  "schedule":"Theo lịch",
+  "threshold":"Ngưỡng",
+  "irrigationSchedule": "Lịch tưới",
+  "logout":"Đăng xuất",
+  "minute":"phút",
+  "irrigationTime": "Thòi gian tưới",
+  "repeat": "Lặp lại",
+  "no_repeat": "không lặp lại",
+  "toggle": "Bật/Tắt",
+  "water_usage":"Lượng nước đã dùng",
+  "skyHumidity": "Độ ẩm trời",
+  "loadingSensorData": "Đang tải dữ liệu cảm biến...",
+  "totalWaterUsed": "Tổng lượng nước đã dùng",
+  "highest":"Cao nhất",
+  "lowest":"Thấp nhất",
+  "sensorDataStatistics": "Thống kê dữ liệu cảm biến",
+  "trackRecentGardenData": "Theo dõi dữ liệu của khu vườn bạn gần đây nhất",
+  "loadingGarden": "Đang tải vườn...",
+  "selectGarden": "Chọn vườn",
+  "noGardens": "Không có vườn nào",
+  "day":"Ngày",
+  "week":"Tuần",
+  "year":"Năm",
+  "data_sensor":"Dữ liệu cảm biến",
+  "in_a_day":"trong ngày",
+  "in_a_week":"từ ngày",
+  "in_a_year":"trong năm"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

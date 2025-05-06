@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useRef } from "react";
+import i18n from "../../i18n";
 
 export function SearchBarComponent({ gardens = [] }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,7 +72,7 @@ export function SearchBarComponent({ gardens = [] }) {
         onChange={handleSearchChange}
         onFocus={() => setIsSearching(true)}
         className="w-[400px] px-4 py-2 pl-10 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-        placeholder="Tìm kiếm khu vườn..."
+        placeholder={i18n.t("search_placeholder")}
       />
       <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
         <Search size={18} />

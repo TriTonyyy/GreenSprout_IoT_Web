@@ -17,7 +17,7 @@ import { getLang } from "../../redux/selectors/langSelectors";
 import { banUserAPI, getDetailUserById } from "../../api/adminApi";
 import { getRole } from "../../helper/tokenHelper";
 
-export default function AccountPage() {
+export default function AccountPage({isDetail}) {
   const dispatch = useDispatch();
   const lang = useSelector(getLang);
   const [avatar, setAvatar] = useState("");
@@ -52,12 +52,16 @@ export default function AccountPage() {
   };
 
   const changeLanguage = async (language) => {
-    areUSurePopup(i18n.t("change-lang-mess")).then((res) => {
+    areUSurePopup(i18n.t("change-lang-mess"))
+    .then((res) => {
       i18n.changeLanguage(language).then((t) => {
         t("key");
         dispatch(setLanguage(language));
       });
-    });
+    })
+    .catch((err)=>{
+      
+    })
   };
 
   const changePassword = async () => {
@@ -136,11 +140,10 @@ export default function AccountPage() {
           <h1 className="text-4xl lg:text-5xl font-bold mb-8 text-gray-800">
             {i18n.t("account")}
           </h1>
-
           {/* Avatar Section */}
           <div className="bg-white p-8 rounded-xl shadow-lg mb-8">
             <h2 className="text-2xl lg:text-3xl font-semibold mb-6 text-gray-700">
-              Profile Picture
+              {i18n.t("avatar")}
             </h2>
             <div className="flex items-center space-x-8">
               <img
@@ -150,7 +153,7 @@ export default function AccountPage() {
               />
               <div>
                 <label className="block text-lg font-medium text-gray-700 mb-3">
-                  Upload PNG/JPEG (Max 5MB)
+                  {i18n.t("avatar_des")}
                 </label>
                 <input
                   type="file"
@@ -165,12 +168,12 @@ export default function AccountPage() {
           {/* User Info Form */}
           <div className="bg-white p-8 rounded-xl shadow-lg">
             <h2 className="text-2xl lg:text-3xl font-semibold mb-6 text-gray-700">
-              Personal Information
+              {i18n.t("personal_info")}
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
                 <label className="block text-lg font-medium text-gray-700">
-                  Full Name
+                  {i18n.t("fullname")}
                 </label>
                 <input
                   disabled={isDisable}
@@ -195,7 +198,7 @@ export default function AccountPage() {
               </div>
               <div>
                 <label className="block text-lg font-medium text-gray-700">
-                  Address
+                  {i18n.t("address")}
                 </label>
                 <input
                   disabled={isDisable}
@@ -208,7 +211,7 @@ export default function AccountPage() {
               </div>
               <div>
                 <label className="block text-lg font-medium text-gray-700">
-                  Gender
+                  {i18n.t("gender")}
                 </label>
                 <input
                   type="text"
@@ -219,7 +222,7 @@ export default function AccountPage() {
               </div>
               <div>
                 <label className="block text-lg font-medium text-gray-700">
-                  Phone
+                  {i18n.t("phone")}
                 </label>
                 <input
                   disabled={isDisable}
@@ -232,7 +235,7 @@ export default function AccountPage() {
               </div>
               <div>
                 <label className="block text-lg font-medium text-gray-700">
-                  Number of Gardens
+                  {i18n.t("num_garden")}
                 </label>
                 <input
                   type="number"
@@ -244,11 +247,11 @@ export default function AccountPage() {
             </div>
 
             {/* Password and Language */}
-            {role !== 'admin' && (
+            {!isDetail  && (
 
             <div className="mt-8">
               <h2 className="text-2xl lg:text-3xl font-semibold mb-6 text-gray-700">
-                Settings
+                {i18n.t("setting")}
               </h2>
               <div className="flex flex-col space-y-6">
                 <button
@@ -260,15 +263,15 @@ export default function AccountPage() {
                 </button>
                 <div>
                   <label className="block text-lg font-medium text-gray-700">
-                    Language
+                    {i18n.t("language")}
                   </label>
                   <select
                     value={lang}
                     onChange={(e) => changeLanguage(e.target.value)}
                     className="mt-2 block w-full lg:w-1/2 p-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                   >
-                    <option value="vi">Tiếng Việt</option>
                     <option value="en">English</option>
+                    <option value="vi">Tiếng Việt</option>
                   </select>
                 </div>
               </div>
@@ -276,7 +279,7 @@ export default function AccountPage() {
             )}
 
             {/* Save Button */}
-            {role !== 'admin' ? (
+            {!isDetail ? (
               <button
                 onClick={saveUpdateUserInfo}
                 className="mt-8 w-full bg-blue-600 text-white py-4 text-lg rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400"

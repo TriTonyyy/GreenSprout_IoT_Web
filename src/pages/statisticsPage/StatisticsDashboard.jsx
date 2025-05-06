@@ -15,6 +15,7 @@ import {
   getReportOfDeviceByMonth,
   getReportOfDeviceByWeek,
 } from "../../api/reportApi";
+import i18n from "../../i18n";
 
 function StatisticsDashboard() {
   const { deviceId } = useParams();
@@ -484,7 +485,7 @@ function StatisticsDashboard() {
               <div className="bg-white rounded-xl shadow-sm p-8">
                 <div className="flex flex-col items-center justify-center space-y-4">
                   <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
-                  <p className="text-gray-600">Đang tải dữ liệu cảm biến...</p>
+                  <p className="text-gray-600">{i18n.t("loadingSensorData")}</p>
                 </div>
               </div>
             ) : (

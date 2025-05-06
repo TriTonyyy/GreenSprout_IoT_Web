@@ -49,6 +49,12 @@ export const changePasswordAPI = async (payload) => {
 };
 
 // Function to change password user 
+export const resetPasswordAPI = async (payload) => {
+    const response = await axiosClient.post(`/api/user/resetPassword`, payload);
+    return response.data;  // Return the data from the API response
+};
+
+// Function to change password user 
 export const googleAuthAPI = async () => {
     const response = await axiosClient.get(`/api/user/google`);
     return response;  // Return the data from the API response

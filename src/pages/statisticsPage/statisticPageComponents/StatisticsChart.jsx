@@ -1,5 +1,6 @@
-import React from "react";
+  import React from "react";
 import SensorChart from "../../../components/Charts/SensorChart";
+import i18n from "../../../i18n";
 
 const StatisticsChart = ({ sensorData, reportData, time, mode }) => {
   if (!sensorData || !reportData) return null;
@@ -14,21 +15,21 @@ const StatisticsChart = ({ sensorData, reportData, time, mode }) => {
       case "day": {
         const date = new Date(time);
         if (isNaN(date.getTime())) return time;
-        return `trong ngày ${String(date.getDate()).padStart(2, "0")}/${String(
+        return `${i18n.t("in_a_day")} ${String(date.getDate()).padStart(2, "0")}/${String(
           date.getMonth() + 1
         ).padStart(2, "0")}/${date.getFullYear()}`;
       }
       case "month": {
         const date = new Date(time);
         if (isNaN(date.getTime())) return time;
-        return `trong năm ${String(date.getMonth() + 1).padStart(
+        return `${i18n.t("in_a_year")} ${String(date.getMonth() + 1).padStart(
           2,
           "0"
         )}/${date.getFullYear()}`;
       }
       case "week": {
         const weekString = formatWeekRange(time);
-        return `từ ngày ${weekString}`;
+        return `${i18n.t("in_a_week")} ${weekString}`;
       }
       default:
         return time; // fallback
@@ -73,7 +74,7 @@ const StatisticsChart = ({ sensorData, reportData, time, mode }) => {
     <div className="bg-white rounded-xl shadow-md py-4 my-6 transition-all duration-300 hover:scale-105 hover:shadow-lg will-change-transform">
       <SensorChart
         data={chartDataObj}
-        title={`Dữ liệu các cảm biến ${formatTime(time, mode)}`}
+        title={`${i18n.t("data_sensor")} ${formatTime(time, mode)}`}
       />
     </div>
   );

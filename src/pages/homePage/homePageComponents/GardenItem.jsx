@@ -74,7 +74,7 @@ const GardenItem = memo(function GardenItem({
   };
 
   return (
-    <div className="w-[32%] h-1/4 rounded-2xl border-2 shadow-xl bg-white flex">
+    <div className="w-[32%] rounded-2xl border-2 shadow-xl bg-white flex">
       <div className="w-1/2 rounded-xl border-r-2 transition-transform hover:scale-105">
         <img
           src={
