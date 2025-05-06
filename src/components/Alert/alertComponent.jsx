@@ -28,7 +28,7 @@ export const addDevicePopup = (member, fetchUserDevices) => {
             role: "member",
           });
           fetchUserDevices(); // ✅ Fix: Use the function from props
-          Swal.fire("Thành công!", "Kết nối thành công!", "success");
+          apiResponseHandler("Kết nối khu vườn thành công!", "success");
         } catch (error) {
           // console.error("Error checking device:", error);
           Swal.fire({
