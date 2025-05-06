@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { Droplets, Sun, Wind } from "lucide-react";
 import { apiResponseHandler } from "../../../components/Alert/alertComponent";
 
@@ -13,7 +13,6 @@ const SensorConfigPanel = ({
   sensorThresholds,
   onThresholdChange,
   onSubmit,
-  isOwner,
 }) => {
   const convertToDisplayValue = (value, controlType) => {
     if (controlType === "wind") {
@@ -23,51 +22,42 @@ const SensorConfigPanel = ({
   };
 
   const handleThresholdChange = (controlType, field, value) => {
-    if (!isOwner) {
-      apiResponseHandler("Chỉ chủ sở hữu mới có thể thay đổi ngưỡng cảm biến", "error");
-      return;
-    }
     onThresholdChange(controlType, field, value);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!isOwner) {
-      apiResponseHandler("Chỉ chủ sở hữu mới có thể lưu ngưỡng cảm biến", "error");
-      return;
-    }
     onSubmit(e);
   };
 
   const getGradientColors = (controlType) => {
     switch (controlType) {
-      case 'water':
+      case "water":
         return {
-          start: 'rgb(59, 130, 246)', // blue-500
-          middle: 'rgb(34, 197, 94)', // green-500
-          end: 'rgb(234, 179, 8)'     // yellow-500
+          start: "rgb(59, 130, 246)", // blue-500
+          middle: "rgb(34, 197, 94)", // green-500
+          end: "rgb(234, 179, 8)", // yellow-500
         };
-      case 'light':
+      case "light":
         return {
-          start: 'rgb(71, 85, 105)',  // slate-600
-          middle: 'rgb(234, 179, 8)', // yellow-500
-          end: 'rgb(245, 158, 11)'    // amber-500
+          start: "rgb(71, 85, 105)", // slate-600
+          middle: "rgb(234, 179, 8)", // yellow-500
+          end: "rgb(245, 158, 11)", // amber-500
         };
-      case 'wind':
+      case "wind":
         return {
-          start: 'rgb(74, 222, 128)', // green-400
-          middle: 'rgb(234, 179, 8)', // yellow-500
-          end: 'rgb(239, 68, 68)'     // red-500
+          start: "rgb(74, 222, 128)", // green-400
+          middle: "rgb(234, 179, 8)", // yellow-500
+          end: "rgb(239, 68, 68)", // red-500
         };
       default:
         return {
-          start: 'rgb(34, 197, 94)',
-          middle: 'rgb(234, 179, 8)',
-          end: 'rgb(239, 68, 68)'
+          start: "rgb(34, 197, 94)",
+          middle: "rgb(234, 179, 8)",
+          end: "rgb(239, 68, 68)",
         };
     }
   };
-
   const colors = getGradientColors(selectedControl);
 
   return (
@@ -99,13 +89,11 @@ const SensorConfigPanel = ({
         <div className="relative pt-6 pb-8">
           {/* Background track with direct interaction */}
           <div
-            className={`h-4 bg-gray-200 rounded-lg relative ${isOwner ? 'cursor-pointer' : 'cursor-default'}`}
+            className={`h-4 bg-gray-200 rounded-lg relative cursor-default`}
             onClick={(e) => {
-              if (!isOwner) return;
               const rect = e.currentTarget.getBoundingClientRect();
               const x = e.clientX - rect.left;
               const percentage = Math.round((x / rect.width) * 100);
-
               // Determine if click is closer to min or max handle
               const currentMin = sensorThresholds[selectedControl]?.min || 0;
               const currentMax = sensorThresholds[selectedControl]?.max || 100;
@@ -124,11 +112,13 @@ const SensorConfigPanel = ({
               className="absolute h-4 rounded-lg"
               style={{
                 left: `${sensorThresholds[selectedControl]?.min || 0}%`,
-                right: `${100 - (sensorThresholds[selectedControl]?.max || 100)}%`,
+                right: `${
+                  100 - (sensorThresholds[selectedControl]?.max || 100)
+                }%`,
                 background: `linear-gradient(90deg, 
                   ${colors.start} 0%,
                   ${colors.middle} 50%,
-                  ${colors.end} 100%)`
+                  ${colors.end} 100%)`,
               }}
             />
 
@@ -174,7 +164,6 @@ const SensorConfigPanel = ({
                 left: `${sensorThresholds[selectedControl]?.min || 0}%`,
               }}
               onMouseDown={(startEvent) => {
-                if (!isOwner) return;
                 startEvent.preventDefault();
                 const slider = startEvent.currentTarget.parentElement;
                 if (!slider) return;
@@ -201,10 +190,15 @@ const SensorConfigPanel = ({
                 window.addEventListener("mouseup", handleMouseUp);
               }}
             >
-              <div className={`w-6 h-6 bg-white border-2 rounded-full shadow-md ${isOwner ? 'cursor-move' : 'cursor-default'}`} 
-                   style={{ borderColor: colors.start }} />
+              <div
+                className={`w-6 h-6 bg-white border-2 rounded-full shadow-md cursor-default`}
+                style={{ borderColor: colors.start }}
+              />
               <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                <span className="text-sm font-medium" style={{ color: colors.start }}>
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: colors.start }}
+                >
                   Tối thiểu:{" "}
                   {selectedControl === "wind"
                     ? convertToDisplayValue(
@@ -224,11 +218,9 @@ const SensorConfigPanel = ({
                 left: `${sensorThresholds[selectedControl]?.max || 100}%`,
               }}
               onMouseDown={(startEvent) => {
-                if (!isOwner) return;
                 startEvent.preventDefault();
                 const slider = startEvent.currentTarget.parentElement;
                 if (!slider) return;
-
                 const handleDrag = (moveEvent) => {
                   const rect = slider.getBoundingClientRect();
                   const x = Math.max(
@@ -251,10 +243,15 @@ const SensorConfigPanel = ({
                 window.addEventListener("mouseup", handleMouseUp);
               }}
             >
-              <div className={`w-6 h-6 bg-white border-2 rounded-full shadow-md ${isOwner ? 'cursor-move' : 'cursor-default'}`}
-                   style={{ borderColor: colors.end }} />
+              <div
+                className={`w-6 h-6 bg-white border-2 rounded-full shadow-md cursor-default `}
+                style={{ borderColor: colors.end }}
+              />
               <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                <span className="text-sm font-medium" style={{ color: colors.end }}>
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: colors.end }}
+                >
                   Tối đa:{" "}
                   {selectedControl === "wind"
                     ? convertToDisplayValue(
@@ -273,7 +270,9 @@ const SensorConfigPanel = ({
             {selectedControl === "wind" ? (
               <p>
                 Thiết bị sẽ giúp khu vườn giữ{" "}
-                <span className="font-semibold text-lg text-green-600">nhiệt độ</span>{" "}
+                <span className="font-semibold text-lg text-green-600">
+                  nhiệt độ
+                </span>{" "}
                 trong khoảng{" "}
                 <span className="font-semibold text-lg text-green-600">
                   {convertToDisplayValue(
@@ -305,21 +304,18 @@ const SensorConfigPanel = ({
             )}
           </div>
         </div>
-
-        {isOwner && (
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="bg-green-500 px-6 py-2.5 text-white rounded-lg hover:bg-green-600 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
-            >
-              Lưu ngưỡng
-            </button>
-          </div>
-        )}
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="bg-green-500 px-6 py-2.5 text-white rounded-lg hover:bg-green-600 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
+          >
+            Lưu ngưỡng
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SensorConfigPanel; 
+export default SensorConfigPanel;

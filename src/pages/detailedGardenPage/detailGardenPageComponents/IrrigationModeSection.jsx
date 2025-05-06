@@ -541,7 +541,6 @@ export default function IrrigationModeSection({ deviceId }) {
           activeMode={activeMode}
           setActiveMode={setActiveMode}
           setSelectedSchedule={setSelectedSchedule}
-          isOwner={isOwner}
         />
         <ControlSelector
           selectedControl={selectedControl}
@@ -562,7 +561,6 @@ export default function IrrigationModeSection({ deviceId }) {
           onScheduleToggleStatus={handleScheduleToggleStatus}
           selectedControl={selectedControl}
           onAddSchedule={handleAddSchedule}
-          isOwner={isOwner}
         />
       )}
 
@@ -572,7 +570,6 @@ export default function IrrigationModeSection({ deviceId }) {
           sensorThresholds={sensorThresholds}
           onThresholdChange={updateSensorThreshold}
           onSubmit={handleSensorConfigSubmit}
-          isOwner={isOwner}
         />
       )}
     </div>

@@ -100,7 +100,10 @@
   "data_sensor":"Data of sensors",
   "in_a_day":"in a day",
   "in_a_week":"in a week",
-  "in_a_year":"in a year"
+  "in_a_year":"in a year",
+  "b_member":"Banned member",
+  "a_member":"Active member",
+  "done":"Done"
 
 
 
