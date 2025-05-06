@@ -31,7 +31,7 @@ const SideNavigationBar = () => {
     admin: [
       { path: "/admin/home", icon: <Home size={20} />, label: "Trang chủ" },
       {
-        path: "/statistics",
+        path: "/admin/statistics",
         icon: <BarChart2 size={20} />,
         label: "Phân tích dữ liệu",
       },

@@ -5,8 +5,6 @@ import "react-loading-skeleton/dist/skeleton.css";
 
 function StatisticItem({ id, name, img_area, report }) {
   const navigate = useNavigate();
-  console.log(report);
-
   const handleImageGardenClick = (deviceId) => {
     navigate(`/statistics/${deviceId}`);
   };
