@@ -25,6 +25,9 @@ import {
   areUSurePopup,
   selectNewOwnerPopup,
 } from "../../../components/Alert/alertComponent";
+import i18n from "../../../i18n";
+import { getLang } from "../../../redux/selectors/langSelectors";
+import { useSelector } from "react-redux";
 
 const GardenImage = ({ src, onImageClick }) => (
   <div className="flex justify-center items-center p-4 w-full">
@@ -135,13 +138,22 @@ const MemberList = ({ members, onEdit, isOwner }) => {
 };
 
 const ModeSelector = ({ currentMode, onChange }) => {
-  const modes = ["Thủ công", "Theo lịch", "Ngưỡng"];
-  const modeMap = {
+  const lang = useSelector(getLang);
+  const modes = [i18n.t("manual"), i18n.t("schedule"), i18n.t("threshold")];
+  let modeMap = {
     "Thủ công": "manual",
     "Theo lịch": "schedule",
     Ngưỡng: "threshold",
   };
-
+  if(lang === 'en'){
+    modeMap = {
+      "Manual": "manual",
+      "Schedule": "schedule",
+      "Threshold": "threshold",
+    };
+  }
+  console.log(currentMode, "---", modeMap);
+  
   return (
     <div className="flex space-x-1 text-xs">
       {modes.map((mode) => (
