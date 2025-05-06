@@ -1,8 +1,12 @@
-import React from 'react';
-import { dayOrder } from './IrrigationModeSection';
-import i18n from '../../../i18n';
+import { React, useEffect, useState } from "react";
+import { dayOrder } from "./IrrigationModeSection";
+import i18n from "../../../i18n";
 
 const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
+  const [localDuration, setLocalDuration] = useState(
+    Math.floor((schedule?.duration || 60) / 60)
+  );
+
   const convertTo24Hour = (time12) => {
     if (!time12) return "00:00";
     try {
@@ -42,12 +46,21 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
     onChange(schedule._id, "startTime", time12);
   };
 
+  useEffect(() => {
+    // Keep local state in sync when schedule prop changes
+    setLocalDuration(Math.floor((schedule?.duration || 60) / 60));
+  }, [schedule?.duration]);
+
   const handleDurationChange = (e) => {
-    const value = e.target.value;
-    const numValue = parseInt(value);
-    if (!isNaN(numValue) && numValue >= 1 && numValue <= 120) {
-      onChange(schedule._id, "duration", numValue * 60);
-    }
+    let value = parseInt(e.target.value);
+    if (isNaN(value)) value = 1;
+
+    // Clamp value to [1, 30]
+    if (value < 1) value = 1;
+    if (value > 30) value = 30;
+
+    setLocalDuration(value);
+    onChange(schedule._id, "duration", value * 60);
   };
 
   const handleRepeatChange = (day) => {
@@ -59,12 +72,17 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
   };
 
   return (
-    <div className="mt-4 bg-white border rounded-md p-4" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="mt-4 bg-white border rounded-md p-4"
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="mb-4">
         <label className="block text-sm font-medium mb-1">Giờ tưới</label>
         <input
           type="time"
-          className={`border rounded px-2 py-1 w-full ${!isOwner ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+          className={`border rounded px-2 py-1 w-full ${
+            !isOwner ? "bg-gray-100 cursor-not-allowed" : ""
+          }`}
           value={convertTo24Hour(schedule?.startTime || "12:00 AM")}
           onChange={handleTimeChange}
           disabled={!isOwner}
@@ -78,10 +96,12 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
         <input
           type="number"
           min="1"
-          max="120"
+          max="30"
           step="1"
-          className={`border rounded px-2 py-1 w-full ${!isOwner ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-          value={schedule?.duration ? Math.floor(schedule.duration / 60) : 1}
+          className={`border rounded px-2 py-1 w-full ${
+            !isOwner ? "bg-gray-100 cursor-not-allowed" : ""
+          }`}
+          value={localDuration}
           onChange={handleDurationChange}
           disabled={!isOwner}
         />
@@ -97,7 +117,7 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
                 schedule.repeat && schedule.repeat.includes(day)
                   ? "bg-orange-400 text-white border-orange-400"
                   : "text-gray-600 border-gray-300 hover:border-orange-300"
-              } ${!isOwner ? 'cursor-not-allowed opacity-75' : ''}`}
+              } ${!isOwner ? "cursor-not-allowed opacity-75" : ""}`}
               onClick={(e) => {
                 if (!isOwner) return;
                 e.stopPropagation();
@@ -131,4 +151,4 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
   );
 };
 
-export default ScheduleEditor; 
+export default ScheduleEditor;
