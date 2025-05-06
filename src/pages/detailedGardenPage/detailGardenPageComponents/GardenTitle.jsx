@@ -12,7 +12,7 @@ export const GardenTitle = ({
     {/* Title */}
     <h1 className="text-4xl font-bold text-white mb-3">{gardenName}</h1>
     {isOwner && (
-      <p className="text-2sm text-gray-200 mb-2">ID {deviceId}</p>
+      <p className="text-2sm text-gray-200 mb-2">ID: {deviceId}</p>
     )}
     <h2 className="text-2xl text-gray-200 tracking-wide">{areaGardenName}</h2>
     {/* Buttons */}

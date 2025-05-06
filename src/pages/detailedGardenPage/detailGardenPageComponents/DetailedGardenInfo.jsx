@@ -25,7 +25,6 @@ import {
   areUSurePopup,
   selectNewOwnerPopup,
 } from "../../../components/Alert/alertComponent";
-import i18n from "../../../i18n";
 
 const GardenImage = ({ src, onImageClick }) => (
   <div className="flex justify-center items-center p-4 w-full">
@@ -83,61 +82,66 @@ const SensorReading = ({ label, value, unit, icon }) => {
   );
 };
 
-const MemberList = ({ members, onEdit, isOwner }) => (
-  // console.log(isOwner),
-  <div className="flex flex-col px-2">
-    {members.map((member, index) => (
-      <div
-        key={member.email || member.name || index}
-        className="border rounded-md px-3 py-2 my-2 flex justify-between items-center transition-all duration-200 bg-white border-gray-200 hover:shadow-md"
-      >
-        <div className="flex items-center space-x-2">
-          <span className="text-lg text-sky-500">
-            {member.img ? (
-              <img
-                src={member.img}
-                alt="User"
-                className="w-5 h-5 inline-block"
-              />
-            ) : (
-              <User size={20} className="text-sky-500" />
-            )}
-          </span>
-          <div className="flex flex-col leading-tight">
-            <div className="flex items-center">
-              <span className="font-medium text-gray-800">
-                {member.isMe ? "You" : member.name ?? "Unknown"}
+const MemberList = ({ members, onEdit, isOwner }) => {
+  // console.log(isOwner);
+  // Sort so that the member with isMe === true comes first
+  const sortedMembers = [...members].sort((a, b) => {
+    if (a.isMe) return -1;
+    if (b.isMe) return 1;
+    return 0;
+  });
+  return (
+    <div className="flex flex-col px-2">
+      {sortedMembers.map((member, index) => (
+        <div
+          key={member.email || member.name || index}
+          className="border rounded-md px-3 py-2 my-2 flex justify-between items-center transition-all duration-200 bg-white border-gray-200 hover:shadow-md"
+        >
+          <div className="flex items-center space-x-2">
+            <span className="text-lg text-sky-500">
+              {member.img ? (
+                <img
+                  src={member.img}
+                  alt="User"
+                  className="w-5 h-5 inline-block"
+                />
+              ) : (
+                <User size={20} className="text-sky-500" />
+              )}
+            </span>
+            <div className="flex flex-col leading-tight">
+              <div className="flex items-center">
+                <span className="font-medium text-gray-800">
+                  {member.isMe ? "You" : member.name ?? "Unknown"}
+                </span>
+              </div>
+              <span className="text-sm text-gray-500">
+                {member.role ?? "no-role"}
               </span>
             </div>
-            <span className="text-sm text-gray-500">
-              {member.role ?? "no-role"}
-            </span>
           </div>
+          {isOwner && member.role !== "owner" && (
+            <button
+              onClick={() => onEdit(member)}
+              className="text-rose-600 hover:text-rose-800 transition p-1 rounded-md hover:bg-rose-100"
+            >
+              <Trash size={16} className="text-red-600" />
+            </button>
+          )}
         </div>
-        {isOwner && member.role !== "owner" && (
-          <button
-            onClick={() => onEdit(member)}
-            className="text-rose-600 hover:text-rose-800 transition p-1 rounded-md hover:bg-rose-100"
-          >
-            <Trash size={16} className="text-red-600" />
-          </button>
-        )}
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
+};
 
 const ModeSelector = ({ currentMode, onChange }) => {
-  // const modes = [i18n.t("manual"), i18n.t("schedule"), i18n.t("threshold")];
-  const modes = [i18n.t("manual"), i18n.t("schedule"), i18n.t("threshold")];
-
+  const modes = ["Thủ công", "Theo lịch", "Ngưỡng"];
   const modeMap = {
     "Thủ công": "manual",
     "Theo lịch": "schedule",
-    "Ngưỡng": "threshold",
+    Ngưỡng: "threshold",
   };
-  console.log();
-  
+
   return (
     <div className="flex space-x-1 text-xs">
       {modes.map((mode) => (
@@ -185,27 +189,27 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
   const translateSensorType = (sensorType) => {
     const translationMap = {
       moisture: {
-        label: i18n.t("soilMoisture"),
+        label: "Độ ẩm đất",
         unit: "%",
         icon: <Droplets size={18} color="#38bdf8" />, // sky-400
       },
       temperature: {
-        label: i18n.t("temperature"),
+        label: "Nhiệt độ",
         unit: "°C",
         icon: <Thermometer size={18} color="#f87171" />, // red-400
       },
       humidity: {
-        label: i18n.t("airHumidity"),
+        label: "Độ ẩm không khí",
         unit: "%",
         icon: <CloudRain size={18} color="#60a5fa" />, // blue-400
       },
       stream: {
-        label: i18n.t("waterFlow"),
+        label: "Lưu lượng nước",
         unit: "m³/s",
         icon: <ShowerHead size={18} color="#34d399" />, // green-400
       },
       luminosity: {
-        label: i18n.t("lightIntensity"),
+        label: "Cường độ ánh sáng",
         unit: "%",
         icon: <Sun size={18} color="#facc15" />, // yellow-400
       },
@@ -315,6 +319,8 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       [controlName]: "manual",
     }));
 
+    // console.log(currentStatus, newStatus);
+
     try {
       // Send the request to the backend to update control status
       await updateControlById({
@@ -325,9 +331,6 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
           mode: "manual",
         },
       });
-
-      console.log(controlId, newStatus);
-      
     } catch (error) {
       // If an error occurs, revert the control status to its previous state
       setControlStatuses((prev) => ({
@@ -539,8 +542,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       {/* Image Section */}
       <div className="col-span-1 flex flex-col md:border-r">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          {i18n.t("image")}
-
+          Hình ảnh
         </h2>
         <GardenImage src={imageUrl} onImageClick={handleImageClick} />
       </div>
@@ -548,8 +550,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       {/* Sensor Section */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          {i18n.t("sensor")}
-
+          Cảm biến
         </h2>
         <div className="flex flex-col">
           {displayedSensors.map(({ label, value, unit, icon }, index) => (
@@ -567,8 +568,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       {/* Control Section */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          {i18n.t("control")}
-
+          Điều khiển
         </h2>
         <div className="flex flex-col items-center mt-2 w-full">
           {displayedControls.map(
@@ -585,13 +585,11 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
                       <Fan size={18} className="text-green-400" />
                     )}
                     {name === "water"
-                      ? i18n.t("water")
+                      ? "Nước"
                       : name === "light"
-                      ? i18n.t("light")
-                      : i18n.t("wind")}
-                    :
+                      ? "Đèn"
+                      : "Gió"}
                   </span>
-
                   {/* Toggle with conditional blur + tooltip */}
                   <div
                     className={`transition-all duration-200 ${
@@ -610,7 +608,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
                 {/* ModeSelector with conditional blur + tooltip */}
                 <div className="flex justify-between items-center w-full">
                   <span className="text-sm text-green-600 font-medium">
-                    {i18n.t("mode")}  :
+                    Chế độ:
                   </span>
                   <div
                     className={`transition-all duration-200 ${
@@ -640,7 +638,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       {/* Member Section */}
       <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          {i18n.t("member")}
+          Thành viên
         </h2>
         <div className="flex flex-col">
           <MemberList
@@ -660,7 +658,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Image Section Skeleton */}
       <div className="col-span-1 flex flex-col md:border-r">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          {i18n.t("image")}
+          Hình ảnh
         </div>
         <div className="h-48 bg-gray-200 rounded-lg m-4"></div>
       </div>
@@ -668,8 +666,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Sensor Section Skeleton */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-4">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          {i18n.t("sensor")}
-
+          Cảm biến
         </div>
         <div className="flex flex-col px-4 space-y-2">
           {[...Array(3)].map((_, i) => (
@@ -681,8 +678,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Control Section Skeleton */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-4">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-        {i18n.t("control")}
-
+          Điều khiển
         </div>
         <div className="flex flex-col items-center mt-2 w-full px-4 space-y-4">
           {[...Array(2)].map((_, i) => (
@@ -701,7 +697,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Member Section Skeleton */}
       <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-4">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          {i18n.t("member")}
+          Thành viên
         </div>
         <div className="flex flex-col px-4 space-y-3">
           {[...Array(3)].map((_, i) => (

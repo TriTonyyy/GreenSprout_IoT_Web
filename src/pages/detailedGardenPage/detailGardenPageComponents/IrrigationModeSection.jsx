@@ -118,7 +118,7 @@ export default function IrrigationModeSection({ deviceId }) {
         data: payload,
       });
 
-      apiResponseHandler(" Ngưỡng cảm biến đã được cập nhật", "success");
+      apiResponseHandler("Ngưỡng cảm biến đã được cập nhật", "success");
     } catch (err) {
       console.error(" Lỗi khi cập nhật ngưỡng:", err);
       apiResponseHandler("Lỗi khi cập nhật ngưỡng cảm biến", "error");
