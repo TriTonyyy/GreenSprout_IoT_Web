@@ -100,7 +100,10 @@
   "data_sensor":"Dữ liệu cảm biến",
   "in_a_day":"trong ngày",
   "in_a_week":"từ ngày",
-  "in_a_year":"trong năm"
+  "in_a_year":"trong năm",
+  "b_member":"Thành viên bị cấm",
+  "a_member":"Thành viên hoạt động",
+  "done":"Xong"
 
 
 

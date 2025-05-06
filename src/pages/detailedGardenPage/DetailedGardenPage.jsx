@@ -17,6 +17,7 @@ import {
   selectNewOwnerPopup,
 } from "../../components/Alert/alertComponent";
 import {
+  getBlockMember,
   getGardenby,
   getGardenByDevice,
   getMemberByIdDevice,
@@ -24,6 +25,7 @@ import {
   updateMemberRole,
 } from "../../api/deviceApi";
 import i18n from "../../i18n";
+import MemberGarden from "./detailGardenPageComponents/MemberGarden";
 
 function DetailedGarden() {
   const { gardenId } = useParams();
@@ -33,19 +35,22 @@ function DetailedGarden() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [showMemberSection, setShowMemberSection] = useState(false);
+  const [blockMember, setBlockMember] = useState(false);
 
   const fetchGardenData = useCallback(async () => {
     if (!gardenId) {
       setError("Invalid garden ID");
       return;
     }
-
     try {
       const response = await getGardenByDevice(gardenId);
       if (response?.data) {
         const device = response.data || {};
         const result = await getMemberByIdDevice(gardenId);
         device.members = result.members || [];
+        const block = await getBlockMember(gardenId);
+        setBlockMember(block.data);
         setData(device);
         setError(null);
       } else {
@@ -88,6 +93,7 @@ function DetailedGarden() {
       const gardensPromises = deviceIds.map(async (deviceId) => {
         try {
           const res = await getGardenByDevice(deviceId);
+      
           return res?.data || null;
         } catch (err) {
           console.error(`Failed to fetch garden ${deviceId}:`, err);
@@ -105,6 +111,10 @@ function DetailedGarden() {
     }
   }, []);
 
+  const handleMember = async () => {
+    setShowMemberSection(true);
+  };
+
   const handleEdit = async () => {
     try {
       await renameDevicePopup(gardenId, data.name_area);
@@ -120,25 +130,27 @@ function DetailedGarden() {
     try {
       // Show confirmation popup first
       // console.log(isOwner);
-      
-      await areUSurePopup("Bạn có chắc chắn muốn rời khỏi khu vườn này?");
+      const confirmRemove = await areUSurePopup("Bạn có chắc chắn muốn rời khỏi khu vườn này?");
       const totalMembers = data.members?.length || 0;
-      if (isOwner && totalMembers > 1) {
-        try {
-          const newOwner = await selectNewOwnerPopup(data.members);
+      if(confirmRemove) {
+        if (isOwner && totalMembers > 1) {
+          try {
+            const newOwner = await selectNewOwnerPopup(data.members);
+            await removeMemberByIdDevice(gardenId, user._id);
+            await updateMemberRole(gardenId, newOwner.userId);
+            apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
+            navigate("/home");
+          } catch (error) {
+            if (error === "cancelled") return;
+            apiResponseHandler("Không thể thay đổi chủ vườn", "error");
+          }
+        } else {
           await removeMemberByIdDevice(gardenId, user._id);
-          await updateMemberRole(gardenId, newOwner.userId);
-          apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
           navigate("/home");
-        } catch (error) {
-          if (error === "cancelled") return;
-          apiResponseHandler("Không thể thay đổi chủ vườn", "error");
+          apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
         }
-      } else {
-        await removeMemberByIdDevice(gardenId, user._id);
-        apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
-        navigate("/home");
       }
+     
     } catch (error) {
       if (error === "cancelled") return; // user cancelled confirmation
       console.error("Error leaving garden:", error);
@@ -207,6 +219,14 @@ function DetailedGarden() {
     return () => clearInterval(interval);
   }, [user]);
 
+  useEffect(() => {
+    if (showMemberSection) {
+      document.body.style.overflow = "hidden"; // Disable body scroll
+    } else {
+      document.body.style.overflow = "auto"; // Re-enable body scroll
+    }
+  }, [showMemberSection]);
+
   // console.log("data", data.members);
   const isOwner = data?.members?.some(
     (member) => member.isMe && member.role === "owner"
@@ -241,11 +261,36 @@ function DetailedGarden() {
                 areaGardenName={i18n.t("garden_info")}
                 onEdit={isOwner ? handleEdit : null}
                 onDelete={handleDelete}
+                onMember={handleMember}
                 isOwner={isOwner}
                 deviceId={gardenId}
               />
             </>
           ) : null}
+          {showMemberSection && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-4xl min-h-[600px] flex flex-col items-center overflow-hidden">
+                {/* MemberGarden content fills the available space */}
+                <div className="flex-grow w-full overflow-y-auto">
+                  {/* {console.log("data", data)} */}
+                  <MemberGarden
+                    members={data.members}
+                    blocks={blockMember}
+                    isOwner={isOwner}
+                    deviceId={gardenId}
+                  />
+                </div>
+
+                {/* OK Button stays at the bottom */}
+                <button
+                  className="mt-auto px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                  onClick={() => setShowMemberSection(false)}
+                >
+                  {i18n.t("done")}
+                </button>
+              </div>
+            </div>
+          )}
           <DetailedGardenInfo deviceId={gardenId} isOwner={isOwner} />
           <IrrigationModeSection deviceId={gardenId} isOwner={isOwner} />
         </div>

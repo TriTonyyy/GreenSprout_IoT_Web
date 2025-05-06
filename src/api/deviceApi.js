@@ -60,15 +60,46 @@ export const renameDeviceByIdDevice = async (id_esp, params) => {
 };
 
 export const uploadImage = async (id, image) => {
-  const response = await axiosClient.put(`/api/device/upload-img/${id}`, image, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const response = await axiosClient.put(
+    `/api/device/upload-img/${id}`,
+    image,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
   return response.data;
 };
 
 export const updateMemberRole = async (id_esp, id_member) => {
-  const response = await axiosClient.put(`/api/device/updateMember/${id_esp}/${id_member}`);
+  const response = await axiosClient.put(
+    `/api/device/updateMember/${id_esp}/${id_member}`
+  );
+  return response.data;
+};
+
+export const addBlockMember = async (id_esp, id_member) => {
+  const response = await axiosClient.post(
+    `/api/device/addBlock/${id_esp}`,
+    {userId: id_member}
+  );
+  return response.data;
+};
+
+export const removeBlockMember = async (id_esp, id_member) => {
+  const response = await axiosClient.delete(
+    `/api/device/delBlock/${id_esp}`,
+    {
+      data: { userId: id_member } // pass body here
+    }
+  );
+  return response.data;
+};
+
+export const getBlockMember = async (id_esp) => {
+  const response = await axiosClient.get(
+    `/api/device/blocksDetail/${id_esp}`
+  );
   return response.data;
 };

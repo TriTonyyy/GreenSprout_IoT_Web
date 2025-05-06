@@ -89,13 +89,14 @@ function HomePage() {
                   {deviceData && deviceData.length < 9 && (
                     <button
                       className="bg-green-700 text-white rounded-2xl p-2"
-                      onClick={() =>
-                        user &&
-                        addDevicePopup(
-                          { userId: user._id, role: "member" },
-                          fetchUserDevices
-                        )
-                      }
+                      onClick={() => {
+                        if (user) {
+                          addDevicePopup(
+                            { userId: user._id, role: "member" },
+                            fetchUserDevices, // ✅ pass blocks
+                          );
+                        }
+                      }}
                     >
                       <Plus size={24} />
                     </button>
@@ -126,7 +127,8 @@ function HomePage() {
                       user &&
                       addDevicePopup(
                         { userId: user._id, role: "member" },
-                        fetchUserDevices
+                        fetchUserDevices,
+                        deviceData.blocks
                       )
                     }
                   />

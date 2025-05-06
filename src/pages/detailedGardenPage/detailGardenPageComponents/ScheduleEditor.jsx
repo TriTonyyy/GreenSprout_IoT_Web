@@ -2,7 +2,7 @@ import { React, useEffect, useState } from "react";
 import { dayOrder } from "./IrrigationModeSection";
 import i18n from "../../../i18n";
 
-const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
+const ScheduleEditor = ({ schedule, onChange, onSave, onCancel }) => {
   const [localDuration, setLocalDuration] = useState(
     Math.floor((schedule?.duration || 60) / 60)
   );
@@ -80,12 +80,9 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
         <label className="block text-sm font-medium mb-1">Giờ tưới</label>
         <input
           type="time"
-          className={`border rounded px-2 py-1 w-full ${
-            !isOwner ? "bg-gray-100 cursor-not-allowed" : ""
-          }`}
+          className="border rounded px-2 py-1 w-full"
           value={convertTo24Hour(schedule?.startTime || "12:00 AM")}
           onChange={handleTimeChange}
-          disabled={!isOwner}
         />
       </div>
 
@@ -98,12 +95,9 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
           min="1"
           max="30"
           step="1"
-          className={`border rounded px-2 py-1 w-full ${
-            !isOwner ? "bg-gray-100 cursor-not-allowed" : ""
-          }`}
+          className="border rounded px-2 py-1 w-full"
           value={localDuration}
           onChange={handleDurationChange}
-          disabled={!isOwner}
         />
       </div>
 
@@ -117,13 +111,11 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
                 schedule.repeat && schedule.repeat.includes(day)
                   ? "bg-orange-400 text-white border-orange-400"
                   : "text-gray-600 border-gray-300 hover:border-orange-300"
-              } ${!isOwner ? "cursor-not-allowed opacity-75" : ""}`}
+              }`}
               onClick={(e) => {
-                if (!isOwner) return;
                 e.stopPropagation();
                 handleRepeatChange(day);
               }}
-              disabled={!isOwner}
             >
               {day}
             </button>
@@ -138,14 +130,12 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel, isOwner }) => {
         >
           Huỷ
         </button>
-        {isOwner && (
-          <button
-            className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={() => onSave(schedule._id, schedule)}
-          >
-            Lưu
-          </button>
-        )}
+        <button
+          className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={() => onSave(schedule._id, schedule)}
+        >
+          Lưu
+        </button>
       </div>
     </div>
   );
