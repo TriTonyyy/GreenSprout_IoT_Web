@@ -1,5 +1,4 @@
-import { Pencil, Trash, User } from "lucide-react";
-
+import { ChartColumnIncreasing, User, Pencil, Trash } from "lucide-react";
 export const GardenTitle = ({
   gardenName = "Unnamed Garden",
   areaGardenName = "Unknown Area",
@@ -8,6 +7,7 @@ export const GardenTitle = ({
   onMember,
   isOwner,
   deviceId,
+  onStatistic,
 }) => (
   <div className="relative m-5 text-center p-8 bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-xl shadow-2xl">
     {/* Title */}
@@ -15,11 +15,23 @@ export const GardenTitle = ({
     {isOwner && <p className="text-2sm text-gray-200 mb-2">ID: {deviceId}</p>}
     <h2 className="text-2xl text-gray-200 tracking-wide">{areaGardenName}</h2>
     {/* Buttons */}
-    <div className="absolute top-4 right-4 flex space-x-2">
+    <div className="absolute top-2 right-4 flex flex-col space-y-2">
+      {onStatistic && (
+        <button
+          onClick={onStatistic}
+          className="group bg-white hover:bg-violet-400 p-2 rounded-full transition"
+          title="See garden statistics"
+        >
+          <ChartColumnIncreasing
+            size={18}
+            className="text-violet-500 group-hover:text-white transition"
+          />
+        </button>
+      )}
       {onMember && (
         <button
           onClick={onMember}
-          className="group bg-white hover:bg-green-400 p-2 rounded-full transition"
+          className="group bg-white hover:bg-blue-400 p-2 rounded-full transition"
           title="See garden members"
         >
           <User
@@ -32,7 +44,7 @@ export const GardenTitle = ({
         <button
           onClick={onEdit}
           className="group bg-white hover:bg-green-400 p-2 rounded-full transition"
-          title="Edit garden"
+          title="Change garden name"
         >
           <Pencil
             size={18}
@@ -42,9 +54,9 @@ export const GardenTitle = ({
       )}
       {onDelete && (
         <button
-          onClick={onDelete} // ← pass deviceId here
+          onClick={onDelete}
           className="group bg-white hover:bg-rose-600 p-2 rounded-full transition"
-          title="Delete garden"
+          title="Leave garden"
         >
           <Trash
             size={18}

@@ -45,6 +45,7 @@ const SideNavigationBar = () => {
         label: i18n.t('data_analys'),
       },
       { path: "/account", icon: <Settings size={20} />, label: i18n.t('setting') },
+      
     ],
     guest: [],
   };

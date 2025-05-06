@@ -251,7 +251,7 @@ function DetailedGarden() {
       <HeaderComponent gardens={allGardens} />
       <div className="flex flex-grow">
         <SideNavigationBar />
-        <div className="flex-grow">
+        <div className="flex-grow w-[85%]">
           {loading ? (
             <GardenTitleSkeleton />
           ) : data ? (
@@ -261,6 +261,7 @@ function DetailedGarden() {
                 areaGardenName={i18n.t("garden_info")}
                 onEdit={isOwner ? handleEdit : null}
                 onDelete={handleDelete}
+                onStatistic={() => navigate(`/statistics/${gardenId}`)}
                 onMember={handleMember}
                 isOwner={isOwner}
                 deviceId={gardenId}
