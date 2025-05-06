@@ -207,7 +207,10 @@ function DetailedGarden() {
     return () => clearInterval(interval);
   }, [user]);
 
-  const isOwner = data?.members?.some((member) => member.isMe);
+  // console.log("data", data.members);
+  const isOwner = data?.members?.some(
+    (member) => member.isMe && member.role === "owner"
+  );
 
   if (error) {
     return (
