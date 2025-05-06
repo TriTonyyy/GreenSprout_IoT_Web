@@ -60,7 +60,7 @@ const ScheduleList = ({
           )}
         </ScheduleCard>
       ))}
-      {schedules.length < 5 && (
+      {schedules.length < 12 && (
         <div
           onClick={handleAddSchedule}
           className="w-[310px] h-[196px] flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all duration-200"
