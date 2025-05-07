@@ -1,4 +1,4 @@
-import React, { useState, useEffect, me, memo } from "react";
+import React, { useState, useEffect, memo } from "react";
 import Skeleton from "react-loading-skeleton";
 import { useNavigate } from "react-router";
 import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
@@ -17,55 +17,83 @@ const GardenItem = memo(function GardenItem({
   const navigate = useNavigate();
   const sensorTypes = ["temperature", "moisture"];
   const controlNames = ["water", "light", "wind"]; // Added "fan" control
+  const [cooldowns, setCooldowns] = useState({}); // Initialize cooldown state as empty object
 
   const displayedSensors = sensorTypes.map((type) => {
     return sensors.find((s) => s.type === type) || { type, value: "---" };
   });
 
   const [controlStatuses, setControlStatuses] = useState({});
-
+  
   useEffect(() => {
     const updatedStatuses = {};
 
     controlNames.forEach((name) => {
       const control = controls.find((c) => c.name === name);
-      updatedStatuses[name] = control?.status ?? false;
+      updatedStatuses[name] = {
+        status: control?.status ?? false,
+        mode: control?.mode ?? "---",
+      };
     });
 
     setControlStatuses(updatedStatuses);
+
+    // Initialize cooldowns state for each control
+    const initialCooldowns = controlNames.reduce((acc, name) => {
+      acc[name] = false; // Default cooldown to false for each control
+      return acc;
+    }, {});
+    
+    setCooldowns(initialCooldowns); // Set the initialized cooldowns
   }, [controls]);
 
   const handleToggle = async (controlName, controlId) => {
-    const currentStatus = controlStatuses[controlName];
-    const newStatus = !currentStatus;
+    if (cooldowns[controlName]) return; // Ignore if in cooldown
 
-    // Optimistically update the status in the UI
+    // Start cooldown by setting it to true
+    setCooldowns((prev) => ({
+      ...prev,
+      [controlName]: true, // Set cooldown for this control
+    }));
+
+    const current = controlStatuses[controlName];
+    const newStatus = !current.status;
+
+    // Optimistically update status AND mode to "manual"
     setControlStatuses((prev) => ({
       ...prev,
-      [controlName]: newStatus,
+      [controlName]: {
+        status: newStatus,
+        mode: "manual", // Set mode to "manual" immediately after toggle
+      },
     }));
 
     try {
-      // Send the request to the backend to update control status
+      // Send the request to the backend to update control status and mode
       await updateControlById({
         id_esp: id,
-        controlId: controlId,
+        controlId,
         data: {
           status: newStatus,
-          mode: "manual",
+          mode: "manual", // Send the updated mode to the backend
         },
       });
     } catch (error) {
-      // If an error occurs, revert the control status to its previous state
+      // Revert status and mode if the request fails
       setControlStatuses((prev) => ({
         ...prev,
-        [controlName]: currentStatus,
+        [controlName]: current, // Revert to the original state if the request fails
       }));
-
-      apiResponseHandler(
-        "Failed to update control status. Please try again.",
-        "error"
-      );
+      apiResponseHandler("Failed to update control status.", "error");
+    } finally {
+      // Set the cooldown timeout (2 seconds in this case)
+      setTimeout(() => {
+        // End the cooldown after 2 seconds
+        setCooldowns((prev) => ({
+          ...prev,
+          [controlName]: false, // Remove the cooldown after 2 seconds
+        }));
+      }, 2000);
     }
   };
 
@@ -132,11 +160,13 @@ const GardenItem = memo(function GardenItem({
           {controlNames.map((controlName, index) => {
             const control = controls.find((c) => c.name === controlName);
             const isControlAvailable = control?.status !== undefined;
-            const status = controlStatuses[controlName];
+            const status = controlStatuses[controlName]?.status; // Use status from controlStatuses state
+            const mode = controlStatuses[controlName]?.mode; // Use mode from controlStatuses state
+
             return (
               <div
                 key={index}
-                className={`px-1 flex justify-between items-center`}
+                className="px-1 flex justify-between items-center"
               >
                 <span
                   className={`font-medium text-green-600 flex items-center ${
@@ -152,21 +182,23 @@ const GardenItem = memo(function GardenItem({
                       : "🌬️"}
                   </span>
                   {controlName === "water"
-                    ? i18n.t("watering")
+                    ? i18n.t("water")
                     : controlName === "light"
-                    ? i18n.t("lighting")
-                    : i18n.t("fan")}
-                  :
+                    ? i18n.t("light")
+                    : i18n.t("wind")}
                 </span>
-                {/* Updated control label color */}
-                <div className="flex justify-between items-center">
+
+                {/* Toggle with Mode next to it */}
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs italic text-green-400">
+                    {i18n.t(mode || "---")}
+                  </span>
                   {isControlAvailable ? (
                     <ToggleSwitch
                       isOn={status}
                       onToggle={() => handleToggle(controlName, control?._id)}
-                      style={{
-                        cursor: "pointer", // Interactivity when available
-                      }}
+                      disabled={cooldowns[controlName]} // Use the cooldown status for this control
+                      isLoading={cooldowns[controlName]} // Apply reduced opacity when in cooldown
                     />
                   ) : (
                     <div className="opacity-40 pointer-events-none">
