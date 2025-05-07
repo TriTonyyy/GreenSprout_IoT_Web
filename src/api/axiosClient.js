@@ -12,7 +12,7 @@ let token;
 getToken().then((res) => (token = res));
 
 const axiosClient = axios.create({
-  baseURL: Local,
+  baseURL: BASEURL,
   headers: {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
