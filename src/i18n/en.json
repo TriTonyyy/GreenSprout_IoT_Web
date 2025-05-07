@@ -103,7 +103,12 @@
   "in_a_year":"in a year",
   "b_member":"Banned member",
   "a_member":"Active member",
-  "done":"Done"
+  "done":"Done",
+  "add_irrigation_schedule":"Add Irrigation Schedule",
+  "ownerOnlySensorThreshold": "Only the owner can change the sensor threshold",
+  "noDeviceFoundForUpdate": "No device found for update",
+  "sensorThresholdUpdated": "Sensor threshold updated successfully",
+  "sensorThresholdUpdateError": "Error updating sensor threshold"
 
 
 

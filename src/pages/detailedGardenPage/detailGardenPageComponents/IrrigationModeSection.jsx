@@ -84,7 +84,7 @@ export default function IrrigationModeSection({ deviceId }) {
 
     if (!isOwner) {
       apiResponseHandler(
-        "Chỉ chủ sở hữu mới có thể thay đổi ngưỡng cảm biến",
+        i18n.t("ownerOnlySensorThreshold"),
         "error"
       );
       return;
@@ -95,7 +95,7 @@ export default function IrrigationModeSection({ deviceId }) {
 
     if (!controlId) {
       console.error(`❌ Control ID not loaded for: ${selectedControl}`);
-      apiResponseHandler("Không tìm thấy thiết bị để cập nhật", "error");
+      apiResponseHandler(i18n.t("noDeviceFoundForUpdate"), "error");
       return;
     }
 
@@ -118,10 +118,10 @@ export default function IrrigationModeSection({ deviceId }) {
         data: payload,
       });
 
-      apiResponseHandler("Ngưỡng cảm biến đã được cập nhật", "success");
+      apiResponseHandler(i18n.t("sensorThresholdUpdated"), "success");
     } catch (err) {
       console.error(" Lỗi khi cập nhật ngưỡng:", err);
-      apiResponseHandler("Lỗi khi cập nhật ngưỡng cảm biến", "error");
+      apiResponseHandler(i18n.t("sensorThresholdUpdateError"), "error");
     }
   };
 
@@ -269,7 +269,7 @@ export default function IrrigationModeSection({ deviceId }) {
 
   const handleAddSchedule = async (deviceType) => {
     if (!isOwner) {
-      apiResponseHandler("Chỉ chủ sở hữu mới có thể thêm lịch tưới", "error");
+      apiResponseHandler(i18n.t("ownerOnlySensorThreshold"), "error");
       return;
     }
 
@@ -322,7 +322,7 @@ export default function IrrigationModeSection({ deviceId }) {
   const saveSchedule = async (scheduleId, updatedSchedule) => {
     if (!isOwner) {
       apiResponseHandler(
-        "Chỉ chủ sở hữu mới có thể thay đổi lịch tưới",
+        i18n.t("ownerOnlySensorThreshold"),
         "error"
       );
       return;
