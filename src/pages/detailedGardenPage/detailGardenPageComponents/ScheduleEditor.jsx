@@ -77,7 +77,7 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel }) => {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Giờ tưới</label>
+        <label className="block text-sm font-medium mb-1">{i18n.t('time_begin')}</label>
         <input
           type="time"
           className="border rounded px-2 py-1 w-full"

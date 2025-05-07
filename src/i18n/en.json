@@ -124,7 +124,8 @@
   "ownerOnlySensorThreshold": "Only the owner can change the sensor threshold",
   "noDeviceFoundForUpdate": "No device found for update",
   "sensorThresholdUpdated": "Sensor threshold updated successfully",
-  "sensorThresholdUpdateError": "Error updating sensor threshold"
+  "sensorThresholdUpdateError": "Error updating sensor threshold",
+  "time_begin": "Start at:"
 
 }
 

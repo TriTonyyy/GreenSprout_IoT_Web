@@ -124,7 +124,8 @@
   "ownerOnlySensorThreshold": "Chỉ chủ sở hữu mới có thể thay đổi ngưỡng cảm biến",
   "noDeviceFoundForUpdate": "Không tìm thấy thiết bị để cập nhật",
   "sensorThresholdUpdated": "Ngưỡng cảm biến đã được cập nhật",
-  "sensorThresholdUpdateError": "Lỗi khi cập nhật ngưỡng cảm biến"
+  "sensorThresholdUpdateError": "Lỗi khi cập nhật ngưỡng cảm biến",
+  "time_begin": "Bắt đầu lúc:"
 }
 
 
