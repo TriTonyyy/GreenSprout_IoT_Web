@@ -8,26 +8,23 @@ import {
   Fan,
   Lightbulb,
   Droplet,
+
 } from "lucide-react";
-import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
+import {
+  ModeSelector,
+  ToggleSwitch,
+} from "../../../components/ToggleComponent/ToggleSwitch";
 import {
   getGardenByDevice,
   getMemberByIdDevice,
   updateControlById,
-  removeMemberByIdDevice,
   uploadImage,
-  updateMemberRole,
-  addBlockMember,
 } from "../../../api/deviceApi";
 import {
   apiResponseHandler,
-  areUSurePopup,
-  selectNewOwnerPopup,
 } from "../../../components/Alert/alertComponent";
 import i18n from "../../../i18n";
-import { getLang } from "../../../redux/selectors/langSelectors";
-import { useSelector } from "react-redux";
-import MemberSection, { MemberList } from "./MemberGarden";
+import { MemberList } from "./MemberGarden";
 
 const GardenImage = ({ src, onImageClick }) => (
   <div className="flex justify-center items-center p-4 w-full">
@@ -85,46 +82,9 @@ const SensorReading = ({ label, value, unit, icon }) => {
   );
 };
 
-const ModeSelector = ({ currentMode, onChange }) => {
-  const lang = i18n.language;
-  
-  const modes = [i18n.t("manual"), i18n.t("schedule"), i18n.t("threshold")];
-  let modeMap = {
-    "Thủ công": "manual",
-    "Theo lịch": "schedule",
-    Ngưỡng: "threshold",
-  };
-  if (lang === "en") {
-    modeMap = {
-      Manual: "manual",
-      Schedule: "schedule",
-      Threshold: "threshold",
-    };
-  }
-  // console.log(currentMode, "---", modeMap);
 
-  return (
-    <div className="flex space-x-1 text-xs">
-      {modes.map((mode) => (
-        <button
-          key={mode}
-          className={`px-3 py-1 rounded-md transition-colors duration-200 font-medium
-            ${
-              currentMode === modeMap[mode] // Check against the API value
-                ? "bg-green-500 text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          onClick={() => onChange(modeMap[mode])} // Send API value on click
-        >
-          {mode.charAt(0).toUpperCase() + mode.slice(1)}{" "}
-          {/* Capitalize first letter */}
-        </button>
-      ))}
-    </div>
-  );
-};
 
-export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
+export const DetailedGardenInfo = ({ deviceId, isOwner,onRemoveMember }) => {
   const [loading, setLoading] = useState(true);
   const [gardenData, setGardenData] = useState(null);
   const [sensorsMap, setSensorsMap] = useState({});
@@ -136,6 +96,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
   const [controlModes, setControlModes] = useState({});
   const [controlStatuses, setControlStatuses] = useState({});
   const [isPolling, setIsPolling] = useState(true);
+  const [cooldowns, setCooldowns] = useState({});
 
   // Define all possible sensor types
   const allSensorTypes = [
@@ -150,7 +111,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
   const translateSensorType = (sensorType) => {
     const translationMap = {
       moisture: {
-        label:i18n.t("soil_moisture"),
+        label: i18n.t("soil_moisture"),
         unit: "%",
         icon: <Droplets size={18} color="#38bdf8" />, // sky-400
       },
@@ -268,10 +229,17 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
 
   // Handler for toggling control status
   const handleStatusToggle = async (controlName, controlId) => {
+    if (cooldowns[controlName]) return; // Ignore if in cooldown
+
+    setCooldowns((prev) => ({
+      ...prev,
+      [controlName]: true,
+      [getOtherControlName(controlName)]: true,
+    }));
+
     const currentStatus = controlStatuses[controlName];
     const newStatus = !currentStatus;
 
-    // Optimistically update the status in the UI
     setControlStatuses((prev) => ({
       ...prev,
       [controlName]: newStatus,
@@ -281,10 +249,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       [controlName]: "manual",
     }));
 
-    // console.log(currentStatus, newStatus);
-
     try {
-      // Send the request to the backend to update control status
       await updateControlById({
         id_esp: deviceId,
         controlId: controlId,
@@ -294,7 +259,6 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
         },
       });
     } catch (error) {
-      // If an error occurs, revert the control status to its previous state
       setControlStatuses((prev) => ({
         ...prev,
         [controlName]: currentStatus,
@@ -304,31 +268,37 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
         "Failed to update control status. Please try again.",
         "error"
       );
+    } finally {
+      setTimeout(() => {
+        setCooldowns((prev) => ({
+          ...prev,
+          [controlName]: false,
+          [getOtherControlName(controlName)]: false,
+        }));
+      }, 2000);
     }
   };
 
-  // Handler for changing control mode
   const handleModeChange = async (controlName, controlId, newMode) => {
+    if (cooldowns[controlName]) return;
+
+    setCooldowns((prev) => ({
+      ...prev,
+      [controlName]: true,
+      [getOtherControlName(controlName)]: true,
+    }));
+
     const currentMode = controlModes[controlName];
-    // Only proceed if the mode is actually changing
     if (currentMode === newMode) return;
 
-    // Optimistically update the local state
     setControlModes((prev) => ({
       ...prev,
       [controlName]: newMode,
     }));
-
-    // Turn off the control when changing modes
     setControlStatuses((prev) => ({
       ...prev,
       [controlName]: false,
     }));
-
-    // Update specific control state
-    // if (controlName === "water") setWaterOn(false);
-    // if (controlName === "light") setLightOn(false);
-    // if (controlName === "wind") setWindOn(false);
 
     try {
       await updateControlById({
@@ -336,11 +306,10 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
         controlId: controlId,
         data: {
           mode: newMode,
-          status: false, // Turn off the control
+          status: false,
         },
       });
     } catch (error) {
-      // Revert on error
       setControlModes((prev) => ({
         ...prev,
         [controlName]: currentMode,
@@ -349,15 +318,25 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
         ...prev,
         [controlName]: controlStatuses[controlName],
       }));
-      // Revert specific control state
-      // if (controlName === "water") setWaterOn(controlStatuses.water);
-      // if (controlName === "light") setLightOn(controlStatuses.light);
-      // if (controlName === "wind") setWindOn(controlStatuses.wind);
 
       apiResponseHandler(
-        `Failed to update mode for ${controlName}. Please try again.`
+        `Failed to update mode for ${controlName}. Please try again.`,
+        "error"
       );
+    } finally {
+      setTimeout(() => {
+        setCooldowns((prev) => ({
+          ...prev,
+          [controlName]: false,
+          [getOtherControlName(controlName)]: false,
+        }));
+      }, 2000);
     }
+  };
+
+  // Utility function to get the other control name (status or mode)
+  const getOtherControlName = (controlName) => {
+    return controlName === "status" ? "mode" : "status";
   };
 
   const handleImageClick = async (isOwner) => {
@@ -443,52 +422,6 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
     };
   });
 
-  const onRemoveMember = async (member) => {
-    try {
-      // First confirmation: Remove member
-      const confirmRemove = await areUSurePopup(
-        `Bạn có chắc chắn muốn xóa <strong style="color: #dc2626;">${member.name}</strong> khỏi thiết bị?`,
-        "warning" // Showing a warning message
-      );
-      if (confirmRemove) {
-        // Second confirmation: Block member
-        const confirmBlock = await areUSurePopup(
-          `Bạn có muốn thêm <strong style="color: #dc2626;">${member.name}</strong> vào danh sách chặn?`,
-          "question" // Showing a question message
-        );
-        // console.log(confirmBlock);
-        if (confirmBlock) {
-          // Block member if confirmed
-          await removeMemberByIdDevice(deviceId, member.userId);
-          await addBlockMember(deviceId, member.userId);
-          apiResponseHandler(
-            `Đã xóa "${member.name}" khỏi thiết bị`,
-            "success"
-          );
-        }
-      } else if (!confirmRemove) {
-        // User cancelled the first confirmation
-        return;
-      } else {
-        const response = await removeMemberByIdDevice(deviceId, member.userId);
-        if (response.success) {
-          apiResponseHandler(
-            `Đã xóa "${member.name}" khỏi thiết bị`,
-            "success"
-          );
-        } else {
-          apiResponseHandler(
-            response.message || "Không thể xóa thành viên",
-            "error"
-          );
-        }
-      }
-    } catch (error) {
-      if (error === "cancelled") return; // User cancelled the confirmation
-      apiResponseHandler("Không thể xóa thành viên", "error");
-    }
-  };
-
   return (
     <div className="mx-5 bg-white rounded-xl shadow-md py-2 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-10 items-stretch">
       {/* Image Section */}
@@ -555,7 +488,8 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
                     <ToggleSwitch
                       isOn={status}
                       onToggle={() => exists && handleStatusToggle(name, _id)}
-                      disabled={!exists}
+                      disabled={!exists || cooldowns[name]}
+                      isLoading={cooldowns[name]} // Pass cooldown state to show opacity change
                     />
                   </div>
                 </div>
@@ -576,7 +510,8 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
                       onChange={(newMode) =>
                         exists && handleModeChange(name, _id, newMode)
                       }
-                      disabled={!exists}
+                      disabled={!exists || cooldowns[name]}
+                      isLoading={cooldowns[name]} // Pass cooldown state to show opacity change
                     />
                   </div>
                 </div>

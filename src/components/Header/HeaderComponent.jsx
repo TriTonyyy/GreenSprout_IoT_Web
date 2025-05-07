@@ -33,7 +33,7 @@ function HeaderComponent({ gardens }) {
   };
 
   return (
-    <header className="sticky top-0 bg-green-200 border-b border-gray-200 shadow-sm z-40">
+    <header className="sticky top-0 bg-green-200 shadow-sm z-40">
       <div className="h-24 px-6">
         <div className="flex h-full items-center justify-between">
           {/* Left side - Logo and Brand */}

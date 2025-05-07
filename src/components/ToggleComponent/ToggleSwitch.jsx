@@ -1,5 +1,9 @@
 import React from "react";
-const ToggleSwitch = ({ control, isOn, onToggle }) => (
+import i18n from "../../i18n";
+
+const ToggleSwitch = ({ isOn, onToggle, disabled, isLoading }) => (
+  console.log(isLoading),
+  
   <div className="flex items-center justify-between py-1">
     <label className="relative inline-flex items-center cursor-pointer">
       <input
@@ -7,8 +11,13 @@ const ToggleSwitch = ({ control, isOn, onToggle }) => (
         className="sr-only peer"
         checked={isOn}
         onChange={onToggle}
+        disabled={disabled || isLoading} // Disable interaction when loading or on cooldown
       />
-      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-green-700 transition-colors duration-300">
+      <div
+        className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-green-700 transition-colors duration-300 relative ${
+          isLoading || disabled ? "opacity-50" : "opacity-100" // Apply opacity-50 when cooldown is active
+        }`} // Reduced opacity during cooldown
+      >
         <div
           className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white border border-gray-300 rounded-full transition-transform duration-300 ${
             isOn ? "translate-x-5 border-white" : ""
@@ -19,4 +28,48 @@ const ToggleSwitch = ({ control, isOn, onToggle }) => (
   </div>
 );
 
-export {ToggleSwitch};
+const ModeSelector = ({ currentMode, onChange, disabled, isLoading }) => {
+  const lang = i18n.language;
+
+  const modes = [i18n.t("manual"), i18n.t("schedule"), i18n.t("threshold")];
+  let modeMap = {
+    "Thủ công": "manual",
+    "Theo lịch": "schedule",
+    Ngưỡng: "threshold",
+  };
+  if (lang === "en") {
+    modeMap = {
+      Manual: "manual",
+      Schedule: "schedule",
+      Threshold: "threshold",
+    };
+  }
+
+  return (
+    <div className="flex space-x-2 text-xs">
+      <div
+        className={`w-full flex justify-center items-center transition-opacity duration-300 ${
+          isLoading ? "opacity-50" : "opacity-100"
+        }`} // Apply reduced opacity during loading
+      >
+        {modes.map((mode) => (
+          <button
+            key={mode}
+            className={`px-3 mx-1 py-1 rounded-md transition-colors duration-200 font-medium
+                ${
+                  currentMode === modeMap[mode]
+                    ? "bg-green-500 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            onClick={() => onChange(modeMap[mode])}
+            disabled={disabled || isLoading} // Disable button when loading
+          >
+            {mode.charAt(0).toUpperCase() + mode.slice(1)}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export { ToggleSwitch, ModeSelector };

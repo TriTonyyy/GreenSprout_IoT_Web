@@ -4,13 +4,8 @@ import {
   apiResponseHandler,
   areUSurePopup,
 } from "../../../components/Alert/alertComponent";
-import {
-  addBlockMember,
-  removeBlockMember,
-  removeMemberByIdDevice,
-} from "../../../api/deviceApi";
+import { removeBlockMember } from "../../../api/deviceApi";
 import i18n from "../../../i18n";
-
 
 function MemberGarden({ members, blocks, isOwner, onRemoveMember, deviceId }) {
   const activeMembers = members;
@@ -26,11 +21,13 @@ function MemberGarden({ members, blocks, isOwner, onRemoveMember, deviceId }) {
         "warning"
       );
       if (confirmRemove) {
-        await removeBlockMember(deviceId, member.userId); // <-- store response here
-        apiResponseHandler(
-          `Đã xóa "${member.name}" khỏi danh sách chặn`,
-          `success`
-        );
+        const blockRes = await removeBlockMember(deviceId, member.userId); // <-- store response here
+        if (blockRes) {
+          apiResponseHandler(
+            `Đã xóa "${member.name}" khỏi danh sách chặn`,
+            `success`
+          );
+        }
       }
     } catch (error) {
       if (error === "cancelled") return;
@@ -40,18 +37,18 @@ function MemberGarden({ members, blocks, isOwner, onRemoveMember, deviceId }) {
   };
 
   return (
-    <div className="flex flex-col py-4 w-full h-full justify-between ">
-      <div className="flex gap-2">
+    <div className="flex flex-col py-4 w-full h-full ">
+      <div className="flex flex-wrap justify-center">
         {/* Show both columns if owner */}
         {isOwner ? (
           <>
             {/* Active Members Column */}
             <div className="flex-1">
               {activeMembers.length > 0 && (
-                <div className="h-[400px] overflow-y-auto">
+                <div className="h-[400px] overflow-y-auto ">
                   {" "}
                   {/* Set height and make it scrollable */}
-                  <h3 className="border-green-400 text-green-500 text-center uppercase font-bold">
+                  <h3 className="border-green-400 text-green-500 text-center uppercase font-bold mb-5">
                     {i18n.t("a_member")}
                   </h3>
                   <MemberList
@@ -69,10 +66,10 @@ function MemberGarden({ members, blocks, isOwner, onRemoveMember, deviceId }) {
             {/* Banned Members Column */}
             <div className="flex-1">
               {bannedMembers && (
-                <div className="h-[400px] overflow-y-auto">
+                <div className="h-[400px] overflow-y-auto ">
                   {" "}
                   {/* Set height and make it scrollable */}
-                  <h3 className="border-rose-400 text-rose-500 uppercase text-center font-bold">
+                  <h3 className="border-rose-400 text-rose-500 text-center uppercase font-bold mb-5">
                     {i18n.t("b_member")}
                   </h3>
                   <BannedMemberList
@@ -86,11 +83,11 @@ function MemberGarden({ members, blocks, isOwner, onRemoveMember, deviceId }) {
           </>
         ) : (
           // Show only active members if not owner
-          <div className="w-full">
+          <div className="w-[50%]">
             {activeMembers.length > 0 && (
               <div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">
-                  Active Members
+                <h3 className="border-green-400 text-green-500 text-center uppercase font-bold mb-5">
+                  {i18n.t("a_member")}
                 </h3>
                 <MemberList
                   members={activeMembers}
@@ -114,7 +111,7 @@ const MemberList = ({ members, onEdit, isOwner }) => {
   });
 
   return (
-    <div className="h-full overflow-y-auto flex flex-col space-y-4">
+    <div className="flex flex-col space-y-4 justify-center">
       {sortedMembers.map((member, index) => (
         <div
           key={member.email || member.name || index}
@@ -159,11 +156,11 @@ const MemberList = ({ members, onEdit, isOwner }) => {
 
 const BannedMemberList = ({ members, onEdit, isOwner }) => {
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col space-y-4 justify-center">
       {members.map((member, index) => (
         <div
           key={member.email || member.name || index}
-          className="border rounded-md px-4 py-3 my-3 flex justify-between items-center bg-red-50 shadow-md hover:shadow-lg transition-all duration-300"
+          className="border rounded-md px-4 py-3 flex justify-between items-center bg-white shadow-md hover:shadow-lg transition-all duration-300"
         >
           <div className="flex items-center space-x-3">
             <span className="text-lg text-red-500">
@@ -200,4 +197,4 @@ const BannedMemberList = ({ members, onEdit, isOwner }) => {
   );
 };
 
-export {MemberGarden, MemberList};
+export { MemberGarden, MemberList };
