@@ -39,13 +39,13 @@ const dayCodeToWeekday = {
 };
 // For displaying in the UI
 export const dayDisplayMap = {
-  2: "T2",
-  3: "T3",
-  4: "T4",
-  5: "T5",
-  6: "T6",
-  7: "T7",
-  CN: "CN",
+  2: i18n.t("days.T2"), // Translation for "T2"
+  3: i18n.t("days.T3"), // Translation for "T3"
+  4: i18n.t("days.T4"), // Translation for "T4"
+  5: i18n.t("days.T5"), // Translation for "T5"
+  6: i18n.t("days.T6"), // Translation for "T6"
+  7: i18n.t("days.T7"), // Translation for "T7"
+  CN: i18n.t("days.CN"), // Translation for "CN"
 };
 
 export default function IrrigationModeSection({ deviceId }) {
@@ -268,11 +268,6 @@ export default function IrrigationModeSection({ deviceId }) {
   }, [deviceId]);
 
   const handleAddSchedule = async (deviceType) => {
-    if (!isOwner) {
-      apiResponseHandler(i18n.t("ownerOnlySensorThreshold"), "error");
-      return;
-    }
-
     const newSchedule = {
       startTime: "12:00 AM",
       duration: 60, // Set default duration to 60 minutes
@@ -320,14 +315,6 @@ export default function IrrigationModeSection({ deviceId }) {
   };
 
   const saveSchedule = async (scheduleId, updatedSchedule) => {
-    if (!isOwner) {
-      apiResponseHandler(
-        i18n.t("ownerOnlySensorThreshold"),
-        "error"
-      );
-      return;
-    }
-
     try {
       // Format the data according to the required structure
       const formattedData = {
@@ -462,11 +449,6 @@ export default function IrrigationModeSection({ deviceId }) {
   };
 
   const removeSchedule = async (id) => {
-    if (!isOwner) {
-      apiResponseHandler("Chỉ chủ sở hữu mới có thể xóa lịch tưới", "error");
-      return;
-    }
-
     try {
       await areUSurePopup("Bạn có chắc chắn muốn xóa lịch tưới này?");
 
@@ -534,7 +516,9 @@ export default function IrrigationModeSection({ deviceId }) {
 
   return (
     <div className="mx-5 bg-white rounded-xl shadow-lg p-6 my-4 border border-gray-100">
-      <h2 className="text-2xl font-bold mb-6 px-2 text-gray-800">{i18n.t("irrigationSchedule")}</h2>
+      <h2 className="text-2xl font-bold mb-6 px-2 text-gray-800">
+        {i18n.t("irrigationSchedule")}
+      </h2>
       {/* Mode and Control Selection */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 mb-8 gap-4">
         <ModeSelector

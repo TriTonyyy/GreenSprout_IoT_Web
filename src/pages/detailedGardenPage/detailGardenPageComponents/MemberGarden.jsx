@@ -11,58 +11,11 @@ import {
 } from "../../../api/deviceApi";
 import i18n from "../../../i18n";
 
-function MemberGarden({ members, blocks, isOwner, deviceId }) {
+
+function MemberGarden({ members, blocks, isOwner, onRemoveMember, deviceId }) {
   const activeMembers = members;
   const bannedMembers = blocks;
   console.log(blocks);
-  
-  //   console.log(bannedMembers);
-
-  const onRemoveMember = async (member) => {
-    try {
-      // First confirmation: Remove member
-      const confirmRemove = await areUSurePopup(
-        `Bạn có chắc chắn muốn xóa <strong style="color: #dc2626;">${member.name}</strong> khỏi thiết bị?`,
-        "warning" // Showing a warning message
-      );
-      if (confirmRemove) {
-        // Second confirmation: Block member
-        const confirmBlock = await areUSurePopup(
-          `Bạn có muốn thêm <strong style="color: #dc2626;">${member.name}</strong> vào danh sách chặn?`,
-          "question" // Showing a question message
-        );
-        // console.log(confirmBlock);
-        if (confirmBlock) {
-          // Block member if confirmed
-          await removeMemberByIdDevice(deviceId, member.userId);
-          await addBlockMember(deviceId, member.userId);
-          apiResponseHandler(
-            `Đã xóa "${member.name}" khỏi thiết bị`,
-            "success"
-          );
-        }
-      } else if (!confirmRemove) {
-        // User cancelled the first confirmation
-        return;
-      } else {
-        const response = await removeMemberByIdDevice(deviceId, member.userId);
-        if (response.success) {
-          apiResponseHandler(
-            `Đã xóa "${member.name}" khỏi thiết bị`,
-            "success"
-          );
-        } else {
-          apiResponseHandler(
-            response.message || "Không thể xóa thành viên",
-            "error"
-          );
-        }
-      }
-    } catch (error) {
-      if (error === "cancelled") return; // User cancelled the confirmation
-      apiResponseHandler("Không thể xóa thành viên", "error");
-    }
-  };
 
   const onRemoveBanned = async (member) => {
     console.log(member.userId);
@@ -161,11 +114,11 @@ const MemberList = ({ members, onEdit, isOwner }) => {
   });
 
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="h-full overflow-y-auto flex flex-col space-y-4">
       {sortedMembers.map((member, index) => (
         <div
           key={member.email || member.name || index}
-          className="border rounded-md px-4 py-3 my-3 flex justify-between items-center bg-white shadow-md hover:shadow-lg transition-all duration-300"
+          className="border rounded-md px-4 py-3 flex justify-between items-center bg-white shadow-md hover:shadow-lg transition-all duration-300"
         >
           <div className="flex items-center space-x-3">
             <span className="text-lg text-sky-500">
@@ -247,4 +200,4 @@ const BannedMemberList = ({ members, onEdit, isOwner }) => {
   );
 };
 
-export default MemberGarden;
+export {MemberGarden, MemberList};

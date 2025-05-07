@@ -24,7 +24,7 @@ const ScheduleCard = ({
           e.stopPropagation();
           onDelete(schedule._id);
         }}
-        title="Xoá lịch tưới"
+        title={i18n.t("remove_scheduler")}
       >
         <X size={16} />
       </button>
@@ -52,8 +52,8 @@ const ScheduleCard = ({
             </span>{" "}
             {schedule.repeat && schedule.repeat.length > 0
               ? schedule.repeat
-                  .map((day) => dayDisplayMap[day] || day)
-                  .join(", ")
+                  .map((day) => i18n.t(`days.${day}`)) // Use i18n to get the translated day
+                  .join(", ") // Join the translated days with commas
               : i18n.t("no_repeat")}
           </p>
         </div>

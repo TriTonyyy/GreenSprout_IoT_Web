@@ -25,7 +25,7 @@ import {
   updateMemberRole,
 } from "../../api/deviceApi";
 import i18n from "../../i18n";
-import MemberGarden from "./detailGardenPageComponents/MemberGarden";
+import {MemberGarden} from "./detailGardenPageComponents/MemberGarden";
 
 function DetailedGarden() {
   const { gardenId } = useParams();
