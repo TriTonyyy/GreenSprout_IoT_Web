@@ -119,5 +119,19 @@
     "T6": "Fri",
     "T7": "Sat",
     "CN": "Sun"
-  }
+  },
+  "add_irrigation_schedule":"Add Irrigation Schedule",
+  "ownerOnlySensorThreshold": "Only the owner can change the sensor threshold",
+  "noDeviceFoundForUpdate": "No device found for update",
+  "sensorThresholdUpdated": "Sensor threshold updated successfully",
+  "sensorThresholdUpdateError": "Error updating sensor threshold"
+
 }
+
+
+
+
+
+
+
+

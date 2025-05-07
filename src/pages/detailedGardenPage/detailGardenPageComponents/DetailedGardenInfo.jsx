@@ -86,7 +86,8 @@ const SensorReading = ({ label, value, unit, icon }) => {
 };
 
 const ModeSelector = ({ currentMode, onChange }) => {
-  const lang = useSelector(getLang);
+  const lang = i18n.language;
+  
   const modes = [i18n.t("manual"), i18n.t("schedule"), i18n.t("threshold")];
   let modeMap = {
     "Thủ công": "manual",
@@ -149,27 +150,27 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
   const translateSensorType = (sensorType) => {
     const translationMap = {
       moisture: {
-        label: "Độ ẩm đất",
+        label:i18n.t("soil_moisture"),
         unit: "%",
         icon: <Droplets size={18} color="#38bdf8" />, // sky-400
       },
       temperature: {
-        label: "Nhiệt độ",
+        label: i18n.t("temperature"),
         unit: "°C",
         icon: <Thermometer size={18} color="#f87171" />, // red-400
       },
       humidity: {
-        label: "Độ ẩm không khí",
+        label: i18n.t("airHumidity"),
         unit: "%",
         icon: <CloudRain size={18} color="#60a5fa" />, // blue-400
       },
       stream: {
-        label: "Lưu lượng nước",
+        label: i18n.t("waterFlow"),
         unit: "m³/s",
         icon: <ShowerHead size={18} color="#34d399" />, // green-400
       },
       luminosity: {
-        label: "Cường độ ánh sáng",
+        label: i18n.t("light_intensity"),
         unit: "%",
         icon: <Sun size={18} color="#facc15" />, // yellow-400
       },
@@ -493,7 +494,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       {/* Image Section */}
       <div className="col-span-1 flex flex-col md:border-r">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Hình ảnh
+          {i18n.t("image")}
         </h2>
         <GardenImage
           src={imageUrl}
@@ -504,7 +505,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       {/* Sensor Section */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col justify-center space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Cảm biến
+          {i18n.t("sensor")}
         </h2>
         <div className="flex flex-col flex-grow justify-center">
           {displayedSensors.map(({ label, value, unit, icon }, index) => (
@@ -522,7 +523,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       {/* Control Section */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Điều khiển
+          {i18n.t("control")}
         </h2>
         <div className="flex flex-col items-center mt-2 w-full">
           {displayedControls.map(
@@ -539,10 +540,10 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
                       <Fan size={18} className="text-green-400" />
                     )}
                     {name === "water"
-                      ? "Nước"
+                      ? i18n.t("water")
                       : name === "light"
-                      ? "Đèn"
-                      : "Gió"}
+                      ? i18n.t("light")
+                      : i18n.t("wind")}
                   </span>
                   {/* Toggle with conditional blur + tooltip */}
                   <div
@@ -562,7 +563,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
                 {/* ModeSelector with conditional blur + tooltip */}
                 <div className="flex justify-between items-center w-full">
                   <span className="text-sm text-green-600 font-medium">
-                    Chế độ:
+                    {i18n.t("mode")}
                   </span>
                   <div
                     className={`transition-all duration-200 ${
@@ -612,7 +613,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Image Section Skeleton */}
       <div className="col-span-1 flex flex-col md:border-r">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Hình ảnh
+          {i18n.t("image")}
         </div>
         <div className="h-48 bg-gray-200 rounded-lg m-4"></div>
       </div>
@@ -620,7 +621,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Sensor Section Skeleton */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-4">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Cảm biến
+          {i18n.t("sensor")}
         </div>
         <div className="flex flex-col px-4 space-y-2">
           {[...Array(3)].map((_, i) => (
@@ -632,7 +633,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Control Section Skeleton */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-4">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Điều khiển
+          {i18n.t("control")}
         </div>
         <div className="flex flex-col items-center mt-2 w-full px-4 space-y-4">
           {[...Array(2)].map((_, i) => (
@@ -651,7 +652,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Member Section Skeleton */}
       <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-4">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Thành viên
+          {i18n.t("member")}
         </div>
         <div className="flex flex-col px-4 space-y-3">
           {[...Array(3)].map((_, i) => (

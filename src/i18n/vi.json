@@ -119,5 +119,29 @@
     "T6": "T6",
     "T7": "T7",
     "CN": "CN"
-  }
+  },
+  "add_irrigation_schedule":"Thêm lịch tưới",
+  "ownerOnlySensorThreshold": "Chỉ chủ sở hữu mới có thể thay đổi ngưỡng cảm biến",
+  "noDeviceFoundForUpdate": "Không tìm thấy thiết bị để cập nhật",
+  "sensorThresholdUpdated": "Ngưỡng cảm biến đã được cập nhật",
+  "sensorThresholdUpdateError": "Lỗi khi cập nhật ngưỡng cảm biến"
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
