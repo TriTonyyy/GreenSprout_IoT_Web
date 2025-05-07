@@ -2,6 +2,7 @@ import React from "react";
 import ScheduleCard from "./ScheduleCard";
 import ScheduleEditor from "./ScheduleEditor";
 import ScheduleSkeleton from "./ScheduleSkeleton";
+import i18n from "../../../i18n";
 
 const ScheduleList = ({
   schedules,
@@ -66,7 +67,7 @@ const ScheduleList = ({
           className="w-[310px] h-[196px] flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all duration-200"
         >
           <div className="text-3xl text-gray-400 mb-1">+</div>
-          <div className="text-gray-600 font-medium">Thêm lịch tưới</div>
+          <div className="text-gray-600 font-medium"> {i18n.t("add_scheduler")}</div>
         </div>
       )}
     </div>

@@ -17,6 +17,7 @@ import {
   removeMemberByIdDevice,
   uploadImage,
   updateMemberRole,
+  addBlockMember,
 } from "../../../api/deviceApi";
 import {
   apiResponseHandler,
@@ -26,7 +27,7 @@ import {
 import i18n from "../../../i18n";
 import { getLang } from "../../../redux/selectors/langSelectors";
 import { useSelector } from "react-redux";
-import MemberSection from "./MemberGarden";
+import MemberSection, { MemberList } from "./MemberGarden";
 
 const GardenImage = ({ src, onImageClick }) => (
   <div className="flex justify-center items-center p-4 w-full">
@@ -92,15 +93,15 @@ const ModeSelector = ({ currentMode, onChange }) => {
     "Theo lịch": "schedule",
     Ngưỡng: "threshold",
   };
-  if(lang === 'en'){
+  if (lang === "en") {
     modeMap = {
-      "Manual": "manual",
-      "Schedule": "schedule",
-      "Threshold": "threshold",
+      Manual: "manual",
+      Schedule: "schedule",
+      Threshold: "threshold",
     };
   }
   // console.log(currentMode, "---", modeMap);
-  
+
   return (
     <div className="flex space-x-1 text-xs">
       {modes.map((mode) => (
@@ -177,6 +178,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       translationMap[sensorType] || { label: sensorType, unit: "", icon: "🔍" }
     );
   };
+
   const fetchGardenData = async () => {
     if (!isPolling) return;
 
@@ -440,6 +442,52 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
     };
   });
 
+  const onRemoveMember = async (member) => {
+    try {
+      // First confirmation: Remove member
+      const confirmRemove = await areUSurePopup(
+        `Bạn có chắc chắn muốn xóa <strong style="color: #dc2626;">${member.name}</strong> khỏi thiết bị?`,
+        "warning" // Showing a warning message
+      );
+      if (confirmRemove) {
+        // Second confirmation: Block member
+        const confirmBlock = await areUSurePopup(
+          `Bạn có muốn thêm <strong style="color: #dc2626;">${member.name}</strong> vào danh sách chặn?`,
+          "question" // Showing a question message
+        );
+        // console.log(confirmBlock);
+        if (confirmBlock) {
+          // Block member if confirmed
+          await removeMemberByIdDevice(deviceId, member.userId);
+          await addBlockMember(deviceId, member.userId);
+          apiResponseHandler(
+            `Đã xóa "${member.name}" khỏi thiết bị`,
+            "success"
+          );
+        }
+      } else if (!confirmRemove) {
+        // User cancelled the first confirmation
+        return;
+      } else {
+        const response = await removeMemberByIdDevice(deviceId, member.userId);
+        if (response.success) {
+          apiResponseHandler(
+            `Đã xóa "${member.name}" khỏi thiết bị`,
+            "success"
+          );
+        } else {
+          apiResponseHandler(
+            response.message || "Không thể xóa thành viên",
+            "error"
+          );
+        }
+      }
+    } catch (error) {
+      if (error === "cancelled") return; // User cancelled the confirmation
+      apiResponseHandler("Không thể xóa thành viên", "error");
+    }
+  };
+
   return (
     <div className="mx-5 bg-white rounded-xl shadow-md py-2 grid grid-cols-1 md:grid-cols-4 gap-x-2 gap-y-10 items-stretch">
       {/* Image Section */}
@@ -447,15 +495,18 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
           Hình ảnh
         </h2>
-        <GardenImage src={imageUrl} onImageClick={() => handleImageClick(isOwner)} />
+        <GardenImage
+          src={imageUrl}
+          onImageClick={() => handleImageClick(isOwner)}
+        />
       </div>
 
       {/* Sensor Section */}
-      <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-2">
+      <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col justify-center space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
           Cảm biến
         </h2>
-        <div className="flex flex-col">
+        <div className="flex flex-col flex-grow justify-center">
           {displayedSensors.map(({ label, value, unit, icon }, index) => (
             <SensorReading
               key={index}
@@ -539,18 +590,18 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       </div>
 
       {/* Member Section */}
-      {/* <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-2">
+      <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
           Thành viên
         </h2>
-        <div className="flex flex-col">
-          <MemberSection
+        <div className="flex-1 overflow-y-auto px-4 space-y-2">
+          <MemberList
             members={gardenData.members}
-            onEdit={handleRemoveMember}
+            onEdit={onRemoveMember}
             isOwner={isOwner}
           />
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };

@@ -102,7 +102,7 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel }) => {
       </div>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">Lặp lại</label>
+        <label className="block text-sm font-medium mb-2">{i18n.t("repeat")}</label>
         <div className="flex flex-wrap gap-2">
           {dayOrder.map((day) => (
             <button
@@ -117,7 +117,7 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel }) => {
                 handleRepeatChange(day);
               }}
             >
-              {day}
+               {i18n.t(`days.${day}`)} 
             </button>
           ))}
         </div>
@@ -128,13 +128,13 @@ const ScheduleEditor = ({ schedule, onChange, onSave, onCancel }) => {
           className="px-4 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
           onClick={onCancel}
         >
-          Huỷ
+          {i18n.t("cancel")}
         </button>
         <button
           className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
           onClick={() => onSave(schedule._id, schedule)}
         >
-          Lưu
+          {i18n.t("save")}
         </button>
       </div>
     </div>

@@ -1,7 +1,6 @@
 import Swal from "sweetalert2";
 import {
   addMemberByIdDevice,
-  getBlockMember,
   removeMemberByIdDevice,
   renameDeviceByIdDevice,
 } from "../../api/deviceApi"; // Import the API function to update device members
@@ -16,6 +15,7 @@ export const addDevicePopup = (member, fetchUserDevices) => {
       showCancelButton: true,
       confirmButtonText: "Kết nối",
       cancelButtonText: "Hủy",
+      scrollbarPadding: false,
       inputValidator: (value) => {
         if (!value) return "Hãy nhập mã thiết bị!";
       },
@@ -54,6 +54,7 @@ export const apiResponseHandler = (message, type) => {
     timer: 1000, // auto close after 2 seconds
     showConfirmButton: false, // hide the OK button
     timerProgressBar: true, // optional: shows a progress bar
+    scrollbarPadding: false,
   });
 };
 
@@ -66,6 +67,7 @@ export const removeDevicePopup = (deviceId, userId) => {
       showCancelButton: true,
       confirmButtonText: "Xóa",
       cancelButtonText: "Hủy",
+      scrollbarPadding: false,
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -97,6 +99,7 @@ export const renameDevicePopup = (deviceId, name_area) => {
       showCancelButton: true,
       confirmButtonText: "Đổi tên",
       cancelButtonText: "Hủy",
+      scrollbarPadding: false,
       inputValidator: (value) => {
         if (!value) return "Hãy tên mới!";
       },
@@ -129,6 +132,7 @@ export const areUSurePopup = (message, type = "warning") => {
       confirmButtonColor: "#22c55e", // Green color
       cancelButtonColor: "#ef4444", // Red color
       buttonsStyling: true,
+      scrollbarPadding: false,
       customClass: {
         confirmButton:
           "bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg",
@@ -157,6 +161,7 @@ export const changePasswordPopUp = (message) => {
       showCancelButton: true,
       confirmButtonText: "OK",
       cancelButtonText: "Cancel",
+      scrollbarPadding: false,
       preConfirm: () => {
         const oldPassword = document.getElementById("swal-input3").value;
         const password = document.getElementById("swal-input1").value;
@@ -206,6 +211,7 @@ export const selectNewOwnerPopup = (members) => {
       cancelButtonText: "Hủy",
       confirmButtonColor: "#22c55e", // Green color
       cancelButtonColor: "#ef4444",
+      scrollbarPadding: false,
       inputValidator: (value) => {
         if (!value) {
           return "Bạn cần chọn một thành viên!";
