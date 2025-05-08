@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import HeaderComponent from "../../components/Header/HeaderComponent.jsx";
 import FooterComponent from "../../components/FooterComponent/FooterComponent.jsx";
 import {
@@ -16,10 +17,24 @@ import {
 } from "../../components/Alert/alertComponent.jsx";
 import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar.jsx";
 import i18n from "../../i18n";
+import { removeToken } from "../../helper/tokenHelper.js";
 
 function HomePage() {
+  const navigate = useNavigate();
   const [deviceData, setDeviceData] = useState(null);
   const [user, setUser] = useState(null);
+  const limitWidth = 1300;
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(()=>{
+      console.log(21313);
+      
+      if(width <limitWidth){
+        removeToken(); // your custom logout logic
+        apiResponseHandler("Screen too small. You’ve been logged out.", "error");
+        navigate("/login", { replace: true });
+      }
+    }, [])
 
   const fetchUserDevices = async () => {
     try {
