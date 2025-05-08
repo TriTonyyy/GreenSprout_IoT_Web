@@ -31,7 +31,7 @@ function HomePage() {
       
       if(width <limitWidth){
         removeToken(); // your custom logout logic
-        apiResponseHandler("Screen too small. You’ve been logged out.", "error");
+        apiResponseHandler(i18n.t("responsive_handle_text"), "error");
         navigate("/login", { replace: true });
       }
     }, [])

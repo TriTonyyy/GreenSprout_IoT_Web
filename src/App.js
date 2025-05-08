@@ -14,6 +14,7 @@ import AdminMangeUser from "./pages/admin/AdminMangeUser";
 import AdminStatisticPage from "./pages/admin/AdminStatisticPage";
 import NewPassWordPage from "./pages/auth/NewPassWordPage";
 import { apiResponseHandler } from "./components/Alert/alertComponent";
+import i18n from "./i18n";
 
 
 function ProtectedRoute() {
@@ -94,7 +95,7 @@ function App() {
         // Only log out if not already on login page
         if (location.pathname !== "/login") {
           removeToken(); // your custom logout logic
-          apiResponseHandler("Screen too small. You’ve been logged out.", "error");
+          apiResponseHandler(i18n.t("responsive_handle_text"), "error");
           navigate("/login", { replace: true });
         }
       }

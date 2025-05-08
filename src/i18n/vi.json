@@ -149,7 +149,9 @@
   "max":"Tối đa",
   "min":"Tối thiểu" ,
   "garden_device_help": "Thiết bị sẽ giúp khu vườn giữ",
-  "range_text": "trong khoảng"
+  "range_text": "trong khoảng",
+  "responsive_handle_text": "Màn hình quá nhỏ. Bạn đã bị đăng xuất."
+
 }
 
 

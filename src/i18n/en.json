@@ -149,7 +149,8 @@
   "max":"Max",
   "min":"Min" ,
   "garden_device_help": "The device will help maintain the garden",
-  "range_text": "within the range"
+  "range_text": "within the range",
+  "responsive_handle_text": "Screen too small. You’ve been logged out"
 }
 
 
