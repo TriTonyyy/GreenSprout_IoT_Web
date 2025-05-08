@@ -21,7 +21,7 @@ const ModeSelector = ({ activeMode, setActiveMode, setSelectedSchedule, isOwner 
               ? "bg-green-600 text-white shadow-md"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
-          title={!isOwner ? "Bạn có thể xem nhưng không thể thay đổi cài đặt" : ""}
+          title={!isOwner ? i18n.t("viewOnlySettings") : ""}
         >
           {mode.label}
         </button>

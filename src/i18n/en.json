@@ -125,8 +125,31 @@
   "noDeviceFoundForUpdate": "No device found for update",
   "sensorThresholdUpdated": "Sensor threshold updated successfully",
   "sensorThresholdUpdateError": "Error updating sensor threshold",
-  "time_begin": "Start at:"
-
+  "time_begin": "Start at:",
+  "loadIrrigationScheduleError": "Error loading irrigation schedule",
+  "createIrrigationScheduleSuccess": "New irrigation schedule created successfully",
+  "createIrrigationScheduleError": "Error creating new irrigation schedule",
+  "updateIrrigationScheduleSuccess": "Irrigation schedule updated successfully",
+  "updateIrrigationScheduleFailed": "Failed to update irrigation schedule",
+  "serverErrorUpdateIrrigationSchedule": "Server error when updating irrigation schedule",
+  "errorUpdatingIrrigationSchedule": "An error occurred while updating the irrigation schedule",
+  "unsavedChangesPrompt": "You have unsaved changes. Are you sure you want to cancel changes?",
+  "confirmDeleteIrrigationSchedule": "Are you sure you want to delete this irrigation schedule?",
+  "errorDeletingIrrigationSchedule": "An error occurred while deleting the irrigation schedule",
+  "serverErrorDeleteIrrigationSchedule": "Server error when deleting irrigation schedule",
+  "deleteIrrigationScheduleSuccess": "Irrigation schedule deleted successfully",
+  "updateIrrigationStatusError": "Error updating irrigation schedule status",
+  "confirmRemoveFromBlockList": "Are you sure you want to remove {{memberName}} from the block list?",
+  "removedFromBlockList": "\"{{name}}\" has been removed from the block list",
+  "cannotDeleteMember": "Cannot delete member",
+  "viewOnlySettings": "You can view but cannot change settings",
+  "controlFanBasedOnTemperature": "Control fan based on temperature",
+  "controlWaterBasedOnSoilMoisture": "Control water based on soil moisture",
+  "controlLightBasedOnLightIntensity": "Control light based on light intensity",
+  "max":"Max",
+  "min":"Min" ,
+  "garden_device_help": "The device will help maintain the garden",
+  "range_text": "within the range"
 }
 
 

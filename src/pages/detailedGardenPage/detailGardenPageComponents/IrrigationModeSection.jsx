@@ -155,7 +155,7 @@ export default function IrrigationModeSection({ deviceId }) {
       return processedSchedules;
     } catch (error) {
       console.error("Failed to fetch schedule:", error);
-      apiResponseHandler("Lỗi khi tải lịch tưới", "error");
+      apiResponseHandler(i18n.t("loadIrrigationScheduleError"), "error");
       return [];
     } finally {
       setLoading(false);
@@ -306,11 +306,10 @@ export default function IrrigationModeSection({ deviceId }) {
 
       // Step 6: Optionally, update the schedule list state
       setSchedules(refreshedSchedules);
-
-      apiResponseHandler("Tạo lịch tưới mới thành công", "success");
+      apiResponseHandler(i18n.t("createIrrigationScheduleSuccess"), "success");
     } catch (error) {
       console.error("Failed to create schedule:", error);
-      apiResponseHandler("Lỗi khi tạo lịch tưới mới", "error");
+      apiResponseHandler(i18n.t("createIrrigationScheduleError"), "error");
     }
   };
 
@@ -352,16 +351,16 @@ export default function IrrigationModeSection({ deviceId }) {
         setSelectedSchedule(null);
         setOriginalSchedule(null);
 
-        apiResponseHandler("Cập nhật lịch tưới thành công", "success");
+        apiResponseHandler(i18n.t("updateIrrigationScheduleSuccess"), "success");
       } else {
-        apiResponseHandler("Cập nhật lịch tưới thất bại", "error");
+        apiResponseHandler(i18n.t("updateIrrigationScheduleFailed"), "error");
       }
     } catch (error) {
       console.error("Error saving schedule:", error);
       if (error.response?.status === 500) {
-        apiResponseHandler("Lỗi máy chủ khi cập nhật lịch tưới", "error");
+        apiResponseHandler(i18n.t("serverErrorUpdateIrrigationSchedule"), "error");
       } else {
-        apiResponseHandler("Có lỗi xảy ra khi cập nhật lịch tưới", "error");
+        apiResponseHandler(i18n.t("errorUpdatingIrrigationSchedule"), "error");
       }
     }
   };
@@ -410,7 +409,7 @@ export default function IrrigationModeSection({ deviceId }) {
     if (hasUnsavedChanges(current, originalSchedule)) {
       try {
         const confirmed = await areUSurePopup(
-          "Bạn có thay đổi chưa lưu. Bạn có chắc muốn hủy thay đổi?"
+          i18n.t("unsavedChangesPrompt")
         );
         if (!confirmed) {
           // Restore old values
@@ -450,7 +449,7 @@ export default function IrrigationModeSection({ deviceId }) {
 
   const removeSchedule = async (id) => {
     try {
-      await areUSurePopup("Bạn có chắc chắn muốn xóa lịch tưới này?");
+      await areUSurePopup(i18n.t("confirmDeleteIrrigationSchedule"));
 
       // If we get here, user confirmed
       const response = await deleteSchedule(deviceId, id);
@@ -465,7 +464,7 @@ export default function IrrigationModeSection({ deviceId }) {
           setOriginalSchedule(null);
         }
 
-        apiResponseHandler("Xóa lịch tưới thành công", "success");
+        apiResponseHandler(i18n.t("deleteIrrigationScheduleSuccess"), "success");
       }
     } catch (error) {
       if (error === "cancelled") {
@@ -473,9 +472,9 @@ export default function IrrigationModeSection({ deviceId }) {
       }
       console.error("Error deleting schedule:", error);
       if (error.response?.status === 500) {
-        apiResponseHandler("Lỗi máy chủ khi xóa lịch tưới", "error");
+        apiResponseHandler(i18n.t("serverErrorDeleteIrrigationSchedule"), "error");
       } else {
-        apiResponseHandler("Có lỗi xảy ra khi xóa lịch tưới", "error");
+        apiResponseHandler(i18n.t("errorDeletingIrrigationSchedule"), "error");
       }
     }
   };
@@ -510,7 +509,7 @@ export default function IrrigationModeSection({ deviceId }) {
       );
     } catch (error) {
       console.error("Failed to toggle schedule status:", error);
-      apiResponseHandler("Lỗi khi cập nhật trạng thái lịch tưới", "error");
+      apiResponseHandler(i18n.t("updateIrrigationStatusError"), "error");
     }
   };
 
