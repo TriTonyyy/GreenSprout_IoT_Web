@@ -4,6 +4,7 @@ import {
   removeMemberByIdDevice,
   renameDeviceByIdDevice,
 } from "../../api/deviceApi"; // Import the API function to update device members
+import i18n from "../../i18n";
 
 // SweetAlert2 popup function to add a device
 export const addDevicePopup = (member, fetchUserDevices) => {
@@ -229,3 +230,35 @@ export const selectNewOwnerPopup = (members) => {
     });
   });
 };
+
+export const changeLanguage = ()=>{
+  let optionInputs = {
+    'vi': 'Tiếng Việt',
+    'en': 'English',
+  }
+  if(i18n.language === "en"){
+    optionInputs = {
+    'en': 'English',
+    'vi': 'Tiếng Việt',
+  }
+  }
+  const changeLang = async () => {
+    Swal.fire({
+      title: i18n.t("language"),
+      input:"select",
+      inputOptions: optionInputs,
+      showCancelButton: true,
+      confirmButtonText: "Lưu",
+      cancelButtonText: "Hủy",
+      scrollbarPadding: false,
+      inputValidator: (value) => {
+        if (!value) return "Hãy nhập mã thiết bị!";
+      },
+    })
+    .then(async (result) => {
+      i18n.changeLanguage(result.value)
+      
+    });
+  };
+  changeLang();
+}
