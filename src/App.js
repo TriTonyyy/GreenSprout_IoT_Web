@@ -1,18 +1,20 @@
 import "./App.css";
-import { Routes, Route, Navigate, Outlet } from "react-router";
+import { Routes, Route, Navigate, Outlet, useNavigate, useLocation } from "react-router";
 import HomePage from "./pages/homePage/HomePage";
 import AuthPage from "./pages/auth/AuthPage";
 import DetailedGardenPage from "./pages/detailedGardenPage/DetailedGardenPage";
 import AuthEmail from "./pages/auth/AuthEmail";
 import AccountPage from "./pages/account/AccountPage";
-import { getRole, getToken } from "./helper/tokenHelper";
-import { useEffect, useState } from "react";
+import { getRole, getToken, removeToken } from "./helper/tokenHelper";
+import { useEffect, useState, useRef } from "react";
 import StatisticsPage from "./pages/statisticsPage/StatisticPage";
 import StatisticsDashboard from "./pages/statisticsPage/StatisticsDashboard";
 import AdminHomePage from "./pages/admin/AdminHomePage";
 import AdminMangeUser from "./pages/admin/AdminMangeUser";
 import AdminStatisticPage from "./pages/admin/AdminStatisticPage";
 import NewPassWordPage from "./pages/auth/NewPassWordPage";
+import { apiResponseHandler } from "./components/Alert/alertComponent";
+import i18n from "./i18n";
 
 
 function ProtectedRoute() {
@@ -77,7 +79,31 @@ function AdminRoute(){
 }
 
 function App() {
+  const limitWidth = 1300;
+  const [width, setWidth] = useState(window.innerWidth);
+  const prevWidth = useRef(window.innerWidth);
+  const navigate = useNavigate();
+  const location = useLocation();
 
+  useEffect(() => {
+    const handleResize = () => {
+      const currentWidth = window.innerWidth;
+      setWidth(currentWidth);
+      prevWidth.current = currentWidth;
+
+      if (currentWidth < limitWidth) {
+        // Only log out if not already on login page
+        if (location.pathname !== "/login") {
+          removeToken(); // your custom logout logic
+          apiResponseHandler(i18n.t("responsive_handle_text"), "error");
+          navigate("/login", { replace: true });
+        }
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [navigate, location]);
   return (
     <Routes>
       {/* Public Routes */}

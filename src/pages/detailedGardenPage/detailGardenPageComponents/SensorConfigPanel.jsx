@@ -1,6 +1,7 @@
 import React from "react";
 import { Droplets, Sun, Wind } from "lucide-react";
 import { apiResponseHandler } from "../../../components/Alert/alertComponent";
+import i18n from "../../../i18n";
 
 const MAX_VALUES = {
   water: 100, // %
@@ -66,21 +67,20 @@ const SensorConfigPanel = ({
       {selectedControl === "wind" && (
         <h2 className="flex items-center gap-2 text-lg font-semibold mb-8 text-gray-800">
           <Wind size={24} color="#3b82f6" />
-          Điều khiển quạt dựa trên nhiệt độ (°C)
+          {i18n.t("controlFanBasedOnTemperature")}(°C)
         </h2>
       )}
 
       {selectedControl === "water" && (
         <h2 className="flex items-center gap-2 text-lg font-semibold mb-8 text-gray-800">
-          <Droplets size={24} color="#3b82f6" />
-          Điều khiển nước dựa trên độ ẩm đất (%)
+          {i18n.t("controlWaterBasedOnSoilMoisture")} (%)
         </h2>
       )}
 
       {selectedControl === "light" && (
         <h2 className="flex items-center gap-2 text-lg font-semibold mb-8 text-gray-800">
           <Sun size={24} color="#eab308" />
-          Điều khiển đèn dựa trên cường độ ánh sáng (%)
+          {i18n.t("controlLightBasedOnLightIntensity")}(%)
         </h2>
       )}
 
@@ -199,7 +199,7 @@ const SensorConfigPanel = ({
                   className="text-sm font-medium"
                   style={{ color: colors.start }}
                 >
-                  Tối thiểu:{" "}
+                  {i18n.t("min")}:{" "}
                   {selectedControl === "wind"
                     ? convertToDisplayValue(
                         sensorThresholds[selectedControl]?.min || 0,
@@ -252,7 +252,7 @@ const SensorConfigPanel = ({
                   className="text-sm font-medium"
                   style={{ color: colors.end }}
                 >
-                  Tối đa:{" "}
+                  {i18n.t("max")}:{" "}
                   {selectedControl === "wind"
                     ? convertToDisplayValue(
                         sensorThresholds[selectedControl]?.max || 100,
@@ -271,7 +271,7 @@ const SensorConfigPanel = ({
               <p>
                 Thiết bị sẽ giúp khu vườn giữ{" "}
                 <span className="font-semibold text-lg text-green-600">
-                  nhiệt độ
+                  {i18n.t("temperature")}
                 </span>{" "}
                 trong khoảng{" "}
                 <span className="font-semibold text-lg text-green-600">
@@ -289,13 +289,13 @@ const SensorConfigPanel = ({
               </p>
             ) : (
               <p>
-                Thiết bị sẽ giúp khu vườn giữ{" "}
+                {i18n.t("garden_device_help")}{" "}
                 <span className="font-semibold text-lg text-green-600">
                   {selectedControl === "water"
-                    ? "độ ẩm đất"
-                    : "cường độ ánh sáng"}
+                    ? i18n.t("soil_moisture")
+                    : i18n.t("light_intensity")}
                 </span>{" "}
-                trong khoảng{" "}
+                {i18n.t("range_text")}{" "}
                 <span className="font-semibold text-lg text-green-600">
                   {sensorThresholds[selectedControl]?.min || 0}% -{" "}
                   {sensorThresholds[selectedControl]?.max || 100}%
@@ -310,7 +310,7 @@ const SensorConfigPanel = ({
             onClick={handleSubmit}
             className="bg-green-500 px-6 py-2.5 text-white rounded-lg hover:bg-green-600 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
           >
-            Lưu ngưỡng
+            {i18n.t("save")}
           </button>
         </div>
       </div>

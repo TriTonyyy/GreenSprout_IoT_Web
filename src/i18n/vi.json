@@ -125,7 +125,33 @@
   "noDeviceFoundForUpdate": "Không tìm thấy thiết bị để cập nhật",
   "sensorThresholdUpdated": "Ngưỡng cảm biến đã được cập nhật",
   "sensorThresholdUpdateError": "Lỗi khi cập nhật ngưỡng cảm biến",
-  "time_begin": "Bắt đầu lúc:"
+  "time_begin": "Bắt đầu lúc:",
+  "loadIrrigationScheduleError": "Lỗi khi tải lịch tưới",
+  "createIrrigationScheduleSuccess": "Tạo lịch tưới mới thành công",
+  "createIrrigationScheduleError": "Lỗi khi tạo lịch tưới mới",
+  "updateIrrigationScheduleSuccess": "Cập nhật lịch tưới thành công",
+  "updateIrrigationScheduleFailed": "Cập nhật lịch tưới thất bại",
+  "serverErrorUpdateIrrigationSchedule": "Lỗi máy chủ khi cập nhật lịch tưới",
+  "errorUpdatingIrrigationSchedule": "Có lỗi xảy ra khi cập nhật lịch tưới",
+  "unsavedChangesPrompt": "Bạn có thay đổi chưa lưu. Bạn có chắc muốn hủy thay đổi?",
+  "confirmDeleteIrrigationSchedule": "Bạn có chắc chắn muốn xóa lịch tưới này?",
+  "errorDeletingIrrigationSchedule": "Có lỗi xảy ra khi xóa lịch tưới",
+  "serverErrorDeleteIrrigationSchedule": "Lỗi máy chủ khi xóa lịch tưới",
+  "deleteIrrigationScheduleSuccess": "Xóa lịch tưới thành công",
+  "updateIrrigationStatusError": "Lỗi khi cập nhật trạng thái lịch tưới",
+  "confirmRemoveFromBlockList": "Bạn có chắc chắn muốn xóa {{memberName}} khỏi danh sách chặn?",
+  "removedFromBlockList": "Đã xóa \"{{name}}\" khỏi danh sách chặn",
+  "cannotDeleteMember": "Không thể xóa thành viên",
+  "viewOnlySettings": "Bạn có thể xem nhưng không thể thay đổi cài đặt",
+  "controlFanBasedOnTemperature": "Điều khiển quạt dựa trên nhiệt độ",
+  "controlWaterBasedOnSoilMoisture": "Điều khiển nước dựa trên độ ẩm đất",
+  "controlLightBasedOnLightIntensity": "Điều khiển đèn dựa trên cường độ ánh sáng",
+  "max":"Tối đa",
+  "min":"Tối thiểu" ,
+  "garden_device_help": "Thiết bị sẽ giúp khu vườn giữ",
+  "range_text": "trong khoảng",
+  "responsive_handle_text": "Màn hình quá nhỏ. Bạn đã bị đăng xuất."
+
 }
 
 

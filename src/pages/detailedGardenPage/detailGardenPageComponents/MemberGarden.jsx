@@ -17,14 +17,14 @@ function MemberGarden({ members, blocks, isOwner, onRemoveMember, deviceId }) {
     try {
       // First confirmation popup
       const confirmRemove = await areUSurePopup(
-        `Bạn có chắc chắn muốn xóa <strong style="color: #dc2626;">${member.name}</strong> khỏi danh sách chặn?`,
+        `${i18n.t("confirmRemoveFromBlockList", {memberName: member.name})}`,
         "warning"
       );
       if (confirmRemove) {
         const blockRes = await removeBlockMember(deviceId, member.userId); // <-- store response here
         if (blockRes) {
           apiResponseHandler(
-            `Đã xóa "${member.name}" khỏi danh sách chặn`,
+            `${i18n.t("removedFromBlockList", {name:member.name})}`,
             `success`
           );
         }
@@ -32,7 +32,7 @@ function MemberGarden({ members, blocks, isOwner, onRemoveMember, deviceId }) {
     } catch (error) {
       if (error === "cancelled") return;
       console.error("Error during removing blocked member:", error);
-      apiResponseHandler("Không thể xóa thành viên", "error");
+      apiResponseHandler(i18n.t("cannotDeleteMember"), "error");
     }
   };
 
