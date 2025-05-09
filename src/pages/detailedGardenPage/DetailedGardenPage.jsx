@@ -252,19 +252,22 @@ function DetailedGarden() {
         );
         // console.log(confirmBlock);
         if (confirmBlock) {
-          // Block member if confirmed
-          const removeRes = await removeMemberByIdDevice(
-            gardenId,
-            member.userId
-          );
+          // // Block member if confirmed
+          // const removeRes = await removeMemberByIdDevice(
+          //   gardenId,
+          //   member.userId
+          // );
           const blockRes = await addBlockMember(gardenId, member.userId);
-          if (removeRes && blockRes) {
+          if ( blockRes) {
             apiResponseHandler(
               `Đã xóa "${member.name}" khỏi thiết bị`,
               "success"
             );
           }
-        } else if (!confirmBlock) {
+        } else if (!confirmBlock) 
+          {
+          console.log(confirmBlock);
+          
           const response = await removeMemberByIdDevice(
             gardenId,
             member.userId

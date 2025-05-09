@@ -1,9 +1,9 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router";
-import { Home, BarChart2, Settings, LogOut, User } from "lucide-react";
+import { Home, BarChart2, Settings, LogOut, User, Languages } from "lucide-react";
 import { logOutAPI } from "../../api/authApi";
-import { apiResponseHandler, areUSurePopup } from "../Alert/alertComponent";
+import { apiResponseHandler, areUSurePopup,changeLanguage } from "../Alert/alertComponent";
 import { removeToken, getRole } from "../../helper/tokenHelper";
 import i18n from "../../i18n";
 import { setLanguage } from "../../redux/Reducers/langReducer";
@@ -19,21 +19,22 @@ const SideNavigationBar = () => {
   const handleLogout = async () => {
     areUSurePopup(i18n.t("logout-confirm"))
       .then(async (res) => {
-        await logOutAPI()
-          .then((res) => {
-            removeToken();
-            navigate("/login");
-          })
-          .catch((err) => {
-            apiResponseHandler(err);
-          });
+        if(res){
+          await logOutAPI()
+            .then((res) => {
+              removeToken();
+              navigate("/login");
+            })
+            .catch((err) => {
+              apiResponseHandler(err);
+            });
+        }
       })
       .catch((err) => {
-        // apiResponseHandler(err)
       });
   };
 
-  const changeLanguage = async (language) => {
+  const changeLang = async (language) => {
       areUSurePopup(i18n.t("change-lang-mess"))
       .then((res) => {
         i18n.changeLanguage(language).then((t) => {
@@ -66,7 +67,6 @@ const SideNavigationBar = () => {
         label: i18n.t('data_analys'),
       },
       { path: "/account", icon: <Settings size={20} />, label: i18n.t('setting') },
-      
     ],
     guest: [],
   };
@@ -107,18 +107,16 @@ const SideNavigationBar = () => {
             </NavLink>
           ))}
         </div>
-        <div>
-          {/* <label className="block text-lg font-medium text-gray-700">
-            {i18n.t("language")}
-          </label> */}
-          <select
-            value={lang}
-            onChange={(e) => changeLanguage(e.target.value)}
-            className="mt-2 block w-full p-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-black"
+        <div className="pt-1 pb-8 w-full">
+          <button
+            onClick={changeLanguage}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-gray-100 hover:bg-white/5 transition-all duration-200"
           >
-            <option value="en">English</option>
-            <option value="vi">Tiếng Việt</option>
-          </select>
+            <span className="text-lg">
+              <Languages size={20} />
+            </span>
+            <span className="font-medium">{i18n.t("language")}</span>
+          </button>
         </div>
       </nav>
 
