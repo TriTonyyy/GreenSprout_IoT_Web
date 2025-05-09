@@ -1,14 +1,20 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router";
 import { Home, BarChart2, Settings, LogOut, User } from "lucide-react";
 import { logOutAPI } from "../../api/authApi";
 import { apiResponseHandler, areUSurePopup } from "../Alert/alertComponent";
 import { removeToken, getRole } from "../../helper/tokenHelper";
 import i18n from "../../i18n";
+import { setLanguage } from "../../redux/Reducers/langReducer";
+import { getLang } from "../../redux/selectors/langSelectors";
 
 const SideNavigationBar = () => {
   const navigate = useNavigate();
   const userRole = getRole();
+  const dispatch = useDispatch();
+  const lang = i18n.language;
+
 
   const handleLogout = async () => {
     areUSurePopup(i18n.t("logout-confirm"))
@@ -26,6 +32,21 @@ const SideNavigationBar = () => {
         // apiResponseHandler(err)
       });
   };
+
+  const changeLanguage = async (language) => {
+      areUSurePopup(i18n.t("change-lang-mess"))
+      .then((res) => {
+        i18n.changeLanguage(language).then((t) => {
+          t("key");
+          // dispatch(setLanguage(language));
+          console.log(12131);
+          
+        });
+      })
+      .catch((err)=>{
+        
+      })
+    };
 
   const roleBasedItems = {
     admin: [
@@ -85,6 +106,19 @@ const SideNavigationBar = () => {
               <span className="font-medium">{item.label}</span>
             </NavLink>
           ))}
+        </div>
+        <div>
+          {/* <label className="block text-lg font-medium text-gray-700">
+            {i18n.t("language")}
+          </label> */}
+          <select
+            value={lang}
+            onChange={(e) => changeLanguage(e.target.value)}
+            className="mt-2 block w-full p-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-black"
+          >
+            <option value="en">English</option>
+            <option value="vi">Tiếng Việt</option>
+          </select>
         </div>
       </nav>
 
