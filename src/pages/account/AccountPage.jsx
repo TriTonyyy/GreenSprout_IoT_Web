@@ -16,10 +16,12 @@ import { setLanguage } from "../../redux/Reducers/langReducer";
 import { getLang } from "../../redux/selectors/langSelectors";
 import { banUserAPI, getDetailUserById } from "../../api/adminApi";
 import { getRole } from "../../helper/tokenHelper";
+import { getGardenby, getGardenByDevice } from "../../api/deviceApi";
 
 export default function AccountPage({isDetail}) {
   const dispatch = useDispatch();
   const lang = useSelector(getLang);
+  const [deviceData, setDeviceData]= useState(null);
   const [avatar, setAvatar] = useState("");
   const [fileUpload, setFileUpload] = useState("");
   const [userInfo, setUserInfo] = useState({});
@@ -37,14 +39,32 @@ export default function AccountPage({isDetail}) {
   const role = getRole();
   const isDisable = role ==='admin' ? true :false;
   const saveUpdateUserInfo = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
+    
     try {
-      const profileRes = await updateProfileApi({ name, email });
-      setUserInfo(profileRes.data);
-      await updateAvatarAPI(fileUpload);
-      apiResponseHandler(profileRes.message);
-      window.location.reload();
+      if(name === userInfo.name && phone === userInfo.phone && address === userInfo.address){
+        apiResponseHandler(i18n.t("info_update_save"));
+      } else {
+        await updateProfileApi({ name, phone, address})
+        .then(async(res)=>{
+          setUserInfo(res.data);
+          await updateAvatarAPI(fileUpload)
+          .then((res)=>{console.log(res);
+          })
+          .catch((err)=>{
+            console.log(err);
+          })
+          apiResponseHandler(res.message);
+
+        })
+        .catch((err)=>{
+          console.log(err);
+        })
+        
+        window.location.reload();
+      }
     } catch (err) {
+      
       apiResponseHandler(err?.response?.data?.message || "Error updating profile", "error");
     } finally {
       setIsLoading(false);
@@ -93,6 +113,29 @@ export default function AccountPage({isDetail}) {
     }
   };
 
+  const fetchDataSearch = async ()=>{
+    const deviceResponse = await getGardenby();
+    const deviceIds = deviceResponse.data || [];
+    if (deviceIds.length === 0) {
+      setDeviceData([]); // No devices found
+      return;
+    }
+    
+    // Fetch all devices concurrently
+    const devicePromises = deviceIds.map(async (deviceId) => {
+      try {
+        const res = await getGardenByDevice(deviceId);
+        return res?.data || null;
+      } catch (err) {
+        apiResponseHandler(err); // Handle error response
+        return null;
+      }
+    });
+    
+    const deviceResponses = await  Promise.all(devicePromises);
+    setDeviceData(deviceResponses.filter((device) => device !== null)); // Remove failed devices
+  }
+
   useEffect(() => {
     if(id !== undefined){
       getDetailUserById(id)
@@ -110,6 +153,10 @@ export default function AccountPage({isDetail}) {
         .catch((err) => console.log(err));
     }
   }, []);
+
+  useEffect(()=>{
+    fetchDataSearch()
+  }, [])
 
   useEffect(() => {
     setEmail(userInfo?.email || "");
@@ -133,7 +180,7 @@ export default function AccountPage({isDetail}) {
   }
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-200">
-      <HeaderComponent />
+      <HeaderComponent gardens={deviceData ||[]}/>
       <div className="flex flex-1">
         <SideNavigationBar />
         <div className="flex-1 p-8 lg:p-12 w-full max-w-7xl mx-auto">
@@ -261,7 +308,7 @@ export default function AccountPage({isDetail}) {
                 >
                   {isLoading ? "Processing..." : i18n.t("change-password")}
                 </button>
-                <div>
+                {/* <div>
                   <label className="block text-lg font-medium text-gray-700">
                     {i18n.t("language")}
                   </label>
@@ -273,7 +320,7 @@ export default function AccountPage({isDetail}) {
                     <option value="en">English</option>
                     <option value="vi">Tiếng Việt</option>
                   </select>
-                </div>
+                </div> */}
               </div>
             </div>
             )}
@@ -300,7 +347,7 @@ export default function AccountPage({isDetail}) {
           </div>
         </div>
       </div>
-      <FooterComponent />
+      {/* <FooterComponent /> */}
     </div>
   );
 }

@@ -13,6 +13,7 @@ const GardenItem = memo(function GardenItem({
   sensors = [],
   controls = [],
   img_area,
+  isOwner = false
 }) {
   const navigate = useNavigate();
   const sensorTypes = ["temperature", "moisture"];
@@ -102,7 +103,7 @@ const GardenItem = memo(function GardenItem({
   };
 
   return (
-    <div className="w-[32%] rounded-2xl border-2 shadow-xl bg-white flex">
+    <div className={`w-[32%] rounded-2xl  shadow-xl bg-white flex ${isOwner === true ? "border-green-500 border-4" :"border-2"}`}>
       <div className="w-1/2 rounded-xl border-r-2 transition-transform hover:scale-105">
         <img
           src={

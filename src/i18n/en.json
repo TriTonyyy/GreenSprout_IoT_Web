@@ -17,7 +17,7 @@
   "save": "Save",
   "cancel": "Cancel",
   "change-password": "Change password",
-  "change-lang-mess": "Are you sure you want to chagne language ?",
+  "change-lang-mess": "Language change successful, please wait a moment...",
   "logout-confirm": "Are you sure you want to log out ?",
   "upload-img": "Upload your image",
   "sensor_statistics": "Sensor Statistics",
@@ -150,7 +150,9 @@
   "min":"Min" ,
   "garden_device_help": "The device will help maintain the garden",
   "range_text": "within the range",
-  "responsive_handle_text": "Screen too small. You’ve been logged out"
+  "responsive_handle_text": "Screen too small. You’ve been logged out",
+  "info_update_save":"Your personal infomation are up to date"
+
 }
 
 
