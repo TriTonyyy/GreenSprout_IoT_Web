@@ -27,8 +27,6 @@ function HomePage() {
   const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(()=>{
-      console.log(21313);
-      
       if(width <limitWidth){
         removeToken(); // your custom logout logic
         apiResponseHandler(i18n.t("responsive_handle_text"), "error");
@@ -126,8 +124,13 @@ function HomePage() {
                     <GardenItemSkeleton />
                   </>
                 ) : deviceData.length > 0 ? (
-                  deviceData.map((device) => (
+                  deviceData.map((device) => {
+                    const members = device.members;
+                    const result = members.filter((member) =>member.role === "owner" && member.userId === user._id)
+                    const isOwner = result.length > 0;
+                    return (
                     <GardenItem
+                      isOwner = {isOwner}
                       key={device?._id}
                       id={device?.id_esp}
                       name={device?.name_area}
@@ -135,7 +138,7 @@ function HomePage() {
                       controls={device?.controls}
                       img_area={device?.img_area}
                     />
-                  ))
+                  )})
                 ) : deviceData && deviceData.length <= 9 ? (
                   <AddDeviceButton
                     onClick={() =>
@@ -151,7 +154,7 @@ function HomePage() {
               </div>
             </div>
           </div>
-          <FooterComponent />
+          {/* <FooterComponent /> */}
         </>
       ) : null}
     </div>

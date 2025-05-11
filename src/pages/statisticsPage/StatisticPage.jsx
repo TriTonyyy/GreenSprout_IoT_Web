@@ -115,7 +115,7 @@ const StatisticsPage = () => {
           </div>
         </div>
       </div>
-      <FooterComponent />
+      {/* <FooterComponent /> */}
     </div>
   );
 };

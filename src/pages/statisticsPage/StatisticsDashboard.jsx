@@ -499,7 +499,7 @@ function StatisticsDashboard() {
           </div>
         </main>
       </div>
-      <FooterComponent />
+      {/* <FooterComponent /> */}
     </div>
   );
 }

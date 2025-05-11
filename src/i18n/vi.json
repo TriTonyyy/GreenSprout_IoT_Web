@@ -17,7 +17,7 @@
   "save": "Lưu",
   "cancel": "Hủy",
   "change-password": "Đổi mật khẩu",
-  "change-lang-mess": "Bạn chắn chắc muốn đổi ngôn ngữ ?",
+  "change-lang-mess": "Đổi ngôn ngữ thành công, vui lòng chờ giây lát...",
   "logout-confirm": "Bạn muốn đăng xuất tài khoản ?",
   "upload-img": "Tải ảnh lên",
   "sensor_statistics": "Thống kê cảm biến",
@@ -150,7 +150,8 @@
   "min":"Tối thiểu" ,
   "garden_device_help": "Thiết bị sẽ giúp khu vườn giữ",
   "range_text": "trong khoảng",
-  "responsive_handle_text": "Màn hình quá nhỏ. Bạn đã bị đăng xuất."
+  "responsive_handle_text": "Màn hình quá nhỏ. Bạn đã bị đăng xuất.",
+  "info_update_save":"Thông tin cá nhân của bạn đã được cập nhật"
 
 }
 

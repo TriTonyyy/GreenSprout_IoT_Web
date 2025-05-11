@@ -285,7 +285,7 @@ function DetailedGarden() {
       }
     } catch (error) {
       if (error === "cancelled") return; // User cancelled the confirmation
-      apiResponseHandler("Không thể xóa thành viên", "error");
+      apiResponseHandler(i18n.t("cannotDeleteMember"), "error");
     }
   };
 
@@ -358,7 +358,7 @@ function DetailedGarden() {
           <IrrigationModeSection deviceId={gardenId} isOwner={isOwner} />
         </div>
       </div>
-      <FooterComponent />
+      {/* <FooterComponent /> */}
     </div>
   );
 }

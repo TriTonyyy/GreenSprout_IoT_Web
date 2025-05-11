@@ -48,11 +48,11 @@ export const addDevicePopup = (member, fetchUserDevices) => {
   retryFunction();
 };
 
-export const apiResponseHandler = (message, type) => {
+export const apiResponseHandler = (message, type, waitTime=1000) => {
   Swal.fire({
     icon: type || "success",
     text: message || "Something went wrong!",
-    timer: 1000, // auto close after 2 seconds
+    timer: waitTime, // auto close after 2 seconds
     showConfirmButton: false, // hide the OK button
     timerProgressBar: true, // optional: shows a progress bar
     scrollbarPadding: false,
@@ -251,13 +251,10 @@ export const changeLanguage = ()=>{
       confirmButtonText: "Lưu",
       cancelButtonText: "Hủy",
       scrollbarPadding: false,
-      inputValidator: (value) => {
-        if (!value) return "Hãy nhập mã thiết bị!";
-      },
     })
     .then(async (result) => {
       i18n.changeLanguage(result.value)
-      
+      apiResponseHandler(i18n.t("change-lang-mess"), "success",7400)
     });
   };
   changeLang();

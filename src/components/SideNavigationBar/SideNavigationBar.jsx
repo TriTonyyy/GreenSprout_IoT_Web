@@ -66,24 +66,11 @@ const SideNavigationBar = () => {
         icon: <BarChart2 size={20} />,
         label: i18n.t('data_analys'),
       },
-      { path: "/account", icon: <Settings size={20} />, label: i18n.t('setting') },
+      { path: "/account", icon: <User size={20} />, label: i18n.t('personal_info') },
     ],
     guest: [],
   };
   const navItems = [...(roleBasedItems[userRole] || [])];
-  // console.log(userRole);
-
-  // console.log(navItems);
-
-  // const navItems = [
-  //   { path: "/home", icon: <Home size={20} />, label: "Trang chủ" },
-  //   {
-  //     path: "/statistics",
-  //     icon: <BarChart2 size={20} />,
-  //     label: "Phân tích dữ liệu",
-  //   },
-  //   { path: "/account", icon: <Settings size={20} />, label: "Cài đặt" },
-  // ];
 
   return (
     <aside className="w-80 bg-gradient-to-b from-green-700 to-green-600 text-white min-h-screen flex flex-col shadow-xl">
@@ -107,7 +94,7 @@ const SideNavigationBar = () => {
             </NavLink>
           ))}
         </div>
-        <div className="pt-1 pb-8 w-full">
+        <div className="pt-1 w-full">
           <button
             onClick={changeLanguage}
             className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-gray-100 hover:bg-white/5 transition-all duration-200"
@@ -118,15 +105,13 @@ const SideNavigationBar = () => {
             <span className="font-medium">{i18n.t("language")}</span>
           </button>
         </div>
-      </nav>
-
-      {/* Divider */}
+        {/* Divider */}
       <div className="px-6 py-4">
         <div className="h-px bg-white/10"></div>
       </div>
 
       {/* Logout Option */}
-      <div className="px-4 pb-8">
+      <div className="pb-8">
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-gray-100 hover:bg-white/5 transition-all duration-200"
@@ -137,6 +122,23 @@ const SideNavigationBar = () => {
           <span className="font-medium">{i18n.t("logout")}</span>
         </button>
       </div>
+      </nav>
+          <footer className="bg-white mt-auto">
+      <div className="max-w-full">
+        <div className="flex items-center justify-center h-24 border-t border-gray-200 py-6">
+          <div className="flex items-center gap-4 text-[1.25rem] text-gray-700">
+            <span>©</span>
+            <span>GreenSprout</span>
+            <img
+              src={require("../../assets/images/TreePlanting.png")}
+              className="w-10 h-10 object-contain"
+              alt="logo"
+            />
+          </div>
+        </div>
+      </div>
+    </footer>
+      
     </aside>
   );
 };
