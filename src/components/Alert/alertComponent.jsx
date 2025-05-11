@@ -248,14 +248,17 @@ export const changeLanguage = ()=>{
       input:"select",
       inputOptions: optionInputs,
       showCancelButton: true,
-      confirmButtonText: "Lưu",
-      cancelButtonText: "Hủy",
+      confirmButtonText: i18n.t("save"),
+      cancelButtonText: i18n.t("cancel"),
       scrollbarPadding: false,
     })
     .then(async (result) => {
-      i18n.changeLanguage(result.value)
-      apiResponseHandler(i18n.t("change-lang-mess"), "success",7400)
-    });
+      console.log(result);
+      if(result.isConfirmed){
+        i18n.changeLanguage(result.value)
+        apiResponseHandler(i18n.t("change-lang-mess"), "success",7400)
+      }
+    }).catch(()=>{})
   };
   changeLang();
 }
