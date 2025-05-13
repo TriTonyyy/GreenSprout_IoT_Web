@@ -150,7 +150,7 @@ const StatisticsControls = ({
                     : "bg-white text-gray-700 border-gray-300"
                 } hover:bg-green-100 transition-colors`}
               >
-                {m === "day" ? i18n.t("day") : m === "week" ? i18n.t("week") : i18n.t("year")}
+                {m === "day" ? i18n.t("day") : m === "week" ? i18n.t("week") : i18n.t("month")}
               </button>
             ))}
           </div>

@@ -55,7 +55,7 @@ const SideNavigationBar = () => {
       {
         path: "/admin/statistics",
         icon: <BarChart2 size={20} />,
-        label: i18n.t('data_analys'),
+        label: i18n.t('data_analysis'),
       },
       { path: "/admin/manage-user", icon: <User size={20} />, label: i18n.t('admin_user') },
     ],
@@ -64,7 +64,7 @@ const SideNavigationBar = () => {
       {
         path: "/statistics",
         icon: <BarChart2 size={20} />,
-        label: i18n.t('data_analys'),
+        label: i18n.t('data_analysis'),
       },
       { path: "/account", icon: <User size={20} />, label: i18n.t('personal_info') },
     ],
