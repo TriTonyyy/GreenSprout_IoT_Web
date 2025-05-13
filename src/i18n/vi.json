@@ -42,6 +42,7 @@
   "have_account": "Bạn đã có tài khoản ?",
   "enter_newpass": "Nhập mật khẩu mới",
   "change_newpass": "Đổi mật khẩu mới",
+  "update_pass": "Cập nhật mật khẩu",
   "avatar": "Ảnh đại diện",
   "avatar_des": "Tải lên PNG/JPEG (Tối đa 5MB)",
   "personal_info": "Thông tin cá nhân",
@@ -71,6 +72,7 @@
   "lightIntensity": "Cường độ ánh sáng",
   "water": "Nước",
   "light": "Ánh sáng",
+  "wind": "Gió",
   "ambientLight": "Ánh sáng",
   "fan": "Quạt",
   "mode": "Chế độ",
@@ -85,7 +87,7 @@
   "no_repeat": "không lặp lại",
   "toggle": "Bật/Tắt",
   "water_usage": "Lượng nước đã dùng",
-  "skyHumidity": "Độ ẩm trời",
+  "skyHumidity": "Độ ẩm không khí",
   "loadingSensorData": "Đang tải dữ liệu cảm biến...",
   "totalWaterUsed": "Tổng lượng nước đã dùng",
   "highest": "Cao nhất",
@@ -120,7 +122,7 @@
     "T7": "T7",
     "CN": "CN"
   },
-  "add_irrigation_schedule":"Thêm lịch tưới",
+  "add_irrigation_schedule": "Thêm lịch tưới",
   "ownerOnlySensorThreshold": "Chỉ chủ sở hữu mới có thể thay đổi ngưỡng cảm biến",
   "noDeviceFoundForUpdate": "Không tìm thấy thiết bị để cập nhật",
   "sensorThresholdUpdated": "Ngưỡng cảm biến đã được cập nhật",
@@ -146,30 +148,18 @@
   "controlFanBasedOnTemperature": "Điều khiển quạt dựa trên nhiệt độ",
   "controlWaterBasedOnSoilMoisture": "Điều khiển nước dựa trên độ ẩm đất",
   "controlLightBasedOnLightIntensity": "Điều khiển đèn dựa trên cường độ ánh sáng",
-  "max":"Tối đa",
-  "min":"Tối thiểu" ,
+  "upload_instruction": "Chỉ hỗ trợ ảnh PNG hoặc JPEG.",
+  "upload_button_text": "Tải ảnh lên",
+  "max": "Tối đa",
+  "min": "Tối thiểu",
   "garden_device_help": "Thiết bị sẽ giúp khu vườn giữ",
   "range_text": "trong khoảng",
   "responsive_handle_text": "Màn hình quá nhỏ. Bạn đã bị đăng xuất.",
-  "info_update_save":"Thông tin cá nhân của bạn đã được cập nhật"
-
+  "info_update_save": "Thông tin cá nhân của bạn đã được cập nhật",
+  "male": "Nam",
+  "female": "Nữ",
+  "other": "Khác",
+  "current_pass": "Mật khẩu hiện tại",
+  "new_pass": "Mật khẩu mới",
+  "confirm_pass": "Xác nhận mật khẩu"
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

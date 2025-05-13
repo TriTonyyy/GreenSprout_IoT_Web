@@ -42,6 +42,7 @@
   "have_account": "You have an account?",
   "enter_newpass": "Enter your new password",
   "change_newpass": "Change new password",
+  "update_pass": "Update your password",
   "avatar": "Avatar",
   "avatar_des": "Upload PNG/JPEG (Max 5MB)",
   "personal_info": "Personal Information",
@@ -85,7 +86,7 @@
   "no_repeat": "No repeat",
   "toggle": "On/Off",
   "water_usage": "Water usage",
-  "skyHumidity": "Sky Humidity",
+  "skyHumidity": "Humidity",
   "loadingSensorData": "Loading sensor data...",
   "totalWaterUsed": "Total Water Used",
   "highest": "Highest",
@@ -146,12 +147,20 @@
   "controlFanBasedOnTemperature": "Control fan based on temperature",
   "controlWaterBasedOnSoilMoisture": "Control water based on soil moisture",
   "controlLightBasedOnLightIntensity": "Control light based on light intensity",
+  "upload_instruction":"Only PNG or JPEG images are supported.",
+  "upload_button_text":"Upload Image",
   "max":"Max",
   "min":"Min" ,
   "garden_device_help": "The device will help maintain the garden",
   "range_text": "within the range",
   "responsive_handle_text": "Screen too small. You’ve been logged out",
-  "info_update_save":"Your personal infomation are up to date"
+  "info_update_save":"Your personal infomation are up to date",
+  "male":"Male",
+  "female":"Female",
+  "other":"Other",
+  "current_pass":"Current password",
+  "new_pass":"New password", 
+  "confirm_pass":"Confirm password"
 
 }
 

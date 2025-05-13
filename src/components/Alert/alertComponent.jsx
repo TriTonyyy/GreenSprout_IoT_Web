@@ -48,7 +48,7 @@ export const addDevicePopup = (member, fetchUserDevices) => {
   retryFunction();
 };
 
-export const apiResponseHandler = (message, type, waitTime=1000) => {
+export const apiResponseHandler = (message, type, waitTime = 1000) => {
   Swal.fire({
     icon: type || "success",
     text: message || "Something went wrong!",
@@ -150,27 +150,41 @@ export const areUSurePopup = (message, type = "warning") => {
   });
 };
 
-export const changePasswordPopUp = (message) => {
+export const changePasswordPopUp = (message, onSave) => {
   return new Promise((resolve, reject) => {
     Swal.fire({
       title: message || "Change Password",
-      html:
-        '<input id="swal-input3" class="swal2-input" type="password" placeholder="Old Password">' +
-        '<input id="swal-input1" class="swal2-input" type="password" placeholder="New Password">' +
-        '<input id="swal-input2" class="swal2-input" type="password" placeholder="Confirm Password">',
+      html: `
+ <input id="swal-input3" class="swal2-input" type="password" placeholder="${i18n.t(
+   "current_pass"
+ )}" />
+    <input id="swal-input1" class="swal2-input" type="password" placeholder="${i18n.t(
+      "new_pass"
+    )}" />
+    <input id="swal-input2" class="swal2-input" type="password" placeholder="${i18n.t(
+      "confirm_pass"
+    )}" />
+  `,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "OK",
       cancelButtonText: "Cancel",
+      // showLoaderOnConfirm: true,
+      allowOutsideClick: () => !Swal.isLoading(),
       scrollbarPadding: false,
-      preConfirm: () => {
+      preConfirm: async () => {
         const oldPassword = document.getElementById("swal-input3").value;
         const password = document.getElementById("swal-input1").value;
         const confirmPassword = document.getElementById("swal-input2").value;
 
-        // Basic validation
         if (!oldPassword) {
           Swal.showValidationMessage("Old password is required!");
+          return false;
+        }
+        if (oldPassword == password) {
+          Swal.showValidationMessage(
+            "Old password and new password must be different!"
+          );
           return false;
         }
         if (!password || !confirmPassword) {
@@ -181,13 +195,24 @@ export const changePasswordPopUp = (message) => {
           Swal.showValidationMessage("Passwords do not match!");
           return false;
         }
-
-        return { oldPassword, password, confirmPassword };
+        try {
+          const result = await onSave({ oldPassword, password });
+          if (result?.success) {
+            resolve({ oldPassword, password }); // Only resolve on success
+            return true; // Allow modal to close
+          } else {
+            Swal.showValidationMessage(
+              result?.message || "Failed to change password."
+            );
+            return false;
+          }
+        } catch (err) {
+          Swal.showValidationMessage(
+            err?.response?.data?.message || "Unexpected error."
+          );
+          return false;
+        }
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        resolve(result.value); // Pass the values to the caller
-      }
     });
   });
 };
@@ -231,34 +256,35 @@ export const selectNewOwnerPopup = (members) => {
   });
 };
 
-export const changeLanguage = ()=>{
+export const changeLanguage = () => {
   let optionInputs = {
-    'vi': 'Tiếng Việt',
-    'en': 'English',
-  }
-  if(i18n.language === "en"){
+    vi: "Tiếng Việt",
+    en: "English",
+  };
+  if (i18n.language === "en") {
     optionInputs = {
-    'en': 'English',
-    'vi': 'Tiếng Việt',
-  }
+      en: "English",
+      vi: "Tiếng Việt",
+    };
   }
   const changeLang = async () => {
     Swal.fire({
       title: i18n.t("language"),
-      input:"select",
+      input: "select",
       inputOptions: optionInputs,
       showCancelButton: true,
       confirmButtonText: i18n.t("save"),
       cancelButtonText: i18n.t("cancel"),
       scrollbarPadding: false,
     })
-    .then(async (result) => {
-      console.log(result);
-      if(result.isConfirmed){
-        i18n.changeLanguage(result.value)
-        apiResponseHandler(i18n.t("change-lang-mess"), "success",7400)
-      }
-    }).catch(()=>{})
+      .then(async (result) => {
+        console.log(result);
+        if (result.isConfirmed) {
+          i18n.changeLanguage(result.value);
+          apiResponseHandler(i18n.t("change-lang-mess"), "success", 7400);
+        }
+      })
+      .catch(() => {});
   };
   changeLang();
-}
+};

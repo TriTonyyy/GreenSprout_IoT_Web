@@ -528,7 +528,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner,onRemoveMember }) => {
       {/* Member Section */}
       <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Thành viên
+          {i18n.t("member")}
         </h2>
         <div className="flex-1 overflow-y-auto px-4 space-y-2">
           <MemberList
