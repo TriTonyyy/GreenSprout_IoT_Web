@@ -8,7 +8,6 @@ import {
   Fan,
   Lightbulb,
   Droplet,
-
 } from "lucide-react";
 import {
   ModeSelector,
@@ -20,9 +19,7 @@ import {
   updateControlById,
   uploadImage,
 } from "../../../api/deviceApi";
-import {
-  apiResponseHandler,
-} from "../../../components/Alert/alertComponent";
+import { apiResponseHandler } from "../../../components/Alert/alertComponent";
 import i18n from "../../../i18n";
 import { MemberList } from "./MemberGarden";
 
@@ -82,9 +79,7 @@ const SensorReading = ({ label, value, unit, icon }) => {
   );
 };
 
-
-
-export const DetailedGardenInfo = ({ deviceId, isOwner,onRemoveMember }) => {
+export const DetailedGardenInfo = ({ deviceId, isOwner, onRemoveMember }) => {
   const [loading, setLoading] = useState(true);
   const [gardenData, setGardenData] = useState(null);
   const [sensorsMap, setSensorsMap] = useState({});
@@ -144,77 +139,72 @@ export const DetailedGardenInfo = ({ deviceId, isOwner,onRemoveMember }) => {
   const fetchGardenData = async () => {
     if (!isPolling) return;
 
+    // Set cooldowns for all relevant control names before fetching
+    const newCooldowns = {};
+    allControlNames.forEach((name) => {
+      newCooldowns[name] = true;
+    });
+    setCooldowns((prev) => ({ ...prev, ...newCooldowns }));
+
     try {
       const res = await getGardenByDevice(deviceId);
       const device = res.data || {};
+
       // Get members and attach to device
       const result = await getMemberByIdDevice(deviceId);
       device.members = result.members || [];
       setGardenData(device);
-      // console.log(device);
 
-      // Map sensors by type for easy access
+      // Map sensors
       const tempSensorsMap = {};
       device.sensors?.forEach((sensor) => {
         tempSensorsMap[sensor.type] = sensor;
       });
       setSensorsMap(tempSensorsMap);
 
-      // Map controls by name for easy access and initialize modes and statuses
+      // Map controls and initialize
       const tempControlsMap = {};
       const initialModes = {};
       const initialStatuses = {};
-
       device.controls?.forEach((control) => {
         tempControlsMap[control.name] = control;
         initialModes[control.name] = control.mode || "manual";
         initialStatuses[control.name] = control.status || false;
       });
 
-      const updatedStatuses = {};
-      allControlNames.forEach((name) => {
-        const control = device.controls.find((c) => c.name === name);
-        updatedStatuses[name] = control?.status ?? false;
-      });
-
-      setControlStatuses(updatedStatuses);
-
-      // Update states with new data
       setControlsMap(tempControlsMap);
       setControlModes(initialModes);
       setControlStatuses(initialStatuses);
 
-      // Set control statuses based on control data
-      const waterControl = device.controls?.find(
-        (control) => control.name === "water"
-      );
-      const lightControl = device.controls?.find(
-        (control) => control.name === "light"
-      );
-      const windControl = device.controls?.find(
-        (control) => control.name === "wind"
-      );
+      // Update control statuses individually
+      const waterControl = device.controls?.find((c) => c.name === "water");
+      const lightControl = device.controls?.find((c) => c.name === "light");
+      const windControl = device.controls?.find((c) => c.name === "wind");
 
-      // Update control statuses with actual values from API
       if (waterControl) {
-        // setWaterOn(waterControl.status);
         setControlStatuses((prev) => ({ ...prev, water: waterControl.status }));
       }
       if (lightControl) {
-        // setLightOn(lightControl.status);
         setControlStatuses((prev) => ({ ...prev, light: lightControl.status }));
       }
       if (windControl) {
-        // setWindOn(windControl.status);
         setControlStatuses((prev) => ({ ...prev, wind: windControl.status }));
       }
     } catch (error) {
       console.error("Error fetching garden data:", error);
     } finally {
       setLoading(false);
+
+      // Remove cooldowns after 2 seconds
+      setTimeout(() => {
+        const clearedCooldowns = {};
+        allControlNames.forEach((name) => {
+          clearedCooldowns[name] = false;
+        });
+        setCooldowns((prev) => ({ ...prev, ...clearedCooldowns }));
+      }, 2000);
     }
   };
-
   useEffect(() => {
     // Initial fetch
     fetchGardenData();

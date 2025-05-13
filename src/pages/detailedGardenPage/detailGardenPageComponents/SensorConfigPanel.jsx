@@ -269,11 +269,11 @@ const SensorConfigPanel = ({
           <div className="mt-8 text-base text-gray-600 text-center">
             {selectedControl === "wind" ? (
               <p>
-                Thiết bị sẽ giúp khu vườn giữ{" "}
+                {i18n.t("garden_device_help")}{" "}
                 <span className="font-semibold text-lg text-green-600">
                   {i18n.t("temperature")}
                 </span>{" "}
-                trong khoảng{" "}
+                {i18n.t("range_text")}{" "}
                 <span className="font-semibold text-lg text-green-600">
                   {convertToDisplayValue(
                     sensorThresholds[selectedControl]?.min || 0,
