@@ -9,9 +9,7 @@ import i18n from "../../i18n"
 function AuthEmail({isTypeOTP, isForgetPassword}) {
     const userCre = useSelector(getUserCredential);
   const [email, setEmail] = useState(userCre?.email ? userCre.email : '') 
-  const [newPass, setNewPass] = useState('') 
-
-    console.log(userCre, "usercre");
+  const [newPass, setNewPass] = useState('')
     
   const navigate = useNavigate();
 
@@ -23,15 +21,22 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
 
   const changePassWord = async ()=>{
     const email = userCre?.email;
-    resetPasswordAPI({email, newPassword:newPass })
-    .then((res)=>{
-        console.log(res);
-        alert(res.message)
-        navigate("/login") 
-    })
-    .catch((err)=>{
-        apiResponseHandler(err.response.data.message);
-    })
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+    if(!email){
+        alert("Please enter a valid email address");
+    } else if (emailRegex.test(email)){
+      alert("Please enter a valid email address");
+    } else {
+        resetPasswordAPI({email, newPassword:newPass })
+        .then((res)=>{
+            console.log(res);
+            alert(res.message)
+            navigate("/login") 
+        })
+        .catch((err)=>{
+            apiResponseHandler(err.response.data.message);
+        })
+    }
   }
   return (  
     <div class='flex flex-col justify-center items-center min-h-screen  bg-green-600'>
