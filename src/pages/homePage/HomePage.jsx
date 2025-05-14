@@ -37,6 +37,8 @@ function HomePage() {
 
   const fetchUserDevices = async () => {
     try {
+      const currentSortAsc = sortAsc; // Capture current sort order
+
       await getUserInfoAPI()
         .then((res) => {
           setUser(res.data);
@@ -53,8 +55,8 @@ function HomePage() {
         return;
       }
 
-      if (!sortAsc) {
-        deviceIds = [...deviceIds].reverse(); // Reverse the order if not ascending
+      if (!currentSortAsc) {
+        deviceIds = [...deviceIds].reverse(); // Reverse based on current sort
       }
 
       const devicePromises = deviceIds.map(async (deviceId) => {
@@ -70,7 +72,7 @@ function HomePage() {
       const deviceResponses = await Promise.all(devicePromises);
       setDeviceData(deviceResponses.filter((device) => device !== null));
 
-      // Toggle order for next time
+      // Toggle the sort order for next time
       setSortAsc((prev) => !prev);
     } catch (error) {
       setDeviceData(null);
