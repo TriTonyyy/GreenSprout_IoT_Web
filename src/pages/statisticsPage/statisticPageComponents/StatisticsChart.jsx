@@ -10,7 +10,7 @@ const StatisticsChart = ({ sensorData, reportData, time, mode }) => {
 
   // Function to format the time string
   const formatTime = (time, mode) => {
-    console.log(time);
+    // console.log(time);
     switch (mode) {
       case "day": {
         const date = new Date(time);

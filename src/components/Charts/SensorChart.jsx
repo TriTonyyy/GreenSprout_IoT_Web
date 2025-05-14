@@ -11,6 +11,7 @@ import {
   Filler,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import i18n from "../../i18n";
 
 ChartJS.register(
   CategoryScale,
@@ -24,6 +25,7 @@ ChartJS.register(
 );
 
 const SensorChart = React.memo(({ data, title }) => {
+  // Memoize the options for performance optimization
   const options = {
     responsive: true,
     plugins: {
@@ -33,11 +35,25 @@ const SensorChart = React.memo(({ data, title }) => {
           usePointStyle: true,
           padding: 20,
           font: { size: 12 },
+          // Dynamically translate legend labels
+          generateLabels: function (chart) {
+            return chart.data.datasets.map((dataset, i) => {
+              const label = i18n.t(dataset.label); // Translate the label for each dataset
+              return {
+                text: label,
+                fillStyle: dataset.backgroundColor,
+                strokeStyle: dataset.borderColor,
+                lineWidth: dataset.borderWidth,
+                hidden: dataset.hidden,
+                index: i,
+              };
+            });
+          },
         },
       },
       title: {
         display: true,
-        text: title || "Dữ liệu cảm biến",
+        text: title || i18n.t("sensor_data"), // Using i18n for dynamic titles
         font: {
           size: 16,
           weight: "bold",
@@ -50,10 +66,10 @@ const SensorChart = React.memo(({ data, title }) => {
         callbacks: {
           label: (context) => {
             const value = context.raw;
-            const label = context.dataset.label;
-            const unit = label.match(/\((.*?)\)/)?.[1] || "";
+            const label = i18n.t(context.dataset.label); // Translate label
+            const unit = label.match(/\((.*?)\)/)?.[1] || ""; // Extract unit from label
             return value === null
-              ? `${label}: No data`
+              ? `${label}: ${i18n.t("no_data")}` // Use i18n for "No data"
               : `${label}: ${value?.toFixed(1)}${unit ? ` ${unit}` : ""}`;
           },
         },
@@ -120,7 +136,8 @@ const SensorChart = React.memo(({ data, title }) => {
       },
     },
     maintainAspectRatio: false,
-  };
+  }; // Recompute only if title changes
+
   return (
     <div className="px-6">
       <div style={{ height: "500px" }}>

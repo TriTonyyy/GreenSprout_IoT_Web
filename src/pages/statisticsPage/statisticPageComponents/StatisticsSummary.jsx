@@ -84,8 +84,9 @@ const StatisticsItem = ({ label, value, type }) => {
   const unit = label.match(/\((.*?)\)/)?.[1] || "";
   const isRange = Array.isArray(value);
   const isWaterUsage = label === i18n.t("water_usage");
-  const displayLabel = isWaterUsage ? i18n.t("totalWaterUsed") : label;
-
+  const displayLabel = isWaterUsage ? i18n.t("Water usage  (L)") : i18n.t(label);
+  // console.log("label", label);
+  
   return (
     <div
       className={`relative py-4 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 bg-white border-l-4 h-full ${

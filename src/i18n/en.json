@@ -122,8 +122,8 @@
     "T7": "Sat",
     "CN": "Sun"
   },
-  "changePassword": "Change Password", 
-  "add_irrigation_schedule":"Add Irrigation Schedule",
+  "changePassword": "Change Password",
+  "add_irrigation_schedule": "Add Irrigation Schedule",
   "ownerOnlySensorThreshold": "Only the owner can change the sensor threshold",
   "noDeviceFoundForUpdate": "No device found for update",
   "sensorThresholdUpdated": "Sensor threshold updated successfully",
@@ -149,27 +149,24 @@
   "controlFanBasedOnTemperature": "Control fan based on temperature",
   "controlWaterBasedOnSoilMoisture": "Control water based on soil moisture",
   "controlLightBasedOnLightIntensity": "Control light based on light intensity",
-  "upload_instruction":"Only PNG or JPEG images are supported.",
-  "upload_button_text":"Upload Image",
-  "max":"Max",
-  "min":"Min" ,
+  "upload_instruction": "Only PNG or JPEG images are supported.",
+  "upload_button_text": "Upload Image",
+  "max": "Max",
+  "min": "Min",
   "garden_device_help": "The device will help maintain the garden",
   "range_text": "within the range",
   "responsive_handle_text": "Screen too small. You’ve been logged out",
-  "info_update_save":"Your personal infomation are up to date",
-  "male":"Male",
-  "female":"Female",
-  "other":"Other",
-  "current_pass":"Current password",
-  "new_pass":"New password", 
-  "confirm_pass":"Confirm password"
-
+  "info_update_save": "Your personal infomation are up to date",
+  "male": "Male",
+  "female": "Female",
+  "other": "Other",
+  "current_pass": "Current password",
+  "new_pass": "New password",
+  "confirm_pass": "Confirm password",
+  "Temperature (°C)": "Temperature (°C)",
+  "Air Humidity (%)": "Humidity (%)",
+  "Soil Moisture (%)": "Soil Moisture (%)",
+  "Ambient Light  (lux)": "Ambient Light  (lux)",
+  "Water usage  (L)": "Water usage (L)",
+  "Water Flow (L/min)" : "Water Flow (L/min)"
 }
-
-
-
-
-
-
-
-
