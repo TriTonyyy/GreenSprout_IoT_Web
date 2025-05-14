@@ -123,7 +123,7 @@
     "T7": "T7",
     "CN": "CN"
   },
-  "changePassword": "Đổi mật khẩu mới", 
+  "changePassword": "Đổi mật khẩu mới",
   "add_irrigation_schedule": "Thêm lịch tưới",
   "ownerOnlySensorThreshold": "Chỉ chủ sở hữu mới có thể thay đổi ngưỡng cảm biến",
   "noDeviceFoundForUpdate": "Không tìm thấy thiết bị để cập nhật",
@@ -163,5 +163,11 @@
   "other": "Khác",
   "current_pass": "Mật khẩu hiện tại",
   "new_pass": "Mật khẩu mới",
-  "confirm_pass": "Xác nhận mật khẩu"
+  "confirm_pass": "Xác nhận mật khẩu",
+  "Temperature (°C)": "Nhiệt độ (°C)",
+  "Air Humidity (%)": "Độ ẩm (%)",
+  "Soil Moisture (%)": "Độ ẩm đất (%)",
+  "Ambient Light  (lux)": "Cường độ ánh sáng (lux)",
+  "Water usage  (L)": "Lượng nước sử dụng (L)",
+  "Water Flow (L/min)" : "Lưu lượng nước (L/phút)"
 }
