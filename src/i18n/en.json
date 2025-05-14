@@ -168,5 +168,14 @@
   "Soil Moisture (%)": "Soil Moisture (%)",
   "Ambient Light  (lux)": "Ambient Light  (lux)",
   "Water usage  (L)": "Water usage (L)",
-  "Water Flow (L/min)" : "Water Flow (L/min)"
+  "Water Flow (L/min)": "Water Flow (L/min)",
+  "enterIdDevice": "Enter device ID",
+  "connectDeviceSuccess": "Device connected successfully",
+  "failed": "Failed",
+  "wantedToLeave": "Are you sure you want to leave this garden?",
+  "thisWontExisted": "This garden will not existed in your account.",
+  "leaveGarden": "Leave garden",
+  "leaveSuccess": "Leave successfully!",
+  "uHaveLeave": "You have left the garden.",
+  "enterNewGardenName":"Please enter a new name for the garden"
 }
