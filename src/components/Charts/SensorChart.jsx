@@ -25,7 +25,7 @@ ChartJS.register(
 );
 
 const SensorChart = React.memo(({ data, title }) => {
-  console.log("SensorChart data", data);
+  // console.log("SensorChart data", data);
   const options = {
     responsive: true,
     plugins: {
@@ -53,7 +53,7 @@ const SensorChart = React.memo(({ data, title }) => {
           label: (context) => {
             const value = context.raw;
             const label = context.dataset.label;
-            console.log("label", label);
+            // console.log("label", label);
             
             const unit = label.match(/\((.*?)\)/)?.[1] || "";
             return value === null
