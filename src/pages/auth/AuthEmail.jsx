@@ -12,6 +12,7 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
     const dispatch = useDispatch();
     const userCre = useSelector(getUserCredential);
   const [email, setEmail] = useState(userCre?.email ? userCre.email : '') 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const min2 = 120
   const [otp, setOtp] = useState('')
     console.log("isTypeOTP " + isTypeOTP, isForgetPassword + ' forget pass');
@@ -45,30 +46,34 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
 };
 
   const sendOTP = async ()=>{
-    setSeconds(min2)
-    dispatch(UserCredential({...userCre,email}));
-    if(isForgetPassword){
-        await sendCodeResetApi(email)
-            .then((res)=>{
-                console.log(res, "send code");
-                apiResponseHandler(res.message)
-                navigate('/otp-forget-pass')
-            })
-            .catch((err)=>{
-                console.log(err);
-                apiResponseHandler(err.response.data.message, "error")
-            })
+    if(!emailRegex.test(email)){
+      apiResponseHandler(i18n.t("enter_valid_email"), "error")
     } else {
-        await sendCodeApi(email)
-            .then((res)=>{
-                console.log(res, "send code");
-                apiResponseHandler(res.message)
-                navigate('/otp')
-            })
-            .catch((err)=>{
-                console.log(err);
-                apiResponseHandler(err.response.data.message, "error")
-            })
+        setSeconds(min2)
+        dispatch(UserCredential({...userCre,email}));
+        if(isForgetPassword){
+            await sendCodeResetApi(email)
+                .then((res)=>{
+                    console.log(res, "send code");
+                    apiResponseHandler(res.message)
+                    navigate('/otp-forget-pass')
+                })
+                .catch((err)=>{
+                    console.log(err);
+                    apiResponseHandler(err.response.data.message, "error")
+                })
+        } else {
+            await sendCodeApi(email)
+                .then((res)=>{
+                    console.log(res, "send code");
+                    apiResponseHandler(res.message)
+                    navigate('/otp')
+                })
+                .catch((err)=>{
+                    console.log(err);
+                    apiResponseHandler(err.response.data.message, "error")
+                })
+        }
     }
   }
 
