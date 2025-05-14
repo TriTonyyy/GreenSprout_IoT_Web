@@ -1,18 +1,20 @@
 import React, {useState, useEffect} from 'react'
 import {useNavigate } from "react-router";
-import { registerApi, sendCodeApi, verifyOtpApi } from '../../api/authApi';
+import { registerApi, sendCodeApi, sendCodeResetApi, verifyOtpApi } from '../../api/authApi';
 import{ useDispatch, useSelector } from 'react-redux';
 import { getUserCredential } from '../../redux/selectors/authSelectors';
 import { UserCredential } from "../../redux/Reducers/AuthReducer";
 import i18n from '../../i18n';
+import { apiResponseHandler } from '../../components/Alert/alertComponent';
 
 
 function AuthEmail({isTypeOTP, isForgetPassword}) {
     const dispatch = useDispatch();
     const userCre = useSelector(getUserCredential);
   const [email, setEmail] = useState(userCre?.email ? userCre.email : '') 
+  const min2 = 120
   const [otp, setOtp] = useState('')
-    console.log(email, "authEmail");
+    console.log("isTypeOTP " + isTypeOTP, isForgetPassword + ' forget pass');
     
   const navigate = useNavigate();
 
@@ -21,14 +23,17 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
     useEffect(() => {
         if (seconds <= 0) return;
         const timer = setInterval(() => {
-            setSeconds(prev => prev - 1);
+            
+            if(isTypeOTP){
+                setSeconds(prev => prev - 1);
+            }
         }, 1000);
         return () => clearInterval(timer);
-    }, [seconds]);
+    }, [seconds,isTypeOTP]);
 
     useEffect(()=>{
         if(seconds === 0){
-            alert("OTP has expired")
+            apiResponseHandler(i18n.t("otp_expired"), "error")
         }
     },[seconds])
 
@@ -40,62 +45,70 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
 };
 
   const sendOTP = async ()=>{
-    setSeconds(120)
+    setSeconds(min2)
     dispatch(UserCredential({...userCre,email}));
-    await sendCodeApi(email)
-        .then((res)=>{
-            console.log(res, "send code");
-            alert(res.message);
-            if(isForgetPassword){
+    if(isForgetPassword){
+        await sendCodeResetApi(email)
+            .then((res)=>{
+                console.log(res, "send code");
+                apiResponseHandler(res.message)
                 navigate('/otp-forget-pass')
-            } else {
+            })
+            .catch((err)=>{
+                console.log(err);
+                apiResponseHandler(err.response.data.message, "error")
+            })
+    } else {
+        await sendCodeApi(email)
+            .then((res)=>{
+                console.log(res, "send code");
+                apiResponseHandler(res.message)
                 navigate('/otp')
-            }
-        })
-        .catch((err)=>{
-            console.log(err);
-            alert(err.response.data.message);
-        })
+            })
+            .catch((err)=>{
+                console.log(err);
+                apiResponseHandler(err.response.data.message, "error")
+            })
+    }
   }
 
   const verifyOTP = async ()=>{
-    console.log(isForgetPassword, otp);
     if(isForgetPassword){
         await verifyOtpApi({email, code:otp})
         .then((res)=>{
             setOtp('');
-            alert(res.message);
+            apiResponseHandler(res.message)
             navigate('/new-password')
         })
         .catch((err)=>{
             console.log(err);
-            alert(err);
+            apiResponseHandler(err.response.data.message, "error")
         })  
     } else {
         await verifyOtpApi({email, code:otp})
-        .then((res)=>{
+        .then( async(res)=>{
             setOtp('');
-            alert(res.message);
-        })
-        .catch((err)=>{
-            console.log(err);
-            alert(err);
-        })
-    
-        await registerApi({
+            apiResponseHandler(res.message, "error")
+            await registerApi({
             name:userCre.name,
             email:userCre.email,
             password:userCre.password
-        })
-        .then((res)=>{
-            console.log(res);
-            
-            navigate('/login')
+            })
+            .then((res)=>{
+                console.log(res);
+                navigate('/login')
+            })
+            .catch((err)=>{
+                console.log(err);
+                apiResponseHandler(err.response.data.message, "error")
+            })
         })
         .catch((err)=>{
             console.log(err);
-            alert(err.response.data.message);
+            apiResponseHandler(err.response.data.message, "error")
         })
+    
+        
     }
   }
   return (  

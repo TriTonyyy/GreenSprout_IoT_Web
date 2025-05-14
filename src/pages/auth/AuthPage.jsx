@@ -21,7 +21,7 @@ function AuthPage({ isLogin }) {
 
   const signIn = () => {
     if (!emailRegex.test(email)){
-      alert("Please enter a valid email address");
+      apiResponseHandler(i18n.t("enter_valid_email"), "error")
     } else {
       dispatch(UserCredential({ email, password, name }));
       loginApi({ email, password, deviceID: deviceInfo.userAgent })
@@ -44,11 +44,11 @@ function AuthPage({ isLogin }) {
 
   const register = () => {
     if (password.length < 8) {
-      alert("Password must be at least 8 characters long.");
+      apiResponseHandler(i18n.t("password_min_length"), "error")
     } else if (!emailRegex.test(email)){
-      alert("Please enter a valid email address");
+      apiResponseHandler(i18n.t("enter_valid_email"), "error")
     } else if(!name){
-      alert("Please enter a valid user name");
+      apiResponseHandler(i18n.t("enter_valid_username"), "error")
     } else {
       dispatch(UserCredential({ email, password, name }));
       navigate("/register-email");
@@ -58,7 +58,7 @@ function AuthPage({ isLogin }) {
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       if (password.length < 8) {
-        alert("Password must be at least 8 characters long.");
+        apiResponseHandler(i18n.t("password_min_length"), "error")
       } else {
         isLogin ? signIn() : register();
       }
