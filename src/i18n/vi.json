@@ -42,6 +42,7 @@
   "did_not_have_account": "Bạn chưa có tài khoản?",
   "have_account": "Bạn đã có tài khoản ?",
   "enter_newpass": "Nhập mật khẩu mới",
+  "confirm_newpass": "Xác nhận mật khẩu mới của bạn",
   "change_newpass": "Đổi mật khẩu mới",
   "update_pass": "Cập nhật mật khẩu",
   "avatar": "Ảnh đại diện",
@@ -169,5 +170,10 @@
   "Soil Moisture (%)": "Độ ẩm đất (%)",
   "Ambient Light  (lux)": "Cường độ ánh sáng (lux)",
   "Water usage  (L)": "Lượng nước sử dụng (L)",
-  "Water Flow (L/min)" : "Lưu lượng nước (L/phút)"
+  "Water Flow (L/min)" : "Lưu lượng nước (L/phút)",
+  "enter_valid_email": "Vui lòng nhập địa chỉ email hợp lệ",
+  "confirm_password_not_match": "Mật khẩu xác nhận không khớp",
+  "password_min_length": "Mật khẩu phải có ít nhất 8 ký tự",
+  "enter_valid_username": "Vui lòng nhập tên người dùng hợp lệ",
+  "otp_expired": "Mã OTP đã hết hạn"
 }
