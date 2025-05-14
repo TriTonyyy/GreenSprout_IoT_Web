@@ -17,29 +17,38 @@ function AuthPage({ isLogin }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const deviceInfo = deviceDetect();
-  
-  const signIn = () => {
-    dispatch(UserCredential({ email, password, name }));
-    loginApi({ email, password, deviceID: deviceInfo.userAgent })
-      .then((res) => {
-        setToken(res.data);
-        setRole(res.role);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        dispatch(tokenUser(res.data.data));
-        if(res.role === 'admin'){
-          navigate("/admin/home");
-        } else{
-          navigate("/home");
-        }
-      })
-      .catch((err) => {
-        apiResponseHandler(err.response.data.message,"error");
-      });
+  const signIn = () => {
+    if (!emailRegex.test(email)){
+      alert("Please enter a valid email address");
+    } else {
+      dispatch(UserCredential({ email, password, name }));
+      loginApi({ email, password, deviceID: deviceInfo.userAgent })
+        .then((res) => {
+          setToken(res.data);
+          setRole(res.role);
+  
+          dispatch(tokenUser(res.data.data));
+          if(res.role === 'admin'){
+            navigate("/admin/home");
+          } else{
+            navigate("/home");
+          }
+        })
+        .catch((err) => {
+          apiResponseHandler(err.response.data.message,"error");
+        });
+    }
   };
 
   const register = () => {
     if (password.length < 8) {
       alert("Password must be at least 8 characters long.");
+    } else if (!emailRegex.test(email)){
+      alert("Please enter a valid email address");
+    } else if(!name){
+      alert("Please enter a valid user name");
     } else {
       dispatch(UserCredential({ email, password, name }));
       navigate("/register-email");

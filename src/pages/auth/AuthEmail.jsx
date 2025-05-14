@@ -26,6 +26,13 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
         return () => clearInterval(timer);
     }, [seconds]);
 
+    useEffect(()=>{
+        if(seconds === 0){
+            alert("OTP has expired")
+        }
+    },[seconds])
+
+
   const formatTime = (totalSeconds) => {
     const minutes = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
@@ -81,8 +88,9 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
             password:userCre.password
         })
         .then((res)=>{
+            console.log(res);
+            
             navigate('/login')
-
         })
         .catch((err)=>{
             console.log(err);
@@ -112,7 +120,7 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
                             {seconds === 0 && (
                                 <div className="flex justify-center mt-4">
                                 <button
-                                    className="bg-purple text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                                    className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                                     onClick={sendOTP}
                                 >
                                     {i18n.t("send_otp")}
