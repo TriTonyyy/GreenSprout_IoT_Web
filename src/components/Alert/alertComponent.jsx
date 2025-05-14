@@ -10,15 +10,15 @@ import i18n from "../../i18n";
 export const addDevicePopup = (member, fetchUserDevices) => {
   const retryFunction = async () => {
     Swal.fire({
-      title: "Vui lòng nhập mã thiết bị",
+      title: i18n.t("enterIdDevice"),
       input: "text",
       inputPlaceholder: "ID: 43528132",
       showCancelButton: true,
-      confirmButtonText: "Kết nối",
-      cancelButtonText: "Hủy",
+      confirmButtonText: i18n.t("connect"),
+      cancelButtonText:  i18n.t("cancel"),
       scrollbarPadding: false,
       inputValidator: (value) => {
-        if (!value) return "Hãy nhập mã thiết bị!";
+        if (!value) return i18n.t("enterIdDevice");
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -30,13 +30,13 @@ export const addDevicePopup = (member, fetchUserDevices) => {
             role: "member",
           });
           fetchUserDevices();
-          apiResponseHandler("Kết nối khu vườn thành công!", "success");
+          apiResponseHandler(i18n.t("connectDeviceSuccess"), "success");
         } catch (error) {
           Swal.fire({
-            title: "Thất bại",
-            text: "Thiết bị không tồn tại",
+            title: i18n.t("failed"),
+            text: i18n.t("deviceNotExisted"),
             icon: "error",
-            confirmButtonText: "Thử lại",
+            confirmButtonText: i18n.t("retry"),
           }).then((result) => {
             if (result.isConfirmed) retryFunction();
           });
@@ -62,20 +62,20 @@ export const apiResponseHandler = (message, type, waitTime = 1000) => {
 export const removeDevicePopup = (deviceId, userId) => {
   return new Promise((resolve, reject) => {
     Swal.fire({
-      title: "Bạn có chắc chắn muốn rời khỏi khu vườn này không?",
-      text: "Khu vườn này sẽ không xuất hiện trong tài khoản bạn.",
+      title: i18n.t("wantedToLeave"),
+      text: i18n.t("thisWontExisted"),
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Xóa",
-      cancelButtonText: "Hủy",
+      confirmButtonText: i18n.t("leaveGarden"),
+      cancelButtonText: i18n.t("cancel"),
       scrollbarPadding: false,
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await removeMemberByIdDevice(deviceId, userId);
           await Swal.fire(
-            "Rời thành công!",
-            "Bạn đã rời khỏi khu vườn.",
+            i18n.t("leaveSuccess"),
+            i18n.t("uHaveLeave"),
             "success"
           );
           resolve(); // <-- notify success
@@ -93,7 +93,7 @@ export const removeDevicePopup = (deviceId, userId) => {
 export const renameDevicePopup = (deviceId, name_area) => {
   return new Promise((resolve, reject) => {
     Swal.fire({
-      title: "Vui lòng nhập tên mới cho khu vườn",
+      title: i18n.t("enterNewGardenName"),
       input: "text",
       inputPlaceholder: "Vườn rau xanh",
       inputValue: name_area, // Set the initial value to the current name

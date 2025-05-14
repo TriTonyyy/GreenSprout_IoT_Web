@@ -175,5 +175,14 @@
   "confirm_password_not_match": "Confirm password does not match",
   "password_min_length": "Password must be at least 8 characters long",
   "enter_valid_username": "Please enter a valid user name",
-  "otp_expired": "OTP has expired"
+  "otp_expired": "OTP has expired",
+  "enterIdDevice": "Enter device ID",
+  "connectDeviceSuccess": "Device connected successfully",
+  "failed": "Failed",
+  "wantedToLeave": "Are you sure you want to leave this garden?",
+  "thisWontExisted": "This garden will not existed in your account.",
+  "leaveGarden": "Leave garden",
+  "leaveSuccess": "Leave successfully!",
+  "uHaveLeave": "You have left the garden.",
+  "enterNewGardenName":"Please enter a new name for the garden"
 }

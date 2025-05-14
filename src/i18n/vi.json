@@ -170,10 +170,19 @@
   "Soil Moisture (%)": "Độ ẩm đất (%)",
   "Ambient Light  (lux)": "Cường độ ánh sáng (lux)",
   "Water usage  (L)": "Lượng nước sử dụng (L)",
-  "Water Flow (L/min)" : "Lưu lượng nước (L/phút)",
   "enter_valid_email": "Vui lòng nhập địa chỉ email hợp lệ",
   "confirm_password_not_match": "Mật khẩu xác nhận không khớp",
   "password_min_length": "Mật khẩu phải có ít nhất 8 ký tự",
   "enter_valid_username": "Vui lòng nhập tên người dùng hợp lệ",
-  "otp_expired": "Mã OTP đã hết hạn"
+  "otp_expired": "Mã OTP đã hết hạn",
+  "Water Flow (L/min)": "Lưu lượng nước (L/phút)",
+  "enterIdDevice": "Nhập ID thiết bị",
+  "connectDeviceSuccess": "Kết nối thiết bị thành công",
+  "failed": "Thất bại",
+  "wantedToLeave": "Bạn có chắc chắn muốn rời khỏi khu vườn này không?",
+  "thisWontExisted": "Khu vườn này sẽ không xuất hiện trong tài khoản bạn.",
+  "leaveGarden": "Rời khu vườn",
+  "leaveSuccess": "Rời thành công!",
+  "uHaveLeave": "Bạn đã rời khỏi khu vườn.",
+  "enterNewGardenName":"Vui lòng nhập tên mới cho khu vườn"
 }
