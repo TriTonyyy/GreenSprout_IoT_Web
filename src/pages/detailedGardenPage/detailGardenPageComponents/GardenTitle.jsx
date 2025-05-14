@@ -24,7 +24,7 @@ export const GardenTitle = ({
         <h1 className="text-4xl font-bold text-white">{gardenName}</h1>
         {isOwner && (
           <div className="flex items-center justify-center gap-2 m-2 text-gray-200">
-            <span className="text-2sm w-[120px] font-mono overflow-hidden text-ellipsis text-center font-bold">
+            <span className="text-2sm w-[150px] font-mono overflow-hidden text-ellipsis text-center font-bold">
               ID: {showId ? deviceId : "********"}
             </span>
             <button

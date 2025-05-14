@@ -202,7 +202,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner, onRemoveMember }) => {
           clearedCooldowns[name] = false;
         });
         setCooldowns((prev) => ({ ...prev, ...clearedCooldowns }));
-      }, 2000);
+      }, 0.5);
     }
   };
   useEffect(() => {
@@ -265,7 +265,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner, onRemoveMember }) => {
           [controlName]: false,
           [getOtherControlName(controlName)]: false,
         }));
-      }, 2000);
+      }, 1000);
     }
   };
 
