@@ -94,7 +94,7 @@ export default function AccountPage({ isDetail }) {
   const changePassword = async () => {
     try {
       await changePasswordPopUp(
-        "Change Password",
+        i18n.t("changePassword"),
         async ({ oldPassword, password }) => {
           const res = await changePasswordAPI({
             currentPassword: oldPassword,

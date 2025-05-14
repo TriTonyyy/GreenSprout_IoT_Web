@@ -42,7 +42,7 @@ const ScheduleCard = ({
         <div className="space-y-3">
           <p className="text-sm text-gray-600">
             <span className="font-medium text-green-600">
-              {i18n.t("irrigationTime")}
+              {i18n.t("duration")}:
             </span>{" "}
             {Math.round(schedule.duration / 60)} {i18n.t("minute")}
           </p>

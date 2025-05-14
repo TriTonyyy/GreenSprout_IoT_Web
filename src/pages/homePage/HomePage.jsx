@@ -25,14 +25,15 @@ function HomePage() {
   const [user, setUser] = useState(null);
   const limitWidth = 1300;
   const [width, setWidth] = useState(window.innerWidth);
+  const [sortAsc, setSortAsc] = useState(true);
 
-  useEffect(()=>{
-      if(width <limitWidth){
-        removeToken(); // your custom logout logic
-        apiResponseHandler(i18n.t("responsive_handle_text"), "error");
-        navigate("/login", { replace: true });
-      }
-    }, [])
+  useEffect(() => {
+    if (width < limitWidth) {
+      removeToken(); // your custom logout logic
+      apiResponseHandler(i18n.t("responsive_handle_text"), "error");
+      navigate("/login", { replace: true });
+    }
+  }, []);
 
   const fetchUserDevices = async () => {
     try {
@@ -45,28 +46,34 @@ function HomePage() {
         });
 
       const deviceResponse = await getGardenby();
-      const deviceIds = deviceResponse.data || [];
+      let deviceIds = deviceResponse.data || [];
 
       if (deviceIds.length === 0) {
-        setDeviceData([]); // No devices found
+        setDeviceData([]);
         return;
       }
 
-      // Fetch all devices concurrently
+      if (!sortAsc) {
+        deviceIds = [...deviceIds].reverse(); // Reverse the order if not ascending
+      }
+
       const devicePromises = deviceIds.map(async (deviceId) => {
         try {
           const res = await getGardenByDevice(deviceId);
           return res?.data || null;
         } catch (err) {
-          apiResponseHandler(err); // Handle error response
+          apiResponseHandler(err);
           return null;
         }
       });
 
       const deviceResponses = await Promise.all(devicePromises);
-      setDeviceData(deviceResponses.filter((device) => device !== null)); // Remove failed devices
+      setDeviceData(deviceResponses.filter((device) => device !== null));
+
+      // Toggle order for next time
+      setSortAsc((prev) => !prev);
     } catch (error) {
-      setDeviceData(null); // Reset device data state on error
+      setDeviceData(null);
     }
   };
 
@@ -85,7 +92,7 @@ function HomePage() {
             {/* Sidebar */}
             <SideNavigationBar />
             {/* Main Content Area */}
-            <div className="w-[80%] h-[80%] flex-grow min-h-screen bg-green-50">
+            <div className="w-[80%] h-[80%] flex-grow min-h-screen bg-green-50 p-5 pt-0">
               <div className="flex justify-between items-center p-10">
                 <h1 className="text-4xl font-bold">
                   <span className="text-green-500">
@@ -106,7 +113,7 @@ function HomePage() {
                         if (user) {
                           addDevicePopup(
                             { userId: user._id, role: "member" },
-                            fetchUserDevices, // ✅ pass blocks
+                            fetchUserDevices // ✅ pass blocks
                           );
                         }
                       }}
@@ -126,19 +133,23 @@ function HomePage() {
                 ) : deviceData.length > 0 ? (
                   deviceData.map((device) => {
                     const members = device.members;
-                    const result = members.filter((member) =>member.role === "owner" && member.userId === user._id)
+                    const result = members.filter(
+                      (member) =>
+                        member.role === "owner" && member.userId === user._id
+                    );
                     const isOwner = result.length > 0;
                     return (
-                    <GardenItem
-                      isOwner = {isOwner}
-                      key={device?._id}
-                      id={device?.id_esp}
-                      name={device?.name_area}
-                      sensors={device?.sensors}
-                      controls={device?.controls}
-                      img_area={device?.img_area}
-                    />
-                  )})
+                      <GardenItem
+                        isOwner={isOwner}
+                        key={device?._id}
+                        id={device?.id_esp}
+                        name={device?.name_area}
+                        sensors={device?.sensors}
+                        controls={device?.controls}
+                        img_area={device?.img_area}
+                      />
+                    );
+                  })
                 ) : deviceData && deviceData.length <= 9 ? (
                   <AddDeviceButton
                     onClick={() =>

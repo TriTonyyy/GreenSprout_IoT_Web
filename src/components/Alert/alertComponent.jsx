@@ -153,7 +153,7 @@ export const areUSurePopup = (message, type = "warning") => {
 export const changePasswordPopUp = (message, onSave) => {
   return new Promise((resolve, reject) => {
     Swal.fire({
-      title: message || "Change Password",
+      title: message || i18n.t("changePassword"),
       html: `
  <input id="swal-input3" class="swal2-input" type="password" placeholder="${i18n.t(
    "current_pass"
@@ -256,7 +256,7 @@ export const selectNewOwnerPopup = (members) => {
   });
 };
 
-export const changeLanguage = () => {
+export const changeLanguage = (navigate, currentPath) => {
   let optionInputs = {
     vi: "Tiếng Việt",
     en: "English",
@@ -267,24 +267,31 @@ export const changeLanguage = () => {
       vi: "Tiếng Việt",
     };
   }
+
   const changeLang = async () => {
     Swal.fire({
       title: i18n.t("language"),
       input: "select",
       inputOptions: optionInputs,
+      inputValue: i18n.language,
       showCancelButton: true,
       confirmButtonText: i18n.t("save"),
       cancelButtonText: i18n.t("cancel"),
       scrollbarPadding: false,
     })
       .then(async (result) => {
-        console.log(result);
         if (result.isConfirmed) {
-          i18n.changeLanguage(result.value);
-          apiResponseHandler(i18n.t("change-lang-mess"), "success", 7400);
+          await i18n.changeLanguage(result.value);
+          apiResponseHandler(i18n.t("change-lang-mess"), "success", 1000);
+
+          // Soft-refresh by navigating to the current path again
+          setTimeout(() => {
+            navigate(currentPath, { replace: true });
+          }, 1000);
         }
       })
       .catch(() => {});
   };
+
   changeLang();
 };
