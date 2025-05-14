@@ -116,11 +116,11 @@ function StatisticsDashboard() {
     // Helper function to calculate the average of an array
     const avg = (arr) =>
       arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
-    console.log("Selected Date:", selectedDate);
+    // console.log("Selected Date:", selectedDate);
 
     // Sort reports by time_created ascending
     const sortedReports = weekReports.sort(
-      (a, b) => new Date(a.time_created) - new Date(b.time_created)
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
     );
 
     // Helper function to get the start date of the week (Monday)
@@ -154,10 +154,13 @@ function StatisticsDashboard() {
     let total_water_usage = 0;
 
     // Go through each report and match it with the corresponding day of the week
+    // console.log("Sorted Reports:", sortedReports);
+    
     sortedReports.forEach((report) => {
       const reportDate = new Date(report.createdAt).toLocaleDateString("en-GB");
       const dateIndex = dateRange.indexOf(reportDate); // Find the index of the report's date in the dateRange
-
+      // console.log("Report Date:", reportDate);
+      // console.log("Date Index:", dateIndex);
       if (dateIndex !== -1) {
         // Add report values to the corresponding index (day of the week)
         humidity_avg[dateIndex] = avg(report.humidity_avg);
@@ -188,7 +191,7 @@ function StatisticsDashboard() {
       arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 
     const sortedReports = monthReports.sort(
-      (a, b) => new Date(a.time_created) - new Date(b.time_created)
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
     );
 
     const [year, month] = selectedMonth.split("-").map(Number);
