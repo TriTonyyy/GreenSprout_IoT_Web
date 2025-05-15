@@ -139,7 +139,7 @@ const SideNavigationBar = () => {
         </div>
       </nav>
         <div className="flex w-full rounded text-center p-4 rounded-2xl mt-100 items-center">
-          <img className="w-[30%] rounded" src={require("../../assets/images/QR-code.jpg")}/>
+          <img className="w-[30%]" src={require("../../assets/images/QR-code.jpg")}/>
           <h1 className="w-full text-white font-semibold text-center w-1/10 h-1/10 ml-4">{i18n.t("qr_caption")}</h1>
         </div>
       <footer className="bg-white mt-auto">
