@@ -5,7 +5,7 @@ import { loginApi } from "../../api/authApi";
 import { deviceDetect } from "react-device-detect";
 import { UserCredential, tokenUser } from "../../redux/Reducers/AuthReducer";
 import { getUserCredential } from "../../redux/selectors/authSelectors";
-import { setToken } from "../../helper/tokenHelper";
+import { setRole, setToken } from "../../helper/tokenHelper";
 import { apiResponseHandler } from "../../components/Alert/alertComponent";
 import i18n from "../../i18n";
 
@@ -17,28 +17,51 @@ function AuthPage({ isLogin }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const deviceInfo = deviceDetect();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const signIn = () => {
-    dispatch(UserCredential({ email, password, name }));
-    loginApi({ email, password, deviceID: deviceInfo.userAgent })
-      .then((res) => {
-        setToken(res.data);
-        dispatch(tokenUser(res.data.data));
-        navigate("/home");
-      })
-      .catch((err) => {
-        apiResponseHandler(err.response.data.message,"error");
-      });
+    if (!emailRegex.test(email)){
+      apiResponseHandler(i18n.t("enter_valid_email"), "error")
+    } else {
+      dispatch(UserCredential({ email, password, name }));
+      loginApi({ email, password, deviceID: deviceInfo.userAgent })
+        .then((res) => {
+          setToken(res.data);
+          setRole(res.role);
+  
+          dispatch(tokenUser(res.data.data));
+          if(res.role === 'admin'){
+            navigate("/admin/home");
+          } else{
+            navigate("/home");
+          }
+        })
+        .catch((err) => {
+          apiResponseHandler(err.response.data.message,"error");
+        });
+    }
   };
 
   const register = () => {
-    dispatch(UserCredential({ email, password, name }));
-    navigate("/register-email");
+    if (password.length < 8) {
+      apiResponseHandler(i18n.t("password_min_length"), "error")
+    } else if (!emailRegex.test(email)){
+      apiResponseHandler(i18n.t("enter_valid_email"), "error")
+    } else if(!name){
+      apiResponseHandler(i18n.t("enter_valid_username"), "error")
+    } else {
+      dispatch(UserCredential({ email, password, name }));
+      navigate("/register-email");
+    }
   };
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
-      isLogin ? signIn() : register();
+      if (password.length < 8) {
+        apiResponseHandler(i18n.t("password_min_length"), "error")
+      } else {
+        isLogin ? signIn() : register();
+      }
     }
   };
 
@@ -52,17 +75,21 @@ function AuthPage({ isLogin }) {
     //     console.log(err);
         
     //   })
-    window.location.href = "https://capstone-project-iot-1.onrender.com/api/user/google";
+    // window.location.href = "https://capstone-project-iot-1.onrender.com/api/user/google";
   }
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-bgPurple ">
-      <div className="bg-white p-10 rounded-2xl shadow-lg">
+    <div className="flex flex-col justify-center items-center min-h-screen bg-green-600">
+      <div className="bg-green-50 p-10 rounded-2xl shadow-lg">
+        <div className="flex justify-center cursor-pointer">
+          <img src={require("../../assets/images/TreePlanting.png")} className="h-50 w-50 object-contain" alt="logo"/>
+        </div>
         <div className="p-10">
-          <h1 className="text-5xl font-bold">
+          <h1 className="text-5xl font-bold text-center">
             {isLogin ? `${i18n.t("login")}` : `${i18n.t("register")}`}
           </h1>
         </div>
+        
         <div className="input-box flex flex-col">
           <input
             value={email}
@@ -91,26 +118,26 @@ function AuthPage({ isLogin }) {
             className="border-2 border-gray-300 p-2 mt-2 mr-2 mb-2 rounded-lg bg-gray-100 w-full"
           />
           {isLogin && (
-            <a href="/" className="p-1 m-1">
+            <a href="/forget-password" className="p-1 m-1">
               {i18n.t("forgot-pass")}
             </a>
           )}
           <button
-            className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-purple"
+            className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700"
             onClick={isLogin ? signIn : register}
           >
             {isLogin ? `${i18n.t("login")}` : `${i18n.t("register")}`}
           </button>
           <div className="flex justify-center items-center">
-            <div className="w-5/12 h-px bg-slate-400"></div>
+            {/* <div className="w-5/12 h-px bg-slate-400"></div>
             <p className="w-full text-center text-slate-400">
               {i18n.t("or-auth-with")}
             </p>
-            <div className="w-5/12 h-px bg-slate-400"></div>
+            <div className="w-5/12 h-px bg-slate-400"></div> */}
           </div>
-          <button className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-red" onClick={googleHandle}>
+          {/* <button className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-red" onClick={googleHandle}>
             Google
-          </button>
+          </button> */}
           {isLogin ? (
             <h2 className="p-1 m-1">
               {i18n.t("did-not-have-account")}{" "}

@@ -1,13 +1,21 @@
 import React, {useState, useEffect} from 'react'
 import {useNavigate } from "react-router";
-import { registerApi, sendCodeApi, verifyOtpApi } from '../../api/authApi';
-import{ useSelector } from 'react-redux';
+import { registerApi, sendCodeApi, sendCodeResetApi, verifyOtpApi } from '../../api/authApi';
+import{ useDispatch, useSelector } from 'react-redux';
 import { getUserCredential } from '../../redux/selectors/authSelectors';
+import { UserCredential } from "../../redux/Reducers/AuthReducer";
+import i18n from '../../i18n';
+import { apiResponseHandler } from '../../components/Alert/alertComponent';
 
-function AuthEmail({isTypeOTP}) {
-const userCre = useSelector(getUserCredential);
+
+function AuthEmail({isTypeOTP, isForgetPassword}) {
+    const dispatch = useDispatch();
+    const userCre = useSelector(getUserCredential);
   const [email, setEmail] = useState(userCre?.email ? userCre.email : '') 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const min2 = 120
   const [otp, setOtp] = useState('')
+    console.log("isTypeOTP " + isTypeOTP, isForgetPassword + ' forget pass');
     
   const navigate = useNavigate();
 
@@ -16,10 +24,20 @@ const userCre = useSelector(getUserCredential);
     useEffect(() => {
         if (seconds <= 0) return;
         const timer = setInterval(() => {
-            setSeconds(prev => prev - 1);
+            
+            if(isTypeOTP){
+                setSeconds(prev => prev - 1);
+            }
         }, 1000);
         return () => clearInterval(timer);
-    }, [seconds]);
+    }, [seconds,isTypeOTP]);
+
+    useEffect(()=>{
+        if(seconds === 0){
+            apiResponseHandler(i18n.t("otp_expired"), "error")
+        }
+    },[seconds])
+
 
   const formatTime = (totalSeconds) => {
     const minutes = Math.floor(totalSeconds / 60);
@@ -28,53 +46,87 @@ const userCre = useSelector(getUserCredential);
 };
 
   const sendOTP = async ()=>{
-    setSeconds(120)
-    await sendCodeApi(email)
-        .then((res)=>{
-            alert(res.message);
-            console.log(res, "send code");
-            navigate('/otp')
-        })
-        .catch((err)=>{
-            console.log(err);
-            alert(err.response.data.message);
-        })
-
-    
+    if(!emailRegex.test(email)){
+      apiResponseHandler(i18n.t("enter_valid_email"), "error")
+    } else {
+        setSeconds(min2)
+        dispatch(UserCredential({...userCre,email}));
+        if(isForgetPassword){
+            await sendCodeResetApi(email)
+                .then((res)=>{
+                    console.log(res, "send code");
+                    apiResponseHandler(res.message)
+                    navigate('/otp-forget-pass')
+                })
+                .catch((err)=>{
+                    console.log(err);
+                    apiResponseHandler(err.response.data.message, "error")
+                })
+        } else {
+            await sendCodeApi(email)
+                .then((res)=>{
+                    console.log(res, "send code");
+                    apiResponseHandler(res.message)
+                    navigate('/otp')
+                })
+                .catch((err)=>{
+                    console.log(err);
+                    apiResponseHandler(err.response.data.message, "error")
+                })
+        }
+    }
   }
 
   const verifyOTP = async ()=>{
-    console.log(email, otp);
-    
-    await verifyOtpApi({email, code:otp})
+    if(isForgetPassword){
+        await verifyOtpApi({email, code:otp})
         .then((res)=>{
             setOtp('');
-            alert(res.message);
+            apiResponseHandler(res.message)
+            navigate('/new-password')
         })
         .catch((err)=>{
             console.log(err);
-            alert(err);
-        })
-
-    await registerApi({
-        name:userCre.userName,
-        email:userCre.email,
-        password:userCre.password
-    })
-        .then((res)=>{
-            navigate('/login')
-
+            apiResponseHandler(err.response.data.message, "error")
+        })  
+    } else {
+        await verifyOtpApi({email, code:otp})
+        .then( async(res)=>{
+            setOtp('');
+            apiResponseHandler(res.message, "error")
+            await registerApi({
+            name:userCre.name,
+            email:userCre.email,
+            password:userCre.password
+            })
+            .then((res)=>{
+                console.log(res);
+                navigate('/login')
+            })
+            .catch((err)=>{
+                console.log(err);
+                apiResponseHandler(err.response.data.message, "error")
+            })
         })
         .catch((err)=>{
             console.log(err);
-            alert(err.response.data.message);
+            apiResponseHandler(err.response.data.message, "error")
         })
+    
+        
+    }
   }
   return (  
-    <div class='flex flex-col justify-center items-center min-h-screen bg-bgPurple '>
-        <div class='bg-white p-10 rounded-2xl shadow-lg'>
+    <div class='flex flex-col justify-center items-center min-h-screen  bg-green-600'>
+        <div class='bg-green-50 p-10 rounded-2xl shadow-lg'>
+            <div className="flex justify-center cursor-pointer">
+                <img src={require("../../assets/images/TreePlanting.png")} className="h-50 w-50 object-contain" alt="logo"/>
+            </div>
             <div className='p-10'>
-                <h1 className='text-5xl font-bold'>{ isTypeOTP ? "Nhập OTP" : "Đăng ký"}</h1>
+                <h1 className='text-5xl font-bold'>
+                    { isTypeOTP ? i18n.t("otp_input")
+                    : isForgetPassword ? i18n.t("forget_password") : i18n.t("register")}
+                </h1>
             </div>
             <div className='input-box flex flex-col'>
                 {isTypeOTP ?(
@@ -86,10 +138,10 @@ const userCre = useSelector(getUserCredential);
                             {seconds === 0 && (
                                 <div className="flex justify-center mt-4">
                                 <button
-                                    className="bg-purple text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                                    className="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                                     onClick={sendOTP}
                                 >
-                                    Send OTP
+                                    {i18n.t("send_otp")}
                                 </button>
                             </div>
                             )}
@@ -98,31 +150,33 @@ const userCre = useSelector(getUserCredential);
                             onChange={(e)=> setOtp(e.target.value)} 
                             type='text' 
                             maxLength={4}
-                            placeholder='Nhập OTP' 
+                            placeholder={i18n.t("otp_input")}
                             className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
                         /> 
                         
-                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-purple' onClick={isTypeOTP ? verifyOTP :sendOTP}>Gửi OTP</button>
+                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700' onClick={isTypeOTP ? verifyOTP :sendOTP}>{i18n.t("send_otp")}</button>
                     </>
                 ):(
                     <>
                         <input value={email}
                             onChange={(e)=> setEmail(e.target.value)} 
                             type='text' 
-                            placeholder='Nhập email' 
+                            placeholder={i18n.t("email-placeholder")} 
                             className='border-2 border-gray-300 p-2 m-2 rounded-lg bg-gray-100 w-full'
                         /> 
-                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-purple' onClick={sendOTP}>Đăng ký</button>
-                        <div className='flex justify-center items-center'>
+                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700' onClick={sendOTP}>
+                            {isForgetPassword ? i18n.t("forget_password") : i18n.t("register")}
+                        </button>
+                        {/* <div className='flex justify-center items-center'>
                             <div className='w-5/12 h-px bg-slate-400'></div>
                                 <p className='w-full text-center text-slate-400'>Hoặc đăng ký với</p>
                             <div className='w-5/12 h-px bg-slate-400'></div>
                         </div>
-                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-red'>Google</button>
+                        <button className='bg-blue-500 text-white p-2 m-2 rounded-xl bg-red'>Google</button> */}
                         {isTypeOTP ? (
-                        <h2 className='p-1 m-1'>Bạn chưa có tài khoản? <a href='/register' className='text-stone-950 font-bold'>Đăng ký</a></h2>
+                        <h2 className='p-1 m-1'>{i18n.t("did_not_have_account")}<a href='/register' className='text-stone-950 font-bold'>{i18n.t("register")}</a></h2>
                         ): (
-                        <h2 className='p-1 m-1'>Bạn đã có tài khoản? <a href='/login' className='text-stone-950 font-bold'>Đăng nhập</a></h2>
+                        <h2 className='p-1 m-1'>{i18n.t("have_account")}<a href='/login' className='text-stone-950 font-bold'>{i18n.t("login")}</a></h2>
 
                 )}
                     </>

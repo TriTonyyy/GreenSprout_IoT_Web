@@ -1,14 +1,15 @@
 import React from "react";
+import i18n from "../../../i18n";
 
 const StatisticsHeader = () => {
   return (
-    <div className="my-4">
-      <h1 className="text-3xl font-bold text-gray-900 my-2">
-        Thống kê khu vườn
-      </h1>
-      <p className="text-gray-600">
-        Theo dõi và phân tích dữ liệu cảm biến của vườn theo thời gian
-      </p>
+    <div className="my-5 text-center">
+        <p className="text-3xl font-bold text-green-400">
+          {i18n.t("sensorDataStatistics")}
+        </p>
+        <p className="my-1 text-xl text-green-600">
+          {i18n.t("trackRecentGardenData")}
+        </p>
     </div>
   );
 };

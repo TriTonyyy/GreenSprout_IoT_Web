@@ -12,16 +12,21 @@ import SideNavigationBar from "../../components/SideNavigationBar/SideNavigation
 import { getUserInfoAPI } from "../../api/authApi";
 import {
   apiResponseHandler,
+  areUSurePopup,
   renameDevicePopup,
   selectNewOwnerPopup,
 } from "../../components/Alert/alertComponent";
 import {
+  addBlockMember,
+  getBlockMember,
   getGardenby,
   getGardenByDevice,
   getMemberByIdDevice,
   removeMemberByIdDevice,
   updateMemberRole,
 } from "../../api/deviceApi";
+import i18n from "../../i18n";
+import { MemberGarden } from "./detailGardenPageComponents/MemberGarden";
 
 function DetailedGarden() {
   const { gardenId } = useParams();
@@ -31,19 +36,22 @@ function DetailedGarden() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [showMemberSection, setShowMemberSection] = useState(false);
+  const [blockMember, setBlockMember] = useState(false);
 
   const fetchGardenData = useCallback(async () => {
     if (!gardenId) {
       setError("Invalid garden ID");
       return;
     }
-
     try {
       const response = await getGardenByDevice(gardenId);
       if (response?.data) {
         const device = response.data || {};
         const result = await getMemberByIdDevice(gardenId);
         device.members = result.members || [];
+        const block = await getBlockMember(gardenId);
+        setBlockMember(block.data);
         setData(device);
         setError(null);
       } else {
@@ -86,6 +94,7 @@ function DetailedGarden() {
       const gardensPromises = deviceIds.map(async (deviceId) => {
         try {
           const res = await getGardenByDevice(deviceId);
+
           return res?.data || null;
         } catch (err) {
           console.error(`Failed to fetch garden ${deviceId}:`, err);
@@ -103,6 +112,10 @@ function DetailedGarden() {
     }
   }, []);
 
+  const handleMember = async () => {
+    setShowMemberSection(true);
+  };
+
   const handleEdit = async () => {
     try {
       await renameDevicePopup(gardenId, data.name_area);
@@ -116,28 +129,35 @@ function DetailedGarden() {
 
   const handleDelete = async () => {
     try {
-      const isOwner = data.members?.some(
-        (m) => m.userId === user._id && m.role === "owner"
+      // Show confirmation popup first
+      // console.log(isOwner);
+      const confirmRemove = await areUSurePopup(
+        "Bạn có chắc chắn muốn rời khỏi khu vườn này?"
       );
       const totalMembers = data.members?.length || 0;
-
-      if (isOwner && totalMembers > 1) {
-        try {
-          const newOwner = await selectNewOwnerPopup(data.members);
+      if (confirmRemove) {
+        if (isOwner && totalMembers > 1) {
+          try {
+            const newOwner = await selectNewOwnerPopup(data.members);
+            await removeMemberByIdDevice(gardenId, user._id);
+            await updateMemberRole(gardenId, newOwner.userId);
+            apiResponseHandler(
+              "Bạn đã rời khỏi khu vườn thành công",
+              "success"
+            );
+            navigate("/home");
+          } catch (error) {
+            if (error === "cancelled") return;
+            apiResponseHandler("Không thể thay đổi chủ vườn", "error");
+          }
+        } else {
           await removeMemberByIdDevice(gardenId, user._id);
-          await updateMemberRole(gardenId, newOwner.userId);
-          apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
           navigate("/home");
-        } catch (error) {
-          if (error === "cancelled") return;
-          apiResponseHandler("Không thể thay đổi chủ vườn", "error");
+          apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
         }
-      } else {
-        await removeMemberByIdDevice(gardenId, user._id);
-        apiResponseHandler("Bạn đã rời khỏi khu vườn thành công", "success");
-        navigate("/home");
       }
     } catch (error) {
+      if (error === "cancelled") return; // user cancelled confirmation
       console.error("Error leaving garden:", error);
       apiResponseHandler("Không thể rời khỏi khu vườn", "error");
     }
@@ -185,7 +205,7 @@ function DetailedGarden() {
           const allMems = res.members;
           let isHas = false;
           allMems.map((item) => {
-            if (item.userId === user._id) {
+            if (item.userId === user._id || user.role === "admin") {
               isHas = true;
             }
           });
@@ -204,9 +224,70 @@ function DetailedGarden() {
     return () => clearInterval(interval);
   }, [user]);
 
+  useEffect(() => {
+    if (showMemberSection) {
+      document.body.style.overflow = "hidden"; // Disable body scroll
+    } else {
+      document.body.style.overflow = "auto"; // Re-enable body scroll
+    }
+  }, [showMemberSection]);
+
+  // console.log("data", data.members);
   const isOwner = data?.members?.some(
-    (member) => member.userId === user?._id && member.role === "owner"
+    (member) => member.isMe && member.role === "owner"
   );
+
+  const onRemoveMember = async (member) => {
+    try {
+      // First confirmation: Remove member
+      const confirmRemove = await areUSurePopup(
+        `Bạn có chắc chắn muốn xóa <strong style="color: #dc2626;">${member.name}</strong> khỏi thiết bị?`,
+        "warning" // Showing a warning message
+      );
+      if (confirmRemove) {
+        // Second confirmation: Block member
+        const confirmBlock = await areUSurePopup(
+          `Bạn có muốn thêm <strong style="color: #dc2626;">${member.name}</strong> vào danh sách chặn?`,
+          "question" // Showing a question message
+        );
+        // console.log(confirmBlock);
+        if (confirmBlock) {
+          // // Block member if confirmed
+          // const removeRes = await removeMemberByIdDevice(
+          //   gardenId,
+          //   member.userId
+          // );
+          const blockRes = await addBlockMember(gardenId, member.userId);
+          if ( blockRes) {
+            apiResponseHandler(
+              `Đã xóa "${member.name}" khỏi thiết bị`,
+              "success"
+            );
+          }
+        } else if (!confirmBlock) 
+          {
+          console.log(confirmBlock);
+          
+          const response = await removeMemberByIdDevice(
+            gardenId,
+            member.userId
+          );
+          if (response) {
+            apiResponseHandler(
+              `Đã xóa "${member.name}" khỏi thiết bị`,
+              "success"
+            );
+          }
+        }
+      } else if (!confirmRemove) {
+        // User cancelled the first confirmation
+        return;
+      }
+    } catch (error) {
+      if (error === "cancelled") return; // User cancelled the confirmation
+      apiResponseHandler(i18n.t("cannotDeleteMember"), "error");
+    }
+  };
 
   if (error) {
     return (
@@ -216,7 +297,7 @@ function DetailedGarden() {
           onClick={() => window.location.reload()}
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
-          Retry
+          {i18n.t("retry")}
         </button>
       </div>
     );
@@ -227,26 +308,57 @@ function DetailedGarden() {
       <HeaderComponent gardens={allGardens} />
       <div className="flex flex-grow">
         <SideNavigationBar />
-        <div className="flex-grow">
+        <div className="flex-grow w-[85%]">
           {loading ? (
             <GardenTitleSkeleton />
           ) : data ? (
             <>
               <GardenTitle
                 gardenName={data.name_area}
-                areaGardenName="Thông tin khu vườn"
+                areaGardenName={i18n.t("garden_info")}
                 onEdit={isOwner ? handleEdit : null}
                 onDelete={handleDelete}
+                onStatistic={() => navigate(`/statistics/${gardenId}`)}
+                onMember={handleMember}
                 isOwner={isOwner}
                 deviceId={gardenId}
               />
             </>
           ) : null}
-          <DetailedGardenInfo deviceId={gardenId} isOwner={isOwner} />
+          {showMemberSection && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-4xl min-h-[600px] flex flex-col items-center overflow-hidden">
+                {/* MemberGarden content fills the available space */}
+                <div className="flex-grow w-full">
+                  {/* {console.log("data", data)} */}
+                  <MemberGarden
+                    members={data.members}
+                    blocks={blockMember}
+                    isOwner={isOwner}
+                    onRemoveMember={onRemoveMember}
+                    deviceId={gardenId}
+                  />
+                </div>
+
+                {/* OK Button stays at the bottom */}
+                <button
+                  className="mt-4 px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                  onClick={() => setShowMemberSection(false)}
+                >
+                  {i18n.t("done")}
+                </button>
+              </div>
+            </div>
+          )}
+          <DetailedGardenInfo
+            deviceId={gardenId}
+            isOwner={isOwner}
+            onRemoveMember={onRemoveMember}
+          />
           <IrrigationModeSection deviceId={gardenId} isOwner={isOwner} />
         </div>
       </div>
-      <FooterComponent />
+      {/* <FooterComponent /> */}
     </div>
   );
 }

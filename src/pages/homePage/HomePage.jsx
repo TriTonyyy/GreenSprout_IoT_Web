@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import HeaderComponent from "../../components/Header/HeaderComponent.jsx";
 import FooterComponent from "../../components/FooterComponent/FooterComponent.jsx";
 import {
@@ -16,44 +17,65 @@ import {
 } from "../../components/Alert/alertComponent.jsx";
 import SideNavigationBar from "../../components/SideNavigationBar/SideNavigationBar.jsx";
 import i18n from "../../i18n";
+import { removeToken } from "../../helper/tokenHelper.js";
 
 function HomePage() {
+  const navigate = useNavigate();
   const [deviceData, setDeviceData] = useState(null);
   const [user, setUser] = useState(null);
+  const limitWidth = 1300;
+  const [width, setWidth] = useState(window.innerWidth);
+  const [sortAsc, setSortAsc] = useState(true);
+
+  useEffect(() => {
+    if (width < limitWidth) {
+      removeToken(); // your custom logout logic
+      apiResponseHandler(i18n.t("responsive_handle_text"), "error");
+      navigate("/login", { replace: true });
+    }
+  }, []);
 
   const fetchUserDevices = async () => {
     try {
+      const currentSortAsc = sortAsc; // Capture current sort order
+
       await getUserInfoAPI()
         .then((res) => {
           setUser(res.data);
         })
-        .catch((err)=>{
+        .catch((err) => {
           console.log(err);
-        })
+        });
 
       const deviceResponse = await getGardenby();
-      const deviceIds = deviceResponse.data || [];
+      let deviceIds = deviceResponse.data || [];
 
       if (deviceIds.length === 0) {
-        setDeviceData([]); // No devices found
+        setDeviceData([]);
         return;
       }
 
-      // Fetch all devices concurrently
+      if (!currentSortAsc) {
+        deviceIds = [...deviceIds].reverse(); // Reverse based on current sort
+      }
+
       const devicePromises = deviceIds.map(async (deviceId) => {
         try {
           const res = await getGardenByDevice(deviceId);
           return res?.data || null;
         } catch (err) {
-          apiResponseHandler(err); // Handle error response
+          apiResponseHandler(err);
           return null;
         }
       });
 
       const deviceResponses = await Promise.all(devicePromises);
-      setDeviceData(deviceResponses.filter((device) => device !== null)); // Remove failed devices
+      setDeviceData(deviceResponses.filter((device) => device !== null));
+
+      // Toggle the sort order for next time
+      setSortAsc((prev) => !prev);
     } catch (error) {
-      setDeviceData(null); // Reset device data state on error
+      setDeviceData(null);
     }
   };
 
@@ -72,8 +94,8 @@ function HomePage() {
             {/* Sidebar */}
             <SideNavigationBar />
             {/* Main Content Area */}
-            <div className="w-full flex-grow min-h-screen">
-              <div className="flex justify-between items-center px-10 py-10">
+            <div className="w-[80%] h-[80%] flex-grow min-h-screen bg-green-50 p-5 pt-0">
+              <div className="flex justify-between items-center p-10">
                 <h1 className="text-4xl font-bold">
                   <span className="text-green-500">
                     {i18n.t("garden_of_account", { accountName: user.name })}
@@ -86,18 +108,21 @@ function HomePage() {
                   >
                     <RefreshCcw size={24} />
                   </button>
-                  <button className="bg-green-700 text-white rounded-2xl p-2">
-                    <Plus
-                      size={24}
-                      onClick={() =>
-                        user &&
-                        addDevicePopup(
-                          { userId: user._id, role: "member" },
-                          fetchUserDevices
-                        )
-                      }
-                    />
-                  </button>
+                  {deviceData && deviceData.length < 9 && (
+                    <button
+                      className="bg-green-700 text-white rounded-2xl p-2"
+                      onClick={() => {
+                        if (user) {
+                          addDevicePopup(
+                            { userId: user._id, role: "member" },
+                            fetchUserDevices // ✅ pass blocks
+                          );
+                        }
+                      }}
+                    >
+                      <Plus size={24} />
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-10 mx-2">
@@ -108,31 +133,41 @@ function HomePage() {
                     <GardenItemSkeleton />
                   </>
                 ) : deviceData.length > 0 ? (
-                  deviceData.map((device) => (
-                    <GardenItem
-                      key={device._id}
-                      id={device.id_esp}
-                      name={device.name_area}
-                      sensors={device.sensors}
-                      controls={device.controls}
-                      img_area={device.img_area}
-                    />
-                  ))
-                ) : (
+                  deviceData.map((device) => {
+                    const members = device.members;
+                    const result = members.filter(
+                      (member) =>
+                        member.role === "owner" && member.userId === user._id
+                    );
+                    const isOwner = result.length > 0;
+                    return (
+                      <GardenItem
+                        isOwner={isOwner}
+                        key={device?._id}
+                        id={device?.id_esp}
+                        name={device?.name_area}
+                        sensors={device?.sensors}
+                        controls={device?.controls}
+                        img_area={device?.img_area}
+                      />
+                    );
+                  })
+                ) : deviceData && deviceData.length <= 9 ? (
                   <AddDeviceButton
                     onClick={() =>
                       user &&
                       addDevicePopup(
                         { userId: user._id, role: "member" },
-                        fetchUserDevices // Callback to refresh device list after adding
+                        fetchUserDevices,
+                        deviceData.blocks
                       )
                     }
                   />
-                )}
+                ) : null}
               </div>
             </div>
           </div>
-          <FooterComponent />
+          {/* <FooterComponent /> */}
         </>
       ) : null}
     </div>

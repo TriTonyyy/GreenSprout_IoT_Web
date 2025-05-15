@@ -1,30 +1,27 @@
 import React, { useState, useEffect } from "react";
 import {
-  Trash,
   Droplets,
   Thermometer,
   CloudRain,
   ShowerHead,
   Sun,
-  User,
   Fan,
   Lightbulb,
   Droplet,
 } from "lucide-react";
-import { ToggleSwitch } from "../../../components/ToggleComponent/ToggleSwitch";
+import {
+  ModeSelector,
+  ToggleSwitch,
+} from "../../../components/ToggleComponent/ToggleSwitch";
 import {
   getGardenByDevice,
   getMemberByIdDevice,
   updateControlById,
-  removeMemberByIdDevice,
   uploadImage,
-  updateMemberRole,
 } from "../../../api/deviceApi";
-import {
-  apiResponseHandler,
-  areUSurePopup,
-  selectNewOwnerPopup,
-} from "../../../components/Alert/alertComponent";
+import { apiResponseHandler } from "../../../components/Alert/alertComponent";
+import i18n from "../../../i18n";
+import { MemberList } from "./MemberGarden";
 
 const GardenImage = ({ src, onImageClick }) => (
   <div className="flex justify-center items-center p-4 w-full">
@@ -62,87 +59,27 @@ const GardenImage = ({ src, onImageClick }) => (
   </div>
 );
 
-const SensorReading = ({ label, value, unit, icon }) => (
-  <div className="mx-2 my-3 flex justify-between items-center">
-    <div className="flex items-center space-x-2 min-w-[140px]">
-      <span className="text-xl">{icon}</span>
-      <p className="font-semibold text-gray-600 truncate">{label}:</p>
-    </div>
-    <div className="flex items-center space-x-1">
-      <p className="text-gray-800 font-medium min-w-[50px] text-right">
-        {value ?? "---"}
-      </p>
-      <p className="text-gray-500 text-sm">{unit}</p>
-    </div>
-  </div>
-);
-
-const MemberList = ({ members, onEdit, isOwner }) => (
-  // console.log(isOwner),
-  <div className="flex flex-col px-2">
-    {members.map((member, index) => (
-      <div
-        key={member.email || member.name || index}
-        className="border rounded-md px-3 py-2 my-2 flex justify-between items-center transition-all duration-200 bg-white border-gray-200 hover:shadow-md"
-      >
-        <div className="flex items-center space-x-2">
-          <span className="text-lg text-sky-500">
-            <User size={20} />
-          </span>
-          <div className="flex flex-col leading-tight">
-            <div className="flex items-center">
-              <span className="font-medium text-gray-800">
-                {member.name ?? "Unknown"}
-              </span>
-            </div>
-            <span className="text-sm text-gray-500">
-              {member.role ?? "no-role"}
-            </span>
-          </div>
-        </div>
-        {isOwner && member.role !== "owner" && (
-          <button
-            onClick={() => onEdit(member)}
-            className="text-rose-600 hover:text-rose-800 transition p-1 rounded-md hover:bg-rose-100"
-          >
-            <Trash size={16} className="text-red-600" />
-          </button>
-        )}
-      </div>
-    ))}
-  </div>
-);
-
-const ModeSelector = ({ currentMode, onChange }) => {
-  const modes = ["Thủ công", "Theo lịch", "Ngưỡng"];
-  const modeMap = {
-    "Thủ công": "manual",
-    "Theo lịch": "schedule",
-    Ngưỡng: "threshold",
-  };
+const SensorReading = ({ label, value, unit, icon }) => {
+  const formattedValue =
+    typeof value === "number" ? value.toFixed(2) : value ?? "---";
 
   return (
-    <div className="flex space-x-1 text-xs">
-      {modes.map((mode) => (
-        <button
-          key={mode}
-          className={`px-3 py-1 rounded-md transition-colors duration-200 font-medium
-            ${
-              currentMode === modeMap[mode] // Check against the API value
-                ? "bg-green-500 text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          onClick={() => onChange(modeMap[mode])} // Send API value on click
-        >
-          {mode.charAt(0).toUpperCase() + mode.slice(1)}{" "}
-          {/* Capitalize first letter */}
-        </button>
-      ))}
+    <div className="mx-2 my-3 flex justify-between items-center">
+      <div className="flex items-center space-x-2 min-w-[140px]">
+        <span className="text-xl">{icon}</span>
+        <p className="font-semibold text-gray-600 truncate">{label}:</p>
+      </div>
+      <div className="flex items-center space-x-1">
+        <p className="text-gray-800 font-medium min-w-[50px] text-right">
+          {formattedValue}
+        </p>
+        <p className="text-gray-500 text-sm">{unit}</p>
+      </div>
     </div>
   );
 };
 
-export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
+export const DetailedGardenInfo = ({ deviceId, isOwner, onRemoveMember }) => {
   const [loading, setLoading] = useState(true);
   const [gardenData, setGardenData] = useState(null);
   const [sensorsMap, setSensorsMap] = useState({});
@@ -150,9 +87,11 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
   // const [waterOn, setWaterOn] = useState(false);
   // const [lightOn, setLightOn] = useState(false);
   // const [windOn, setWindOn] = useState(false);
+  const allControlNames = ["water", "light", "wind"];
   const [controlModes, setControlModes] = useState({});
   const [controlStatuses, setControlStatuses] = useState({});
   const [isPolling, setIsPolling] = useState(true);
+  const [cooldowns, setCooldowns] = useState({});
 
   // Define all possible sensor types
   const allSensorTypes = [
@@ -163,32 +102,31 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
     "luminosity",
   ];
   // Define all possible control names
-  const allControlNames = ["water", "light", "wind"];
 
   const translateSensorType = (sensorType) => {
     const translationMap = {
       moisture: {
-        label: "Độ ẩm đất",
+        label: i18n.t("soil_moisture"),
         unit: "%",
         icon: <Droplets size={18} color="#38bdf8" />, // sky-400
       },
       temperature: {
-        label: "Nhiệt độ",
+        label: i18n.t("temperature"),
         unit: "°C",
         icon: <Thermometer size={18} color="#f87171" />, // red-400
       },
       humidity: {
-        label: "Độ ẩm không khí",
+        label: i18n.t("airHumidity"),
         unit: "%",
         icon: <CloudRain size={18} color="#60a5fa" />, // blue-400
       },
       stream: {
-        label: "Lưu lượng nước",
+        label: i18n.t("waterFlow"),
         unit: "m³/s",
         icon: <ShowerHead size={18} color="#34d399" />, // green-400
       },
       luminosity: {
-        label: "Cường độ ánh sáng",
+        label: i18n.t("light_intensity"),
         unit: "%",
         icon: <Sun size={18} color="#facc15" />, // yellow-400
       },
@@ -197,78 +135,81 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       translationMap[sensorType] || { label: sensorType, unit: "", icon: "🔍" }
     );
   };
+
   const fetchGardenData = async () => {
     if (!isPolling) return;
+
+    // Set cooldowns for all relevant control names before fetching
+    const newCooldowns = {};
+    allControlNames.forEach((name) => {
+      newCooldowns[name] = true;
+    });
+    setCooldowns((prev) => ({ ...prev, ...newCooldowns }));
 
     try {
       const res = await getGardenByDevice(deviceId);
       const device = res.data || {};
+
       // Get members and attach to device
       const result = await getMemberByIdDevice(deviceId);
       device.members = result.members || [];
       setGardenData(device);
 
-      // Map sensors by type for easy access
+      // Map sensors
       const tempSensorsMap = {};
       device.sensors?.forEach((sensor) => {
         tempSensorsMap[sensor.type] = sensor;
       });
       setSensorsMap(tempSensorsMap);
 
-      // Map controls by name for easy access and initialize modes and statuses
+      // Map controls and initialize
       const tempControlsMap = {};
       const initialModes = {};
       const initialStatuses = {};
-
       device.controls?.forEach((control) => {
         tempControlsMap[control.name] = control;
         initialModes[control.name] = control.mode || "manual";
         initialStatuses[control.name] = control.status || false;
       });
 
-      // Update states with new data
       setControlsMap(tempControlsMap);
       setControlModes(initialModes);
       setControlStatuses(initialStatuses);
 
-      // Set control statuses based on control data
-      const waterControl = device.controls?.find(
-        (control) => control.name === "water"
-      );
-      const lightControl = device.controls?.find(
-        (control) => control.name === "light"
-      );
-      const windControl = device.controls?.find(
-        (control) => control.name === "wind"
-      );
+      // Update control statuses individually
+      const waterControl = device.controls?.find((c) => c.name === "water");
+      const lightControl = device.controls?.find((c) => c.name === "light");
+      const windControl = device.controls?.find((c) => c.name === "wind");
 
-      // Update control statuses with actual values from API
       if (waterControl) {
-        // setWaterOn(waterControl.status);
         setControlStatuses((prev) => ({ ...prev, water: waterControl.status }));
       }
       if (lightControl) {
-        // setLightOn(lightControl.status);
         setControlStatuses((prev) => ({ ...prev, light: lightControl.status }));
       }
       if (windControl) {
-        // setWindOn(windControl.status);
         setControlStatuses((prev) => ({ ...prev, wind: windControl.status }));
       }
     } catch (error) {
       console.error("Error fetching garden data:", error);
     } finally {
       setLoading(false);
+
+      // Remove cooldowns after 2 seconds
+      setTimeout(() => {
+        const clearedCooldowns = {};
+        allControlNames.forEach((name) => {
+          clearedCooldowns[name] = false;
+        });
+        setCooldowns((prev) => ({ ...prev, ...clearedCooldowns }));
+      }, 0.5);
     }
   };
-
   useEffect(() => {
     // Initial fetch
     fetchGardenData();
-
     // Set up polling
-    const intervalId = setInterval(fetchGardenData, 1000); // Fetch every 1 second
-
+    const intervalId = setInterval(fetchGardenData, 2000); // Fetch every 1 second
     // Cleanup
     return () => {
       clearInterval(intervalId);
@@ -278,23 +219,27 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
 
   // Handler for toggling control status
   const handleStatusToggle = async (controlName, controlId) => {
+    if (cooldowns[controlName]) return; // Ignore if in cooldown
+
+    setCooldowns((prev) => ({
+      ...prev,
+      [controlName]: true,
+      [getOtherControlName(controlName)]: true,
+    }));
+
     const currentStatus = controlStatuses[controlName];
     const newStatus = !currentStatus;
 
-    // Optimistically update the UI
     setControlStatuses((prev) => ({
       ...prev,
       [controlName]: newStatus,
     }));
-
-    // Switch mode to manual when toggling status
     setControlModes((prev) => ({
       ...prev,
       [controlName]: "manual",
     }));
 
     try {
-      // Update both status and mode in one API call
       await updateControlById({
         id_esp: deviceId,
         controlId: controlId,
@@ -304,40 +249,46 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
         },
       });
     } catch (error) {
-      // Revert on error
       setControlStatuses((prev) => ({
         ...prev,
         [controlName]: currentStatus,
       }));
+
       apiResponseHandler(
         "Failed to update control status. Please try again.",
         "error"
       );
+    } finally {
+      setTimeout(() => {
+        setCooldowns((prev) => ({
+          ...prev,
+          [controlName]: false,
+          [getOtherControlName(controlName)]: false,
+        }));
+      }, 1000);
     }
   };
 
-  // Handler for changing control mode
   const handleModeChange = async (controlName, controlId, newMode) => {
+    if (cooldowns[controlName]) return;
+
+    setCooldowns((prev) => ({
+      ...prev,
+      [controlName]: true,
+      [getOtherControlName(controlName)]: true,
+    }));
+
     const currentMode = controlModes[controlName];
-    // Only proceed if the mode is actually changing
     if (currentMode === newMode) return;
 
-    // Optimistically update the local state
     setControlModes((prev) => ({
       ...prev,
       [controlName]: newMode,
     }));
-
-    // Turn off the control when changing modes
     setControlStatuses((prev) => ({
       ...prev,
       [controlName]: false,
     }));
-
-    // Update specific control state
-    // if (controlName === "water") setWaterOn(false);
-    // if (controlName === "light") setLightOn(false);
-    // if (controlName === "wind") setWindOn(false);
 
     try {
       await updateControlById({
@@ -345,11 +296,10 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
         controlId: controlId,
         data: {
           mode: newMode,
-          status: false, // Turn off the control
+          status: false,
         },
       });
     } catch (error) {
-      // Revert on error
       setControlModes((prev) => ({
         ...prev,
         [controlName]: currentMode,
@@ -358,78 +308,32 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
         ...prev,
         [controlName]: controlStatuses[controlName],
       }));
-      // Revert specific control state
-      // if (controlName === "water") setWaterOn(controlStatuses.water);
-      // if (controlName === "light") setLightOn(controlStatuses.light);
-      // if (controlName === "wind") setWindOn(controlStatuses.wind);
 
       apiResponseHandler(
-        `Failed to update mode for ${controlName}. Please try again.`
+        `Failed to update mode for ${controlName}. Please try again.`,
+        "error"
       );
+    } finally {
+      setTimeout(() => {
+        setCooldowns((prev) => ({
+          ...prev,
+          [controlName]: false,
+          [getOtherControlName(controlName)]: false,
+        }));
+      }, 2000);
     }
   };
 
-  const handleRemoveMember = async (member) => {
-    if (!member?.userId) {
-      apiResponseHandler("Không thể xác định thành viên cần xóa", "error");
+  // Utility function to get the other control name (status or mode)
+  const getOtherControlName = (controlName) => {
+    return controlName === "status" ? "mode" : "status";
+  };
+
+  const handleImageClick = async (isOwner) => {
+    if (!isOwner) {
+      apiResponseHandler("Chỉ chủ sở hữu mới có thể thay đổi ảnh", "error");
       return;
     }
-    try {
-      const isCurrentUserOwner = gardenData.members.some(
-        (m) => m.role === "owner" && m.userId === member.userId
-      );
-      const totalMembers = gardenData.members.length;
-
-      // If owner is leaving and there are other members
-      if (isCurrentUserOwner && totalMembers > 1) {
-        try {
-          // First, select new owner
-          const newOwner = await selectNewOwnerPopup(gardenData.members);
-          // Update the new owner's role first
-          await updateMemberRole(deviceId, newOwner.userId);
-          // Then proceed with removing the current owner
-          await areUSurePopup(`Bạn có chắc chắn muốn rời khỏi khu vườn?`);
-        } catch (error) {
-          if (error === "cancelled") return;
-          apiResponseHandler("Không thể thay đổi chủ vườn", "error");
-          return;
-        }
-      } else {
-        // For non-owners or owner leaving empty garden
-        await areUSurePopup(
-          `Bạn có chắc chắn muốn ${
-            isCurrentUserOwner ? "rời khỏi" : "xóa thành viên khỏi"
-          } khu vườn ?`
-        );
-      }
-      const response = await removeMemberByIdDevice(deviceId, member.userId);
-      if (response.success) {
-        apiResponseHandler(
-          isCurrentUserOwner
-            ? "Bạn đã rời khỏi khu vườn thành công"
-            : "Đã xóa thành viên khỏi thiết bị",
-          "success"
-        );
-        // Refresh garden data to update members list
-        fetchGardenData();
-      } else {
-        apiResponseHandler(
-          response.message || "Không thể xóa thành viên",
-          "error"
-        );
-        fetchGardenData();
-      }
-    } catch (error) {
-      if (error === "cancelled") {
-        return;
-      }
-      // console.error("Error removing member:", error);
-      fetchGardenData();
-      apiResponseHandler("Không thể xóa thành viên", "error");
-    }
-  };
-
-  const handleImageClick = async () => {
     try {
       // Create a file input element
       const input = document.createElement("input");
@@ -513,17 +417,20 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       {/* Image Section */}
       <div className="col-span-1 flex flex-col md:border-r">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Hình ảnh
+          {i18n.t("image")}
         </h2>
-        <GardenImage src={imageUrl} onImageClick={handleImageClick} />
+        <GardenImage
+          src={imageUrl}
+          onImageClick={() => handleImageClick(isOwner)}
+        />
       </div>
 
       {/* Sensor Section */}
-      <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-2">
+      <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col justify-center space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Cảm biến
+          {i18n.t("sensor")}
         </h2>
-        <div className="flex flex-col">
+        <div className="flex flex-col flex-grow justify-center">
           {displayedSensors.map(({ label, value, unit, icon }, index) => (
             <SensorReading
               key={index}
@@ -539,7 +446,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       {/* Control Section */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Điều khiển
+          {i18n.t("control")}
         </h2>
         <div className="flex flex-col items-center mt-2 w-full">
           {displayedControls.map(
@@ -556,13 +463,11 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
                       <Fan size={18} className="text-green-400" />
                     )}
                     {name === "water"
-                      ? "Nước"
+                      ? i18n.t("water")
                       : name === "light"
-                      ? "Đèn"
-                      : "Gió"}
-                    :
+                      ? i18n.t("light")
+                      : i18n.t("wind")}
                   </span>
-
                   {/* Toggle with conditional blur + tooltip */}
                   <div
                     className={`transition-all duration-200 ${
@@ -573,7 +478,8 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
                     <ToggleSwitch
                       isOn={status}
                       onToggle={() => exists && handleStatusToggle(name, _id)}
-                      disabled={!exists}
+                      disabled={!exists || cooldowns[name]}
+                      isLoading={cooldowns[name]} // Pass cooldown state to show opacity change
                     />
                   </div>
                 </div>
@@ -581,7 +487,7 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
                 {/* ModeSelector with conditional blur + tooltip */}
                 <div className="flex justify-between items-center w-full">
                   <span className="text-sm text-green-600 font-medium">
-                    Chế độ:
+                    {i18n.t("mode")}
                   </span>
                   <div
                     className={`transition-all duration-200 ${
@@ -594,7 +500,8 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
                       onChange={(newMode) =>
                         exists && handleModeChange(name, _id, newMode)
                       }
-                      disabled={!exists}
+                      disabled={!exists || cooldowns[name]}
+                      isLoading={cooldowns[name]} // Pass cooldown state to show opacity change
                     />
                   </div>
                 </div>
@@ -611,12 +518,12 @@ export const DetailedGardenInfo = ({ deviceId, isOwner }) => {
       {/* Member Section */}
       <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-2">
         <h2 className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Thành viên
+          {i18n.t("member")}
         </h2>
-        <div className="flex flex-col">
+        <div className="flex-1 overflow-y-auto px-4 space-y-2">
           <MemberList
             members={gardenData.members}
-            onEdit={handleRemoveMember}
+            onEdit={onRemoveMember}
             isOwner={isOwner}
           />
         </div>
@@ -631,7 +538,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Image Section Skeleton */}
       <div className="col-span-1 flex flex-col md:border-r">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Hình ảnh
+          {i18n.t("image")}
         </div>
         <div className="h-48 bg-gray-200 rounded-lg m-4"></div>
       </div>
@@ -639,7 +546,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Sensor Section Skeleton */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-4">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Cảm biến
+          {i18n.t("sensor")}
         </div>
         <div className="flex flex-col px-4 space-y-2">
           {[...Array(3)].map((_, i) => (
@@ -651,7 +558,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Control Section Skeleton */}
       <div className="col-span-1 md:border-r border-gray-200 h-full min-h-[200px] flex flex-col space-y-4">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Điều khiển
+          {i18n.t("control")}
         </div>
         <div className="flex flex-col items-center mt-2 w-full px-4 space-y-4">
           {[...Array(2)].map((_, i) => (
@@ -670,7 +577,7 @@ export const DetailedGardenInfoSkeleton = () => {
       {/* Member Section Skeleton */}
       <div className="col-span-1 h-full min-h-[200px] flex flex-col space-y-4">
         <div className="text-lg font-bold text-center py-2 px-2 border-b mx-4 border-green-400 text-green-800 uppercase tracking-wide">
-          Thành viên
+          {i18n.t("member")}
         </div>
         <div className="flex flex-col px-4 space-y-3">
           {[...Array(3)].map((_, i) => (

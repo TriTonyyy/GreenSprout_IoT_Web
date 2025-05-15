@@ -6,6 +6,11 @@ export const sendCodeApi = async (email) => {
     return response.data;  // Return the data from the API response
 };
 
+export const sendCodeResetApi = async (email) => {
+    const response = await axiosClient.get(`/api/user/sendCodeReset/${email}`);
+    return response.data;  // Return the data from the API response
+};
+
 // Function to verify OTP
 export const verifyOtpApi = async (payload) => {
     const response = await axiosClient.post(`/api/user/verifyOTP`, payload);
@@ -45,6 +50,12 @@ export const logOutAPI = async (gardenId) => {
 // Function to change password user 
 export const changePasswordAPI = async (payload) => {
     const response = await axiosClient.put(`/api/user/changePassword`, payload);
+    return response.data;  // Return the data from the API response
+};
+
+// Function to change password user 
+export const resetPasswordAPI = async (payload) => {
+    const response = await axiosClient.post(`/api/user/resetPassword`, payload);
     return response.data;  // Return the data from the API response
 };
 
