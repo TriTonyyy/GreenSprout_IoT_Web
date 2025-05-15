@@ -146,6 +146,7 @@
   "updateIrrigationStatusError": "Lỗi khi cập nhật trạng thái lịch",
   "confirmRemoveFromBlockList": "Bạn có chắc chắn muốn xóa {{memberName}} khỏi danh sách chặn?",
   "removedFromBlockList": "Đã xóa \"{{name}}\" khỏi danh sách chặn",
+  "add_to_ban_list":"Bạn có muốn thêm {{memberName}} vào danh sách chặn?",
   "cannotDeleteMember": "Không thể xóa thành viên",
   "viewOnlySettings": "Bạn có thể xem nhưng không thể thay đổi cài đặt",
   "controlFanBasedOnTemperature": "Điều khiển quạt dựa trên nhiệt độ",
@@ -185,6 +186,6 @@
   "leaveSuccess": "Rời thành công!",
   "uHaveLeave": "Bạn đã rời khỏi khu vườn.",
   "enterNewGardenName":"Vui lòng nhập tên mới cho khu vườn",
-  "qr_caption": "Ứng dụng di động của GreenSpout cho Android"
-
+  "qr_caption": "Ứng dụng di động của GreenSpout cho Android",
+  "remove_from_ban_list":"Đã xóa {{memberName}} khỏi thiết bịbị"
 }

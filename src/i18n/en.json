@@ -185,5 +185,8 @@
   "leaveSuccess": "Leave successfully!",
   "uHaveLeave": "You have left the garden.",
   "enterNewGardenName":"Please enter a new name for the garden",
-  "qr_caption": "GreenSpout's mobile app for android"
+  "qr_caption": "GreenSpout's mobile app for android",
+  "add_to_ban_list":"Do you want to add {{memberName}} into ban list ?",
+  "remove_from_ban_list":"Remove {{memberName}} from the garden"
+
 }

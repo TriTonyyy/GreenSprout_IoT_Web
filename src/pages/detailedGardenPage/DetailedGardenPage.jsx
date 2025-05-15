@@ -241,13 +241,13 @@ function DetailedGarden() {
     try {
       // First confirmation: Remove member
       const confirmRemove = await areUSurePopup(
-        `Bạn có chắc chắn muốn xóa <strong style="color: #dc2626;">${member.name}</strong> khỏi thiết bị?`,
+        i18n.t("confirmRemoveFromBlockList", {memberName:member.name}),
         "warning" // Showing a warning message
       );
       if (confirmRemove) {
         // Second confirmation: Block member
         const confirmBlock = await areUSurePopup(
-          `Bạn có muốn thêm <strong style="color: #dc2626;">${member.name}</strong> vào danh sách chặn?`,
+          i18n.t("add_to_ban_list", {memberName:member.name}),
           "question" // Showing a question message
         );
         // console.log(confirmBlock);
@@ -260,7 +260,7 @@ function DetailedGarden() {
           const blockRes = await addBlockMember(gardenId, member.userId);
           if ( blockRes) {
             apiResponseHandler(
-              `Đã xóa "${member.name}" khỏi thiết bị`,
+              i18n.t("remove_from_ban_list", {memberName:member.name}),
               "success"
             );
           }
@@ -274,7 +274,7 @@ function DetailedGarden() {
           );
           if (response) {
             apiResponseHandler(
-              `Đã xóa "${member.name}" khỏi thiết bị`,
+              i18n.t("remove_from_ban_list", {memberName:member.name}),
               "success"
             );
           }
