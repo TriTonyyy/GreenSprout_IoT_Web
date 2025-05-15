@@ -7,6 +7,12 @@ import { UserCredential } from "../../redux/Reducers/AuthReducer";
 import i18n from '../../i18n';
 import { apiResponseHandler } from '../../components/Alert/alertComponent';
 
+const LoadingSpinner = () => (
+      <div className="flex justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+
 
 function AuthEmail({isTypeOTP, isForgetPassword}) {
     const dispatch = useDispatch();
@@ -16,6 +22,8 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
   const min2 = 120
   const [otp, setOtp] = useState('')
     console.log("isTypeOTP " + isTypeOTP, isForgetPassword + ' forget pass');
+
+    const [isLoading, setIsLoading] = useState(false);
     
   const navigate = useNavigate();
 
@@ -46,6 +54,7 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
 };
 
   const sendOTP = async ()=>{
+    setIsLoading(true);
     if(!emailRegex.test(email)){
       apiResponseHandler(i18n.t("enter_valid_email"), "error")
     } else {
@@ -55,22 +64,26 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
             await sendCodeResetApi(email)
                 .then((res)=>{
                     console.log(res, "send code");
+                    setIsLoading(false)
                     apiResponseHandler(res.message)
                     navigate('/otp-forget-pass')
                 })
                 .catch((err)=>{
                     console.log(err);
+                    setIsLoading(false);
                     apiResponseHandler(err.response.data.message, "error")
                 })
         } else {
             await sendCodeApi(email)
                 .then((res)=>{
                     console.log(res, "send code");
+                    setIsLoading(false)
                     apiResponseHandler(res.message)
                     navigate('/otp')
                 })
                 .catch((err)=>{
                     console.log(err);
+                    setIsLoading(false)
                     apiResponseHandler(err.response.data.message, "error")
                 })
         }
@@ -78,22 +91,26 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
   }
 
   const verifyOTP = async ()=>{
+    setIsLoading(true);
     if(isForgetPassword){
         await verifyOtpApi({email, code:otp})
         .then((res)=>{
             setOtp('');
+            setIsLoading(false)
             apiResponseHandler(res.message)
             navigate('/new-password')
         })
         .catch((err)=>{
             console.log(err);
+            setIsLoading(false)
             apiResponseHandler(err.response.data.message, "error")
         })  
     } else {
         await verifyOtpApi({email, code:otp})
         .then( async(res)=>{
             setOtp('');
-            apiResponseHandler(res.message, "error")
+            setIsLoading(false)
+            apiResponseHandler(res.message)
             await registerApi({
             name:userCre.name,
             email:userCre.email,
@@ -110,6 +127,7 @@ function AuthEmail({isTypeOTP, isForgetPassword}) {
         })
         .catch((err)=>{
             console.log(err);
+            setIsLoading(false)
             apiResponseHandler(err.response.data.message, "error")
         })
     

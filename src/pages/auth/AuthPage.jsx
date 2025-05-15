@@ -10,6 +10,7 @@ import { apiResponseHandler } from "../../components/Alert/alertComponent";
 import i18n from "../../i18n";
 
 function AuthPage({ isLogin }) {
+  const [isLoading, setIsLoading ] = useState(false);
   const userCre = useSelector(getUserCredential);
   const [name, setName] = useState("");
   const [email, setEmail] = useState(userCre?.email ? userCre.email : "");
@@ -20,12 +21,14 @@ function AuthPage({ isLogin }) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const signIn = () => {
+    setIsLoading(true);
     if (!emailRegex.test(email)){
       apiResponseHandler(i18n.t("enter_valid_email"), "error")
     } else {
       dispatch(UserCredential({ email, password, name }));
       loginApi({ email, password, deviceID: deviceInfo.userAgent })
         .then((res) => {
+          setIsLoading(false)
           setToken(res.data);
           setRole(res.role);
   
@@ -37,19 +40,25 @@ function AuthPage({ isLogin }) {
           }
         })
         .catch((err) => {
+          setIsLoading(false)
           apiResponseHandler(err.response.data.message,"error");
         });
     }
   };
 
   const register = () => {
+    setIsLoading(true)
     if (password.length < 8) {
+      setIsLoading(false)
       apiResponseHandler(i18n.t("password_min_length"), "error")
     } else if (!emailRegex.test(email)){
+      setIsLoading(false)
       apiResponseHandler(i18n.t("enter_valid_email"), "error")
     } else if(!name){
+      setIsLoading(false)
       apiResponseHandler(i18n.t("enter_valid_username"), "error")
     } else {
+      setIsLoading(false)
       dispatch(UserCredential({ email, password, name }));
       navigate("/register-email");
     }
@@ -123,6 +132,7 @@ function AuthPage({ isLogin }) {
             </a>
           )}
           <button
+          disabled={isLoading}
             className="bg-blue-500 text-white p-2 m-2 rounded-xl bg-green-700"
             onClick={isLogin ? signIn : register}
           >
@@ -155,6 +165,10 @@ function AuthPage({ isLogin }) {
           )}
         </div>
       </div>
+        <div className="w-[10%] self-start bottom-0 left-0 absolute ml-10 mb-10 rounded bg-green-800 text-center p-4 rounded-2xl">
+          <img className="w-full rounded" src={require("../../assets/images/QR-code.jpg")}/>
+          <h1 className="w-full text-white font-semibold text-center w-1/10 h-1/10 mt-4">{i18n.t("qr_caption")}</h1>
+        </div>
     </div>
   );
 }

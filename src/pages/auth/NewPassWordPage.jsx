@@ -38,7 +38,7 @@ function NewPassWordPage({isTypeOTP, isForgetPassword}) {
             navigate("/login") 
         })
         .catch((err)=>{
-            apiResponseHandler(err.response.data.message);
+            apiResponseHandler(err.response.data.message, "error");
         })
     }
   }

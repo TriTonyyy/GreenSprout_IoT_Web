@@ -102,12 +102,12 @@ function HomePage() {
                   </span>
                 </h1>
                 <div className="flex items-center gap-4">
-                  <button
+                  {/* <button
                     className="bg-gray-700 text-white rounded-2xl p-2"
                     onClick={fetchUserDevices}
                   >
                     <RefreshCcw size={24} />
-                  </button>
+                  </button> */}
                   {deviceData && deviceData.length < 9 && (
                     <button
                       className="bg-green-700 text-white rounded-2xl p-2"
