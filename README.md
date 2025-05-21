@@ -1,4 +1,7 @@
 # <img src="src/assets/images/TreePlanting.png" alt="GreenSprout Logo" width="48" style="vertical-align: middle; display: inline-block;"/> IoT GreenSprout Capstone with Web Application
+Related Repositoty
+GreenSprout_IoT_Firmware: https://github.com/TriTonyyy/GreenSprout_Iot_Firmware
+GreenSprout_IoT_Mobile(Android): https://github.com/TriTonyyy/GreenSprout_IoT_Mobile
 
 ## 🚀 Live Demo
 
